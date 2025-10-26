@@ -1,0 +1,13 @@
+AI Converter Toolkit (Sideboard)
+---------------------------------
+
+Backend: FastAPI (Python)
+Frontend: StaticFiles (HTML/JS, erweiterbar)
+
+Features:
+- Screenshot/Text zu Word, PDF, JPG, 3D
+- Erweiterbar für neue Konverter
+
+Start: Siehe README.md
+
+Sicherheit: Keine Secrets im Code, nur Umgebungsvariablen!

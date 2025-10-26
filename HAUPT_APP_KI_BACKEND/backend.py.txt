@@ -1,0 +1,41 @@
+# Importiere notwendige Bibliotheken
+from flask import Flask, jsonify
+from flask_cors import CORS
+import os
+
+# Erstelle die Flask-Anwendung
+app = Flask(__name__)
+
+# Konfiguriere CORS, um Anfragen von jedem Frontend zu erlauben (für Entwicklungsumgebung)
+# WARNUNG: In einer Produktionsumgebung sollte dies auf spezifische Domänen beschränkt werden!
+CORS(app)
+
+# -----------------------------------------------------
+# API Endpunkt
+# -----------------------------------------------------
+@app.route('/api/hello', methods=['GET'])
+def get_hello_data():
+    """
+    Ein einfacher Endpunkt, der eine JSON-Antwort zurückgibt.
+    Dieser kann vom Frontend aufgerufen werden, um die Verbindung zu testen.
+    """
+    print("Anfrage am /api/hello Endpunkt empfangen.")
+    
+    response_data = {
+        "message": "Hallo vom Python-Backend! Die Verbindung ist erfolgreich.",
+        "status": "OK",
+        "api_version": "1.0"
+    }
+    
+    return jsonify(response_data)
+
+# -----------------------------------------------------
+# Server starten
+# -----------------------------------------------------
+if __name__ == '__main__':
+    # Standardmäßig Port 5000 verwenden
+    port = int(os.environ.get('PORT', 5000))
+    print(f"Flask Server wird auf http://127.0.0.1:{port} gestartet...")
+    
+    # Debug=True sollte nur in der Entwicklungsumgebung verwendet werden
+    app.run(debug=True, port=port)

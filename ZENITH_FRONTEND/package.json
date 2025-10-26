@@ -1,0 +1,19 @@
+{
+  "name": "zenith-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Zenith SCSC Master Kontrollzentrum (KI & Keys) – React-Komponente für Key-Management, NFT-Telemetrie und Biometrie-Tresor.",
+  "main": "ZenithKeyController.jsx",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build"
+  },
+  "dependencies": {
+    "react": "^18.0.0",
+    "firebase": "^10.0.0",
+    "lucide-react": "^0.292.0"
+  },
+  "devDependencies": {
+    "react-scripts": "^5.0.1"
+  }
+}

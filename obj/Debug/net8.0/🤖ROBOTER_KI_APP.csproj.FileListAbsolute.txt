@@ -1,0 +1,4 @@
+C:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\obj\Debug\net8.0\🤖ROBOTER_KI_APP.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\obj\Debug\net8.0\🤖ROBOTER_KI_APP.AssemblyInfoInputs.cache
+C:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\obj\Debug\net8.0\🤖ROBOTER_KI_APP.AssemblyInfo.cs
+C:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\obj\Debug\net8.0\🤖ROBOTER_KI_APP.csproj.CoreCompileInputs.cache

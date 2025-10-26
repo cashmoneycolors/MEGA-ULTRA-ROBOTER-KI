@@ -1,0 +1,31 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Starte 🤖ROBOTER_KI_APP.exe",
+			"type": "shell",
+			"command": "dotnet run --project 🤖ROBOTER_KI_APP.cs",
+			"args": [],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Starte 🤖ROBOTER_KI_APP.csproj",
+			"type": "shell",
+			"command": "dotnet run --project 🤖ROBOTER_KI_APP.csproj",
+			"args": [],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build MegaUltraAIIntegrator",
+			"type": "shell",
+			"command": "dotnet build AI_CORE/MegaUltraAIIntegrator.csproj",
+			"isBackground": false,
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"group": "build"
+		}
+	]
+}

@@ -1,0 +1,19 @@
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\CleanAI\bin\Debug\net9.0\CleanAI.exe
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\CleanAI\bin\Debug\net9.0\CleanAI.deps.json
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\CleanAI\bin\Debug\net9.0\CleanAI.runtimeconfig.json
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\CleanAI\bin\Debug\net9.0\CleanAI.dll
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\CleanAI\bin\Debug\net9.0\CleanAI.pdb
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\CleanAI\obj\Debug\net9.0\CleanAI.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\CleanAI\obj\Debug\net9.0\CleanAI.AssemblyInfoInputs.cache
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\CleanAI\obj\Debug\net9.0\CleanAI.AssemblyInfo.cs
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\CleanAI\obj\Debug\net9.0\CleanAI.csproj.CoreCompileInputs.cache
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\CleanAI\obj\Debug\net9.0\CleanAI.dll
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\CleanAI\obj\Debug\net9.0\refint\CleanAI.dll
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\CleanAI\obj\Debug\net9.0\CleanAI.pdb
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\CleanAI\obj\Debug\net9.0\CleanAI.genruntimeconfig.cache
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\CleanAI\obj\Debug\net9.0\ref\CleanAI.dll
+C:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\AI_CORE\CleanAI\obj\Debug\net9.0\CleanAI.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\AI_CORE\CleanAI\obj\Debug\net9.0\CleanAI.csproj.CoreCompileInputs.cache
+C:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\AI_CORE\CleanAI\obj\Debug\net9.0\CleanAI.dll
+C:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\AI_CORE\CleanAI\obj\Debug\net9.0\refint\CleanAI.dll
+C:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\AI_CORE\CleanAI\obj\Debug\net9.0\CleanAI.pdb

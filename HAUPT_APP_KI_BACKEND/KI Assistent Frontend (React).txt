@@ -1,0 +1,530 @@
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
+import { Send, Mic, StopCircle, Volume2, Copy } from 'lucide-react';
+
+// --- Globale Variablen für Canvas (MANDATORY USE) ---
+// Diese Variablen werden von der Canvas-Umgebung bereitgestellt
+const GLOBAL_CONFIG = {
+    appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app-id',
+    firebaseConfig: typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {},
+    initialAuthToken: typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null
+};
+
+// --- Hilfsfunktionen für Audio (PCM zu WAV Konvertierung im Backend) ---
+// Im Frontend benötigen wir nur die Funktion zur Lautstärkeregelung.
+
+/**
+ * Konfiguriert den AudioContext, um die Lautstärke zu steuern.
+ * @param {AudioContext} context
+ * @param {AudioBuffer} buffer
+ * @param {number} volume
+ */
+const playBuffer = (context, buffer, volume) => {
+    const source = context.createBufferSource();
+    source.buffer = buffer;
+
+    const gainNode = context.createGain();
+    gainNode.gain.value = volume;
+
+    source.connect(gainNode);
+    gainNode.connect(context.destination);
+    source.start(0);
+};
+
+// --- Haupt-App Komponente ---
+
+const App = () => {
+    // --- Zustand ---
+    const [apiKey, setApiKey] = useState(null);
+    const [userId, setUserId] = useState(null);
+    const [authStatus, setAuthStatus] = useState('Authentifiziere...');
+    const [chatHistory, setChatHistory] = useState([]);
+    const [inputPrompt, setInputPrompt] = useState('');
+    const [isSending, setIsSending] = useState(false);
+    const [isRecording, setIsRecording] = useState(false);
+    const [volume, setVolume] = useState(1.0); // Lautstärke-Zustand (0.0 bis 1.0)
+    const [isAuthReady, setIsAuthReady] = useState(false);
+
+    // --- Refs für Firebase und Audio ---
+    const dbRef = useRef(null);
+    const authRef = useRef(null);
+    const audioContextRef = useRef(null);
+    const mediaRecorderRef = useRef(null);
+    const audioChunksRef = useRef([]);
+    const messageContainerRef = useRef(null);
+
+    // --- Firebase Initialisierung und Authentifizierung (useEffect mit []) ---
+    useEffect(() => {
+        if (!GLOBAL_CONFIG.firebaseConfig || !GLOBAL_CONFIG.firebaseConfig.apiKey) {
+            setAuthStatus('FEHLER: Firebase Konfiguration fehlt.');
+            return;
+        }
+
+        const app = initializeApp(GLOBAL_CONFIG.firebaseConfig);
+        dbRef.current = getFirestore(app);
+        authRef.current = getAuth(app);
+
+        const unsubscribe = onAuthStateChanged(authRef.current, async (user) => {
+            if (user) {
+                setUserId(user.uid);
+                setAuthStatus(`Verbunden (UID: ${user.uid.substring(0, 8)}...)`);
+                
+                // API Key abrufen, sobald der Benutzer authentifiziert ist
+                await fetchApiKey(user.uid, dbRef.current);
+            } else {
+                // Bei initialem Start anmelden
+                try {
+                    if (GLOBAL_CONFIG.initialAuthToken) {
+                        await signInWithCustomToken(authRef.current, GLOBAL_CONFIG.initialAuthToken);
+                    } else {
+                        await signInAnonymously(authRef.current);
+                    }
+                } catch (error) {
+                    console.error("Fehler bei der Authentifizierung:", error);
+                    setAuthStatus(`Fehler beim Login: ${error.code}`);
+                }
+            }
+            setIsAuthReady(true);
+        });
+
+        // Audio Context initialisieren
+        audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+
+        return () => unsubscribe();
+    }, []);
+
+    // --- Chat-Scrollen beim Hinzufügen einer Nachricht ---
+    useEffect(() => {
+        if (messageContainerRef.current) {
+            messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+        }
+    }, [chatHistory]);
+
+    // --- Firestore API Key Logik ---
+
+    const getApiKeyDocRef = (uid, dbInstance) => {
+        // Privater Pfad: /artifacts/{appId}/users/{userId}/api_keys/key_document
+        return doc(dbInstance, `/artifacts/${GLOBAL_CONFIG.appId}/users/${uid}/api_keys/key_document`);
+    };
+
+    const fetchApiKey = async (uid, dbInstance) => {
+        try {
+            const docRef = getApiKeyDocRef(uid, dbInstance);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists() && docSnap.data().key) {
+                setApiKey(docSnap.data().key);
+            } else {
+                console.log('Kein API Key gefunden.');
+            }
+        } catch (error) {
+            console.error("Fehler beim Abrufen des API Keys:", error);
+        }
+    };
+
+    const handleGenerateKey = async () => {
+        if (!userId || !dbRef.current) {
+            // NOTE: Changing alert to console.error as per instructions
+            console.error('Warten auf Authentifizierung...');
+            return;
+        }
+
+        setIsSending(true);
+        
+        try {
+            // Backend-Aufruf zur kryptografisch sicheren Schlüsselgenerierung
+            // Verwende window.location.origin für die absolute URL
+            const response = await fetch(`${window.location.origin}/api/manage_key`, { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: userId })
+            });
+            
+            // FIX: Prüfen, ob die Antwort erfolgreich ist, bevor versucht wird, sie als JSON zu parsen.
+            if (response.ok) {
+                const data = await response.json();
+                const newKey = data.key;
+                
+                // Im Frontend in Firestore speichern
+                const docRef = getApiKeyDocRef(userId, dbRef.current);
+                await setDoc(docRef, { 
+                    key: newKey, 
+                    userId: userId,
+                    createdAt: Date.now()
+                });
+
+                setApiKey(newKey);
+                setChatHistory(prev => [...prev, { sender: 'system', text: 'Neuer API Key generiert und in Firestore gespeichert.' }]);
+            } else {
+                // Bei Fehlern (Status != 200), die Antwort als Text lesen, um SyntaxError zu vermeiden
+                const errorText = await response.text();
+                console.error(`API Key Generierungsfehler - Status ${response.status}:`, errorText);
+
+                // Benutzerfreundlichere Fehlermeldung
+                setChatHistory(prev => [...prev, { 
+                    sender: 'error', 
+                    text: `Fehler beim Generieren (Status ${response.status}). Der Server hat den Endpunkt /api/manage_key nicht gefunden (404). Backend-Implementierung fehlt.` 
+                }]);
+            }
+        } catch (error) {
+            // Dieser Catch-Block fängt nun primär Netzwerkfehler oder JSON.parse-Fehler auf,
+            // wenn der Server selbst eine ungültige oder nicht-JSON-Antwort sendet, 
+            // die wir nicht als Text abfangen konnten.
+            console.error("Fehler beim API Key Generierungsprozess:", error);
+            setChatHistory(prev => [...prev, { 
+                sender: 'error', 
+                text: 'Netzwerkfehler oder ungültige Antwort: Konnte Antwort nicht verarbeiten (möglicherweise HTML-Fehlerseite vom Server).' 
+            }]);
+        } finally {
+            setIsSending(false);
+        }
+    };
+
+    const handleCopyKey = () => {
+        if (apiKey) {
+            navigator.clipboard.writeText(apiKey).then(() => {
+                setChatHistory(prev => [...prev, { sender: 'system', text: 'API Key in Zwischenablage kopiert.' }]);
+            }).catch(err => {
+                console.error('Kopieren fehlgeschlagen', err);
+                setChatHistory(prev => [...prev, { sender: 'error', text: 'Kopieren fehlgeschlagen. Bitte manuell kopieren.' }]);
+            });
+        }
+    };
+
+    // --- Chat und KI Interaktion ---
+
+    const playAudioResponse = useCallback(async (text) => {
+        if (!apiKey) return;
+
+        try {
+            // Verwende window.location.origin für die absolute URL
+            const response = await fetch(`${window.location.origin}/api/tts`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-API-Key': apiKey 
+                },
+                body: JSON.stringify({ text: text })
+            });
+
+            if (response.ok) {
+                const audioData = await response.arrayBuffer();
+                // Dekodieren und Abspielen nur, wenn der Kontext aktiv ist
+                if (audioContextRef.current.state === 'suspended') {
+                    await audioContextRef.current.resume();
+                }
+                audioContextRef.current.decodeAudioData(audioData, (buffer) => {
+                    playBuffer(audioContextRef.current, buffer, volume);
+                });
+
+            } else {
+                console.error("TTS-Fehler:", response.statusText);
+            }
+        } catch (error) {
+            console.error("Fehler bei der Audio-Wiedergabe:", error);
+        }
+    }, [apiKey, volume]);
+
+    const handleChatSubmit = useCallback(async (promptText) => {
+        if (!apiKey) {
+            setChatHistory(prev => [...prev, { sender: 'error', text: 'Bitte generieren Sie zuerst Ihren API Key.' }]);
+            return;
+        }
+
+        const trimmedPrompt = promptText.trim();
+        if (!trimmedPrompt) return;
+
+        // 1. UI und Verlauf aktualisieren
+        setChatHistory(prev => [...prev, { sender: 'user', text: trimmedPrompt }]);
+        setInputPrompt('');
+        setIsSending(true);
+
+        try {
+            // 2. Gesicherter API-Aufruf
+            // Verwende window.location.origin für die absolute URL
+            const response = await fetch(`${window.location.origin}/api/chat`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-API-Key': apiKey 
+                },
+                // Sende nur den Text und den Sender für den Verlauf (Tool Calls werden vom Backend verwaltet)
+                body: JSON.stringify({ 
+                    prompt: trimmedPrompt, 
+                    history: chatHistory.filter(msg => msg.sender !== 'system' && msg.sender !== 'error').map(msg => ({ sender: msg.sender, text: msg.text }))
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                const aiText = data.text.trim();
+                setChatHistory(prev => [...prev, { sender: 'ai', text: aiText }]);
+                
+                // 3. Autonome Sprachausgabe (TTS)
+                await playAudioResponse(aiText);
+            } else {
+                setChatHistory(prev => [...prev, { sender: 'error', text: `Fehler vom Backend: ${data.error || 'Unbekannter Fehler'}` }]);
+            }
+        } catch (error) {
+            console.error("Netzwerkfehler:", error);
+            setChatHistory(prev => [...prev, { sender: 'error', text: 'Fehler: Konnte keine Verbindung zum Backend herstellen.' }]);
+        } finally {
+            setIsSending(false);
+        }
+    }, [apiKey, chatHistory, playAudioResponse]);
+
+    // --- Audio Aufnahme (STT) ---
+
+    const sendAudioForTranscription = useCallback(async (audioBlob) => {
+        if (!apiKey) {
+            setChatHistory(prev => [...prev, { sender: 'error', text: 'Bitte generieren Sie zuerst Ihren API Key.' }]);
+            return;
+        }
+        
+        setChatHistory(prev => [...prev, { sender: 'system', text: '...[Audio wird transkribiert]...' }]);
+        
+        const formData = new FormData();
+        formData.append('audio', audioBlob, 'recording.webm');
+        
+        try {
+            // Gesicherter STT-Aufruf
+            // Verwende window.location.origin für die absolute URL
+            const response = await fetch(`${window.location.origin}/api/stt`, {
+                method: 'POST',
+                headers: {
+                    'X-API-Key': apiKey 
+                },
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.transcript) {
+                // 1. Transkribierten Text anzeigen
+                setChatHistory(prev => [...prev, { sender: 'system', text: `Transkribiert: "${data.transcript}"` }]);
+                // 2. Chat automatisch auslösen
+                await handleChatSubmit(data.transcript); 
+                
+            } else {
+                setChatHistory(prev => [...prev, { sender: 'error', text: `Transkriptionsfehler: ${data.error || 'Unbekannter Fehler'}` }]);
+            }
+        } catch (error) {
+            console.error("Fehler bei der Transkription:", error);
+            setChatHistory(prev => [...prev, { sender: 'error', text: 'Netzwerkfehler während der Transkription.' }]);
+        }
+    }, [apiKey, handleChatSubmit]);
+
+    const handleMicToggle = async () => {
+        if (isRecording) {
+            // Aufnahme beenden
+            if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+                mediaRecorderRef.current.stop();
+                setChatHistory(prev => [...prev, { sender: 'system', text: 'Sprachaufnahme beendet. Sende zur Transkription...' }]);
+            }
+            setIsRecording(false);
+            return;
+        }
+        
+        // Aufnahme starten
+        setIsRecording(true);
+        audioChunksRef.current = [];
+        
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+
+            mediaRecorderRef.current.ondataavailable = event => {
+                audioChunksRef.current.push(event.data);
+            };
+
+            mediaRecorderRef.current.onstop = async () => {
+                const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+                // Stream beenden
+                stream.getTracks().forEach(track => track.stop());
+                await sendAudioForTranscription(audioBlob);
+            };
+
+            mediaRecorderRef.current.start();
+            setChatHistory(prev => [...prev, { sender: 'system', text: 'Sprachaufnahme gestartet. Klicken Sie erneut, um zu beenden.' }]);
+
+        } catch (error) {
+            console.error("Fehler beim Starten der Aufnahme:", error);
+            setChatHistory(prev => [...prev, { sender: 'error', text: 'Konnte Mikrofon nicht starten. Erlaubnis verweigert oder Gerät fehlt.' }]);
+            setIsRecording(false);
+        }
+    };
+
+
+    // --- JSX Rendering ---
+
+    const getStatusClasses = () => {
+        if (authStatus.includes('Verbunden')) return 'bg-green-100 text-green-800';
+        if (authStatus.includes('FEHLER') || authStatus.includes('Fehler')) return 'bg-red-100 text-red-800';
+        return 'bg-yellow-100 text-yellow-800';
+    };
+
+    return (
+        <div className="min-h-screen bg-gray-50 flex flex-col font-sans antialiased p-4 sm:p-8">
+            <header className="w-full max-w-4xl mx-auto mb-6">
+                <h1 className="text-3xl font-extrabold text-gray-900 flex items-center">
+                    <Volume2 className="w-6 h-6 mr-2 text-indigo-600" />
+                    Unternehmens-KI-Assistent
+                </h1>
+                <p className="text-gray-500 mt-1">Sichere, autonome Sprach- und Chat-Assistenz mit internen Tools.</p>
+            </header>
+
+            <main className="w-full max-w-4xl mx-auto flex flex-col lg:flex-row gap-6">
+                
+                {/* Rechte Spalte: API Key & Einstellungen */}
+                <div className="lg:w-1/3 bg-white p-6 rounded-xl shadow-lg h-full order-1 lg:order-2 space-y-4">
+                    <h2 className="text-xl font-semibold text-gray-700 border-b pb-2 mb-4">Sicherheit & Status</h2>
+                    
+                    <div className={`p-3 rounded-lg text-sm font-medium ${getStatusClasses()}`}>
+                        {authStatus}
+                    </div>
+
+                    <div className="text-xs text-gray-500 space-y-1">
+                        <p>App ID: <span className="font-mono break-all">{GLOBAL_CONFIG.appId}</span></p>
+                        <p>User ID: <span className="font-mono break-all">{userId || 'Wird geladen...'}</span></p>
+                    </div>
+
+                    {/* API Key Sektion */}
+                    <div className="mt-4 pt-4 border-t">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            API Key (Firestore gesichert)
+                        </label>
+                        <div className="flex space-x-2">
+                            <input
+                                type="text"
+                                value={apiKey || 'Kein Key generiert...'}
+                                readOnly
+                                className="flex-1 p-2 border border-gray-300 rounded-lg text-sm bg-gray-100 font-mono overflow-auto"
+                            />
+                            <button
+                                onClick={handleCopyKey}
+                                disabled={!apiKey}
+                                className="p-2 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300 transition duration-150 disabled:opacity-50"
+                                title="Key kopieren"
+                            >
+                                <Copy className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <button
+                            onClick={handleGenerateKey}
+                            disabled={!isAuthReady || isSending}
+                            className="w-full mt-3 px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition duration-150 disabled:bg-indigo-400"
+                        >
+                            {isSending ? 'Generiere Key...' : 'Neuen API Key generieren'}
+                        </button>
+                    </div>
+
+                    {/* TTS Lautstärke */}
+                    <div className="mt-4 pt-4 border-t">
+                        <label htmlFor="volumeRange" className="block text-sm font-medium text-gray-700 flex justify-between items-center mb-2">
+                            <span>TTS Lautstärke</span>
+                            <span className="text-indigo-600 font-bold">{(volume * 100).toFixed(0)}%</span>
+                        </label>
+                        <input
+                            id="volumeRange"
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.05"
+                            value={volume}
+                            onChange={(e) => setVolume(parseFloat(e.target.value))}
+                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer range-lg"
+                        />
+                    </div>
+                </div>
+
+                {/* Linke Spalte: Chat Interface */}
+                <div className="lg:w-2/3 flex flex-col bg-white rounded-xl shadow-lg order-2 lg:order-1 h-[70vh]">
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar" ref={messageContainerRef}>
+                        {chatHistory.map((msg, index) => (
+                            <div
+                                key={index}
+                                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                            >
+                                <div className={`max-w-xs sm:max-w-md px-4 py-2 rounded-xl shadow-md ${
+                                    msg.sender === 'user' 
+                                        ? 'bg-indigo-500 text-white rounded-br-none' 
+                                        : msg.sender === 'ai' 
+                                            ? 'bg-gray-100 text-gray-800 rounded-tl-none'
+                                            : msg.sender === 'system'
+                                                ? 'bg-yellow-50 text-yellow-700 text-xs text-center w-full'
+                                                : 'bg-red-100 text-red-700 text-sm'
+                                }`}
+                                style={{ whiteSpace: 'pre-wrap' }} // Behält Zeilenumbrüche
+                                >
+                                    {msg.text}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Eingabe und Steuerung */}
+                    <div className="p-4 border-t flex items-center space-x-3">
+                        <button
+                            onClick={handleMicToggle}
+                            disabled={!apiKey || isSending}
+                            className={`p-3 rounded-full shadow-lg transition-all duration-300 ${
+                                isRecording 
+                                    ? 'bg-red-600 text-white hover:bg-red-700 animate-pulse' 
+                                    : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                            }`}
+                            title={isRecording ? 'Aufnahme beenden' : 'Sprachaufnahme starten'}
+                        >
+                            {isRecording ? <StopCircle className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
+                        </button>
+
+                        <input
+                            type="text"
+                            value={inputPrompt}
+                            onChange={(e) => setInputPrompt(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && !isSending && handleChatSubmit(inputPrompt)}
+                            placeholder={isSending ? 'Warte auf KI-Antwort...' : 'Stellen Sie Ihre Frage (z.B. "Wie viel Fusion Processor ist auf Lager?")...'}
+                            disabled={!apiKey || isSending}
+                            className="flex-1 p-3 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        />
+
+                        <button
+                            onClick={() => handleChatSubmit(inputPrompt)}
+                            disabled={!inputPrompt.trim() || !apiKey || isSending}
+                            className="p-3 bg-indigo-600 text-white rounded-xl shadow-lg hover:bg-indigo-700 transition duration-150 disabled:bg-indigo-400"
+                            title="Nachricht senden"
+                        >
+                            <Send className="w-6 h-6" />
+                        </button>
+                    </div>
+                </div>
+            </main>
+            
+            {/* CSS für Scrollbar und Mik-Effekt */}
+            <style>{`
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 8px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: #f1f1f1;
+                    border-radius: 10px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: #888;
+                    border-radius: 10px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: #555;
+                }
+                /* Zusätzlicher Stil für den Body, um die Schriftart zu setzen */
+                body {
+                    font-family: 'Inter', sans-serif;
+                }
+            `}</style>
+        </div>
+    );
+};
+
+export default App;

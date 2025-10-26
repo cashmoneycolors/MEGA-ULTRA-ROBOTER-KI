@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unternehmens-KI-Assistent (Maximal Stufe)</title>
+    <!-- Tailwind CSS laden -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Angepasste Schriftart und Basis-Stile */
+        body { font-family: 'Inter', sans-serif; background-color: #eef2f8; }
+        .chat-container { height: 70vh; max-height: 800px; }
+        .dashboard-card { background-color: white; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
+        .chat-message { max-width: 80%; }
+        .user-message { background-color: #3b82f6; color: white; border-radius: 12px 12px 2px 12px; align-self: flex-end; }
+        .ai-message { background-color: #e5e7eb; color: #1f2937; border-radius: 12px 12px 12px 2px; align-self: flex-start; }
+        .mic-recording { animation: pulse 1.5s infinite; }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="flex flex-col lg:flex-row min-h-screen p-4 md:p-8 space-y-8 lg:space-y-0 lg:space-x-8">
+        
+        <!-- Dashboard & API Key Management (Die Hände) -->
+        <div class="w-full lg:w-1/3 space-y-6">
+            <div class="dashboard-card p-6 rounded-xl">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Status & Kontrolle</h2>
+                
+                <div id="authStatus" class="text-sm font-medium p-3 rounded-lg mb-4 text-center bg-yellow-100 text-yellow-800">
+                    Authentifizierung läuft...
+                </div>
+                
+                <div class="space-y-3">
+                    <p class="text-gray-600"><span class="font-semibold">Benutzer ID:</span> <span id="userIdDisplay" class="truncate text-sm block">Wird geladen...</span></p>
+                    <p class="text-gray-600"><span class="font-semibold">App ID:</span> <span id="appIdDisplay" class="truncate text-sm block">Wird geladen...</span></p>
+                    <p class="text-gray-600"><span class="font-semibold">KI-Status:</span> <span id="kiStatus" class="text-green-600">Verbunden (Gemini)</span></p>
+                </div>
+            </div>
+
+            <!-- API Key Management (Maximale Stufe Sicherheit UI) -->
+            <div class="dashboard-card p-6 rounded-xl">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">API Key Management</h2>
+                
+                <p class="text-sm text-gray-600 mb-3">Dieser Schlüssel schützt Ihre KI-Interaktionen und wird automatisch in Firestore gespeichert.</p>
+
+                <div id="apiKeyContainer" class="relative mb-4">
+                    <input type="text" id="apiKeyInput" readonly placeholder="Generieren Sie Ihren API Key"
+                           class="w-full p-3 pr-12 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:border-blue-500 text-sm">
+                    <button id="copyKeyButton" class="absolute right-0 top-0 mt-3 mr-3 text-gray-500 hover:text-blue-500" title="In Zwischenablage kopieren">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-2m-4 0V3m-4 2V3m4 2V3m4 2H8m4 0h4m-4 0h4m-4 0H8m4 0h4m-4 0H8"></path></svg>
+                    </button>
+                </div>
+                
+                <button id="generateKeyButton" class="w-full px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-150">
+                    <span id="generateKeyText">API Key generieren</span>
+                </button>
+            </div>
+            
+             <!-- TTS/Voice Steuerung (Maximale Interaktion) -->
+            <div class="dashboard-card p-6 rounded-xl">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Sprachausgabe (TTS)</h2>
+                <label for="volumeRange" class="block text-gray-600 mb-2">Lautstärke:</label>
+                <input type="range" id="volumeRange" min="0" max="1" step="0.1" value="0.8" class="w-full">
+                <p class="text-xs text-gray-500 mt-2">Die KI spricht ihre Antworten nach jeder Nachricht automatisch aus.</p>
+            </div>
+        </div>
+
+        <!-- Chat Fenster -->
+        <div class="w-full lg:w-2/3 dashboard-card p-6 rounded-xl flex flex-col">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">KI Chat</h2>
+
+            <!-- Nachrichtenanzeige -->
+            <div id="messageContainer" class="chat-container flex flex-col space-y-4 p-4 overflow-y-auto bg-gray-50 rounded-lg flex-grow">
+                <div class="ai-message chat-message p-3 shadow-md">Hallo! Ich bin Ihr Unternehmens-KI-Assistent. Bitte generieren Sie zuerst Ihren API Key im linken Panel.</div>
+            </div>
+
+            <!-- Eingabefeld -->
+            <div class="mt-4 flex space-x-3">
+                <input type="text" id="chatInput" placeholder="Geben Sie Ihre Nachricht ein..."
+                       class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150" disabled>
+                
+                <!-- Mikrofon Button (STT) -->
+                <button id="micButton" disabled
+                        class="px-4 py-3 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition duration-150 disabled:opacity-50 flex items-center justify-center">
+                        <svg id="micIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.44 6 6.93V21h2v-3.07c3.39-.49 6-3.4 6-6.93h-2z"/></svg>
+                        <svg id="stopIcon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 6h12v12H6z"/></svg>
+                </button>
+
+                <!-- Senden Button -->
+                <button id="sendButton" disabled
+                        class="px-4 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition duration-150 disabled:opacity-50">
+                    Senden
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs laden -->
+    <script type="module" src="/static/script.js"></script>
+    <script type="module">
+        // Globale Firebase-Variablen zur Übergabe an script.js
+        window.GLOBAL_CONFIG = {
+            appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app-id',
+            firebaseConfig: typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null,
+            initialAuthToken: typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null,
+        };
+    </script>
+</body>
+</html>

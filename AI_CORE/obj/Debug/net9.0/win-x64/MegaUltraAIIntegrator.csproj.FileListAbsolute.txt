@@ -1,0 +1,8 @@
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\obj\Debug\net9.0\win-x64\MegaUltraAIIntegrator.csproj.AssemblyReference.cache
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\obj\Debug\net9.0\win-x64\MegaUltraAIIntegrator.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\obj\Debug\net9.0\win-x64\MegaUltraAIIntegrator.AssemblyInfoInputs.cache
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\obj\Debug\net9.0\win-x64\MegaUltraAIIntegrator.AssemblyInfo.cs
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\obj\Debug\net9.0\win-x64\MegaUltraAIIntegrator.csproj.CoreCompileInputs.cache
+C:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\AI_CORE\obj\Debug\net9.0\win-x64\MegaUltraAIIntegrator.csproj.AssemblyReference.cache
+C:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\AI_CORE\obj\Debug\net9.0\win-x64\MegaUltraAIIntegrator.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\AI_CORE\obj\Debug\net9.0\win-x64\MegaUltraAIIntegrator.csproj.CoreCompileInputs.cache

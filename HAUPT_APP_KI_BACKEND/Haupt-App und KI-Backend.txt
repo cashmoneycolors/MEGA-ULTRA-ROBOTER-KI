@@ -1,0 +1,502 @@
+import json
+import os
+import threading
+import time
+import base64
+import secrets
+import struct
+from functools import wraps
+from tkinter import Tk, Label
+from io import BytesIO
+import random # Hinzugefügt für zufällige Bestandsdaten
+
+# Externe Bibliotheken (müssen installiert sein: flask, google-genai, pydub, scipy)
+try:
+    from flask import Flask, render_template, request, jsonify
+    from google import genai
+    from google.genai import types
+    from pydub import AudioSegment
+    import webbrowser
+except ImportError as e:
+    print(f"Fehler beim Importieren von Bibliotheken: {e}")
+    print("Bitte installieren Sie die Abhängigkeiten mit 'pip install -r requirements.txt'")
+    exit()
+
+# --- Globale Canvas Variablen (MANDATORY USE) ---
+# Diese Variablen werden automatisch von der Canvas-Umgebung bereitgestellt
+try:
+    APP_ID = os.environ.get('__app_id', 'default-app-id')
+    FIREBASE_CONFIG = json.loads(os.environ.get('__firebase_config', '{}'))
+    INITIAL_AUTH_TOKEN = os.environ.get('__initial_auth_token')
+except (json.JSONDecodeError, TypeError):
+    print("Warnung: Globale Firebase-Konfiguration nicht verfügbar. Verwende Fallbacks.")
+    APP_ID = 'default-app-id'
+    FIREBASE_CONFIG = {}
+    INITIAL_AUTH_TOKEN = None
+
+# API Key für Gemini: Hier ist der Platzhalter, der später über die Umgebung 
+# oder eine Firebase-Funktion gesetzt wird. Für lokale Tests setzen wir ihn auf 
+# einen leeren String, da die Canvas-Umgebung ihn zur Laufzeit bereitstellt.
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', "")
+
+# --- Gemini/Chat Konfiguration ---
+# System Instruction für maximale Rollendefinition
+SYSTEM_INSTRUCTION = "Du bist ein hochoptimierter, professioneller Unternehmens-Assistent. Du hast Zugriff auf interne Tools, um Produktinformationen abzurufen. Antworte in deutscher Sprache."
+# Der Client wird später initialisiert
+gemini_client = None 
+
+# --- Desktop GUI (Statusfenster) ---
+def run_desktop_gui():
+    """Startet ein kleines Desktop-GUI-Fenster (Tkinter) in einem separaten Thread."""
+    root = Tk()
+    root.title("App Status - Laufen")
+    root.geometry("300x100")
+    
+    start_time = time.time()
+    
+    status_label = Label(root, text="Backend ist aktiv und KI-fähig.", font=('Arial', 12))
+    status_label.pack(pady=10)
+    
+    runtime_label = Label(root, text="Laufzeit: 0s", font=('Arial', 10))
+    runtime_label.pack()
+
+    def update_runtime():
+        elapsed = int(time.time() - start_time)
+        runtime_label.config(text=f"Laufzeit: {elapsed}s")
+        root.after(1000, update_runtime) # 1 Sekunde Verzögerung
+        
+    update_runtime()
+    root.mainloop()
+
+# --- Firebase Initialisierung (Dummy für Flask) ---
+# Im Flask-Backend wird die Firebase-Auth- und Firestore-Initialisierung
+# durch separate API-Calls simuliert, da der eigentliche Auth-Flow im Frontend
+# via JS durchgeführt wird (siehe templates/index.html).
+# Wir simulieren hier nur die Firestore-Abfragen, um die API-Key-Validierung zu ermöglichen.
+# ACHTUNG: Eine echte Python-Firestore-Integration müsste hier initialisiert werden.
+# Da wir die Backend-Datenbank nicht mit der Frontend-Datenbank (canvas) teilen,
+# verwenden wir hier Platzhalter-Logik.
+
+def connect_to_firestore():
+    """Simuliert die Verbindung zu Firestore. FÜR DEN PRODUKTIVEN EINSATZ ERSETZEN!"""
+    try:
+        from firebase_admin import initialize_app, firestore, credentials
+        # Nur initialisieren, wenn es nicht bereits geschehen ist
+        if not initialize_app.apps:
+            # Hier müssten die Firebase Admin Credentials geladen werden
+            # Da dies im Canvas-Environment nicht direkt möglich ist,
+            # wird für die Key-Prüfung eine Mock-Funktion verwendet.
+            # print("Firebase Admin initialisiert (Mock).")
+            pass
+        # return firestore.client()
+        return None # Return None, um die Mock-Funktion zu erzwingen
+    except ImportError:
+        print("Warnung: firebase-admin nicht installiert. Verwende Mock-Datenbank für API-Key-Prüfung.")
+        return None
+
+db = connect_to_firestore()
+
+# --- API Key Generierung & Validierung (Maximale Stufe Sicherheit) ---
+
+def generate_secure_api_key(length=40):
+    """Generiert einen kryptografisch sicheren API Key."""
+    return secrets.token_urlsafe(length)
+
+def get_user_id_from_api_key(api_key):
+    """
+    Prüft den API Key gegen die Firestore-Datenbank.
+    
+    DA WIR KEINE DIREKTE BACKEND-DB-VERBINDUNG HABEN, WIRD HIER NUR EIN MOCK GEMACHT!
+    Im echten Code würde dies die Keys in /artifacts/{appId}/users/{userId}/api_keys/{docId} prüfen.
+    """
+    if not api_key:
+        return None
+    
+    # --- MOCK-LOGIK (FÜR CANVAS SIMULATION) ---
+    # Erlaubt den Standard-Testschlüssel, der im Frontend generiert wird.
+    # Dies MUSS in der Produktion durch einen echten DB-Check ersetzt werden!
+    # Der API Key ist nur für die Client-Seite als Nachweis der Authentifizierung
+    # im Firestore-Kontext relevant.
+    if api_key.startswith('sk-'):
+        # Mock: Den API Key selbst als Hash für die Authentifizierung verwenden
+        try:
+            return api_key.split('-')[1] 
+        except IndexError:
+            return None
+
+    return None
+
+def api_key_required(f):
+    """Decorator für maximale Sicherheit: Erzwingt die API-Key-Validierung."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        api_key = request.headers.get('X-API-Key')
+        
+        # 1. Key-Prüfung
+        auth_user_id = get_user_id_from_api_key(api_key)
+        
+        if not auth_user_id:
+            print(f"API Key ungültig oder fehlt: {api_key}")
+            return jsonify({"error": "API Key fehlt oder ist ungültig. Zugriff verweigert (401)"}), 401
+        
+        # 2. Kontext-Injektion (Autonome Optimierung)
+        # Übergibt die authentifizierte Benutzer-ID an die Funktion
+        return f(auth_user_id, *args, **kwargs)
+    return decorated_function
+
+# --- TTS Utility Funktionen ---
+
+def base64_to_array_buffer(base64_data):
+    """Konvertiert Base64 zu einem binären Array Buffer."""
+    return base64.b64decode(base64_data)
+
+def pcm_to_wav(pcm_data, sample_rate, channels=1, bit_depth=16):
+    """Konvertiert rohe PCM-Daten in das WAV-Format (mit Header)."""
+    
+    # Header-Informationen
+    num_samples = len(pcm_data) // (bit_depth // 8)
+    byte_rate = sample_rate * channels * (bit_depth // 8)
+    block_align = channels * (bit_depth // 8)
+    
+    wav_file = BytesIO()
+    
+    # RIFF Header
+    wav_file.write(b'RIFF')
+    wav_file.write(struct.pack('<I', 36 + len(pcm_data))) # File size
+    wav_file.write(b'WAVE')
+    
+    # FMT Subchunk
+    wav_file.write(b'fmt ')
+    wav_file.write(struct.pack('<I', 16)) # Subchunk size
+    wav_file.write(struct.pack('<H', 1))  # Audio format (1 = PCM)
+    wav_file.write(struct.pack('<H', channels))
+    wav_file.write(struct.pack('<I', sample_rate))
+    wav_file.write(struct.pack('<I', byte_rate))
+    wav_file.write(struct.pack('<H', block_align))
+    wav_file.write(struct.pack('<H', bit_depth))
+    
+    # DATA Subchunk
+    wav_file.write(b'data')
+    wav_file.write(struct.pack('<I', len(pcm_data)))
+    wav_file.write(pcm_data)
+    
+    wav_file.seek(0)
+    return wav_file.read()
+
+def base64_to_array_buffer_to_wav(base64_audio, sample_rate=24000):
+    """Konvertiert Gemini TTS Base64 PCM direkt in WAV."""
+    pcm_data = base64_to_array_buffer(base64_audio)
+    return pcm_to_wav(pcm_data, sample_rate)
+
+# --- NEUE FUNKTIONALITÄT: Interne Tools ---
+
+def get_product_inventory(product_name: str) -> str:
+    """
+    Simuliert die Abfrage eines internen Produktbestands aus Firestore.
+    
+    Args:
+        product_name: Der Name des Produkts, nach dem gesucht werden soll.
+        
+    Returns:
+        Eine JSON-formatierte Zeichenkette mit den Bestandsdetails.
+    """
+    # Dies würde in der Realität eine Firestore-Abfrage durchführen:
+    # doc_ref = db.collection(f'artifacts/{APP_ID}/public/data/inventory').document(product_name.lower())
+    # doc = doc_ref.get()
+    
+    # --- MOCK-SIMULATION DER BESTANDSDATEN ---
+    # Wir nutzen ein dictionary, um ein internes Inventar zu simulieren.
+    inventory_data = {
+        "fusion_processor": {
+            "name": "Fusion Processor X10",
+            "stock": random.randint(10, 50),
+            "location": "Warehouse A3",
+            "price": 499.99
+        },
+        "quantum_drive": {
+            "name": "Quantum Drive Zeta",
+            "stock": random.randint(0, 10), # Oft niedrig
+            "location": "Warehouse C2",
+            "price": 1299.99
+        },
+        "optic_scanner": {
+            "name": "Optic Scanner Pro",
+            "stock": random.randint(100, 300), # Immer hoch
+            "location": "Warehouse B1",
+            "price": 99.50
+        }
+    }
+    
+    search_key = product_name.lower().replace(' ', '_')
+    
+    if search_key in inventory_data:
+        data = inventory_data[search_key]
+        return json.dumps(data)
+    else:
+        # Versuch, eine unscharfe Suche durchzuführen
+        for key, data in inventory_data.items():
+            if product_name.lower() in key.lower() or product_name.lower() in data['name'].lower():
+                return json.dumps(data)
+                
+        return json.dumps({"error": f"Produkt '{product_name}' nicht im Inventar gefunden."})
+
+# --- Flask App und Endpunkte ---
+
+app = Flask(__name__, template_folder='templates', static_folder='static')
+
+def init_gemini_client():
+    """Initialisiert den Gemini Client (MUSS VOR API-CALLS GESCHEHEN)."""
+    global gemini_client
+    if gemini_client is None:
+        try:
+            gemini_client = genai.Client(api_key=GEMINI_API_KEY)
+            print("Gemini Client erfolgreich initialisiert.")
+        except Exception as e:
+            print(f"Fehler bei der Initialisierung des Gemini Clients: {e}")
+            gemini_client = None
+
+@app.route('/')
+def index():
+    """Rendert das Haupt-Frontend."""
+    return render_template('index.html')
+
+@app.route('/api/manage_key', methods=['GET', 'POST'])
+def manage_key():
+    """
+    API Endpunkt zur Generierung und zum Abruf des API Keys.
+    WICHTIG: Die Speicherung erfolgt clientseitig über Firestore, 
+    da das Backend keinen Admin-Zugriff auf die User-Daten hat.
+    """
+    if request.method == 'POST':
+        # API Key Generierung (Maximal Stufe Autonomie)
+        new_key_part = generate_secure_api_key()
+        # Mock-Format: sk- + Base64-UID des angemeldeten Benutzers (muss vom Frontend gesendet werden)
+        user_id = request.json.get('userId', 'anonymous')
+        new_key = f"sk-{user_id}-{new_key_part}" 
+        
+        # HIER würde der Schlüssel in Firestore gespeichert werden.
+        print(f"Neuer Key generiert für {user_id}: {new_key}")
+        
+        return jsonify({
+            "key": new_key,
+            "message": "Neuer API Key generiert. Bitte speichern Sie ihn in Firestore."
+        })
+        
+    return jsonify({"error": "Methode nicht erlaubt"}), 405
+
+@app.route('/api/chat', methods=['POST'])
+@api_key_required
+def handle_chat(auth_user_id):
+    """
+    Maximal gesicherter Endpunkt für den Chat.
+    Verwendet Gemini mit Kontext, Grounding UND Tool-Aufruf.
+    """
+    init_gemini_client()
+    if gemini_client is None:
+        return jsonify({"error": "KI-Dienst nicht verfügbar."}), 503
+
+    data = request.json
+    prompt = data.get('prompt')
+    history_raw = data.get('history', [])
+    
+    if not prompt:
+        return jsonify({"error": "Prompt fehlt."}), 400
+
+    # 1. Konvertiere den Roh-Verlauf in das Gemini-Format (Autonomie)
+    contents = []
+    # Der Verlauf muss komplett gesendet werden, um den Tool-Kontext zu wahren
+    for msg in history_raw:
+        role = "user" if msg['sender'] == 'user' else "model"
+        # Behandle potentielle Tool-Aufrufe und -Ergebnisse im Verlauf
+        parts = []
+        if 'text' in msg:
+            parts.append(types.Part.from_text(msg['text']))
+        if 'tool_calls' in msg:
+             parts.append(types.Part(function_calls=msg['tool_calls']))
+        if 'tool_result' in msg:
+             parts.append(types.Part(function_response=msg['tool_result']))
+
+        if parts:
+            contents.append(types.Content(role=role, parts=parts))
+
+    # Füge den aktuellen Prompt hinzu
+    contents.append(types.Content(role="user", parts=[types.Part.from_text(prompt)]))
+
+    # 2. Gemini Konfiguration (Maximale Autonomie: Grounding & Interne Tools)
+    config = types.GenerateContentConfig(
+        system_instruction=SYSTEM_INSTRUCTION,
+        tools=[
+            {"google_search": {}}, # Autonome Web-Suche
+            get_product_inventory # Internes Tool
+        ],
+    )
+    
+    try:
+        # Erstes Gespräch mit der KI (Kann Tool-Aufruf anfordern)
+        response = gemini_client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=contents,
+            config=config,
+        )
+        
+        # 3. Überprüfe auf Tool-Aufrufe (Autonome Logik)
+        if response.function_calls:
+            print("KI fordert Tool-Aufruf an:", response.function_calls[0].name)
+            
+            tool_responses = []
+            
+            for call in response.function_calls:
+                function_name = call.name
+                function_args = dict(call.args)
+                
+                # Führe die Funktion basierend auf dem Namen aus
+                if function_name == "get_product_inventory":
+                    result = get_product_inventory(**function_args)
+                    
+                    tool_responses.append(types.Part.from_function_response(
+                        name=function_name,
+                        response={"result": result}
+                    ))
+
+            # Füge den Tool-Call und das Tool-Ergebnis zum Verlauf hinzu
+            contents.append(response.candidates[0].content) # Der Call selbst
+            contents.append(types.Content(role="tool", parts=tool_responses)) # Das Ergebnis
+
+            # Zweiter Anruf: Gemini erhält das Ergebnis und generiert die finale Antwort
+            final_response = gemini_client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=contents,
+                config=config,
+            )
+            
+            return jsonify({
+                "text": final_response.text,
+                "user_id_used": auth_user_id,
+                "source": "Gemini AI (mit Tool-Nutzung)"
+            })
+            
+        # Wenn kein Tool-Aufruf, normale Antwort senden
+        return jsonify({
+            "text": response.text,
+            "user_id_used": auth_user_id,
+            "source": "Gemini AI"
+        })
+        
+    except Exception as e:
+        print(f"Gemini Fehler: {e}")
+        return jsonify({"error": f"Fehler bei der KI-Generierung: {e}"}), 500
+
+@app.route('/api/tts', methods=['POST'])
+@api_key_required
+def handle_tts(auth_user_id):
+    """
+    Maximal gesicherter Endpunkt für Text-to-Speech (TTS).
+    Konvertiert Text über Gemini TTS in WAV-Audio.
+    """
+    init_gemini_client()
+    if gemini_client is None:
+        return jsonify({"error": "KI-Dienst nicht verfügbar."}), 503
+
+    text_to_speak = request.json.get('text', '')
+    if not text_to_speak:
+        return jsonify({"error": "Text zum Sprechen fehlt."}), 400
+    
+    try:
+        # TTS-Anruf (Maximale Stufe Autonomie)
+        response = gemini_client.models.generate_content(
+            model="gemini-2.5-flash-preview-tts",
+            contents=[types.Content(role="user", parts=[types.Part.from_text(text_to_speak)])],
+            config=types.GenerateContentConfig(
+                response_modalities=["AUDIO"],
+                speech_config=types.SpeechConfig(
+                    voice_config=types.VoiceConfig(
+                        prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name="Kore") # Eine klare Stimme
+                    )
+                )
+            )
+        )
+        
+        # Extrahieren der PCM-Audiodaten
+        audio_part = response.candidates[0].content.parts[0]
+        base64_audio = audio_part.inline_data.data
+        
+        # PCM in WAV konvertieren und senden (Maximale Stufe Funktionalität)
+        wav_data = base64_to_array_buffer_to_wav(base64_audio, sample_rate=24000)
+        
+        return app.response_class(
+            response=wav_data,
+            status=200,
+            mimetype='audio/wav'
+        )
+
+    except Exception as e:
+        print(f"Gemini TTS Fehler: {e}")
+        return jsonify({"error": f"Fehler bei der Sprachgenerierung: {e}"}), 500
+
+@app.route('/api/stt', methods=['POST'])
+@api_key_required
+def handle_stt(auth_user_id):
+    """
+    Maximal gesicherter Endpunkt für Speech-to-Text (STT).
+    Transkribiert Audio-Daten über Gemini.
+    """
+    init_gemini_client()
+    if gemini_client is None:
+        return jsonify({"error": "KI-Dienst nicht verfügbar."}), 503
+
+    if 'audio' not in request.files:
+        return jsonify({"error": "Keine Audio-Datei gefunden."}), 400
+    
+    audio_file = request.files['audio']
+    
+    # Konvertiere Audio in Base64 und MIME-Typ (Maximale Stufe Kompatibilität)
+    audio_bytes = audio_file.read()
+    base64_audio = base64.b64encode(audio_bytes).decode('utf-8')
+    mime_type = audio_file.mimetype or 'audio/webm'
+
+    try:
+        # Erstelle InlineData für Gemini
+        audio_part = types.Part.from_inline_data(
+            data=base64_audio,
+            mime_type=mime_type
+        )
+        
+        # Prompt für die Transkription
+        prompt_part = types.Part.from_text("Transkribiere dieses Audio in deutscher Sprache und gib nur den transkribierten Text zurück.")
+        
+        response = gemini_client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=[audio_part, prompt_part]
+        )
+        
+        # Die Antwort enthält den transkribierten Text
+        return jsonify({
+            "transcript": response.text.strip(),
+            "user_id_used": auth_user_id
+        })
+
+    except Exception as e:
+        print(f"Gemini STT Fehler: {e}")
+        return jsonify({"error": f"Fehler bei der Transkription: {e}"}), 500
+
+# --- Start der Anwendung ---
+
+if __name__ == '__main__':
+    # 1. Desktop GUI Thread starten
+    gui_thread = threading.Thread(target=run_desktop_gui)
+    gui_thread.daemon = True
+    gui_thread.start()
+
+    # 2. Webbrowser automatisch öffnen
+    def open_browser():
+        webbrowser.open_new('http://127.0.0.1:5000/')
+    
+    # 3. Gemini Client initialisieren (kann auch lazy im Endpunkt erfolgen)
+    init_gemini_client()
+    
+    # Öffne Browser nach kurzer Verzögerung
+    threading.Timer(1.5, open_browser).start()
+
+    # 4. Flask Server starten
+    print("Flask Server gestartet auf http://127.0.0.1:5000/")
+    app.run(debug=True, use_reloader=False) # use_reloader=False wichtig, da GUI in separatem Thread läuft

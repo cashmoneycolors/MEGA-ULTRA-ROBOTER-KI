@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gefixte Firebase Todo-Liste</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Angepasstes Styling für besseres Aussehen */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .todo-item {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .todo-item:hover {
+            background-color: #f7f9fb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Meine Aufgaben (Firebase Fix)</h1>
+        
+        <p id="user-id-display" class="text-sm text-gray-500 mb-4 text-center">Benutzer-ID: Wird geladen...</p>
+        
+        <div class="flex mb-6 space-x-2">
+            <input type="text" id="todo-input" placeholder="Neue Aufgabe hinzufügen..."
+                   class="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-150">
+            <button id="add-todo-btn" 
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-150 ease-in-out disabled:opacity-50">
+                Hinzufügen
+            </button>
+        </div>
+        
+        <ul id="todo-list" class="space-y-3">
+            <p class="text-gray-500 text-center" id="loading-message">Lade Aufgaben...</p>
+        </ul>
+
+        <div id="status-message" class="mt-4 text-sm text-center"></div>
+    </div>
+
+    <script type="module">
+        // Globale Variablen für Firebase-Konfiguration, die von Canvas bereitgestellt werden
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Firebase-Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, query, onSnapshot, addDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        let db, auth, userId;
+        let app;
+        
+        // UI-Elemente
+        const todoInput = document.getElementById('todo-input');
+        const addTodoBtn = document.getElementById('add-todo-btn');
+        const todoList = document.getElementById('todo-list');
+        const statusMessage = document.getElementById('status-message');
+        const loadingMessage = document.getElementById('loading-message');
+
+        // Funktion zur Initialisierung und Authentifizierung (DER FIX)
+        async function initializeFirebaseAndAuth() {
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                setLogLevel('debug'); // Hilft beim Debuggen in der Konsole
+
+                console.log("[AUTH] Starte Authentifizierung...");
+
+                // Warten auf die Anmeldung, bevor Firestore-Operationen versucht werden
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                // Jetzt, da die Authentifizierung abgeschlossen ist, die Benutzer-ID abrufen
+                userId = auth.currentUser?.uid || 'anonymous-user';
+                document.getElementById('user-id-display').textContent = `Benutzer-ID: ${userId}`;
+                console.log(`[AUTH] Erfolgreich angemeldet. UID: ${userId}`);
+                
+                // NUR JETZT: Daten laden/Listener einrichten
+                setupTodoListener();
+
+                // Hinzufügen-Button aktivieren
+                addTodoBtn.disabled = false;
+
+            } catch (error) {
+                console.error("[INIT ERROR] Fehler bei Initialisierung oder Authentifizierung:", error);
+                loadingMessage.textContent = `Fehler: Die App konnte nicht geladen werden. Prüfen Sie die Konsolen-Logs.`;
+                statusMessage.className = 'mt-4 text-sm text-center text-red-500';
+                statusMessage.textContent = 'Authentifizierungsfehler: Zugriff auf die Datenbank nicht möglich.';
+            }
+        }
+
+        // Firestore-Listener für Todos einrichten
+        function setupTodoListener() {
+            // Pfad zur Benutzersammlung (Privatdaten)
+            const todosPath = `/artifacts/${appId}/users/${userId}/todos`;
+            const q = query(collection(db, todosPath));
+
+            console.log(`[FIRESTORE] Richte Listener für Pfad ein: ${todosPath}`);
+
+            // onSnapshot liefert Echtzeit-Updates
+            onSnapshot(q, (snapshot) => {
+                loadingMessage.style.display = 'none'; // Ladeanzeige ausblenden
+                todoList.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    todoList.innerHTML = '<li class="text-center text-gray-500 p-4 border rounded-lg">Noch keine Aufgaben!</li>';
+                    return;
+                }
+
+                snapshot.forEach((doc) => {
+                    const todo = doc.data();
+                    const todoId = doc.id;
+                    
+                    const li = document.createElement('li');
+                    li.className = 'todo-item flex justify-between items-center p-4 border border-gray-200 rounded-lg shadow-sm';
+                    li.innerHTML = `
+                        <span class="flex-grow ${todo.completed ? 'line-through text-gray-400' : 'text-gray-800'}">
+                            ${todo.text}
+                        </span>
+                        <div class="flex space-x-2">
+                            <button data-id="${todoId}" data-completed="${todo.completed}" 
+                                class="toggle-btn text-sm font-medium py-1 px-3 rounded-full 
+                                ${todo.completed ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' : 'bg-green-100 text-green-800 hover:bg-green-200'}">
+                                ${todo.completed ? 'Rückgängig' : 'Erledigt'}
+                            </button>
+                            <button data-id="${todoId}" 
+                                class="delete-btn text-red-500 hover:text-red-700 transition duration-150">
+                                Löschen
+                            </button>
+                        </div>
+                    `;
+                    todoList.appendChild(li);
+                });
+            }, (error) => {
+                // Hinzufügen einer spezifischen Fehlerbehandlung für Berechtigungsprobleme
+                console.error("[FIRESTORE ERROR] Fehler beim Abrufen der Aufgaben:", error);
+                if (error.code === 'permission-denied') {
+                    todoList.innerHTML = `<li class="text-red-500 text-center p-4 border rounded-lg bg-red-50">
+                        🚨 Fehler: Zugriff verweigert. Bitte überprüfen Sie die Sicherheitsregeln (z.B. auth.uid == "${userId}") Ihrer Firestore-Datenbank.
+                    </li>`;
+                } else {
+                    todoList.innerHTML = `<li class="text-red-500 text-center p-4 border rounded-lg bg-red-50">
+                        🚨 Unerwarteter Fehler: ${error.message}
+                    </li>`;
+                }
+            });
+        }
+
+        // Aufgabe hinzufügen
+        async function addTodo() {
+            const text = todoInput.value.trim();
+            if (!text) return;
+
+            addTodoBtn.disabled = true;
+
+            try {
+                const todosPath = `/artifacts/${appId}/users/${userId}/todos`;
+                await addDoc(collection(db, todosPath), {
+                    text: text,
+                    completed: false,
+                    createdAt: new Date()
+                });
+                todoInput.value = '';
+                statusMessage.textContent = 'Aufgabe erfolgreich hinzugefügt!';
+                statusMessage.className = 'mt-4 text-sm text-center text-green-500';
+            } catch (e) {
+                console.error("Fehler beim Hinzufügen der Aufgabe: ", e);
+                statusMessage.textContent = 'Fehler beim Hinzufügen der Aufgabe. Berechtigung?';
+                statusMessage.className = 'mt-4 text-sm text-center text-red-500';
+            } finally {
+                addTodoBtn.disabled = false;
+            }
+        }
+
+        // Erledigungsstatus umschalten oder Löschen
+        async function handleListClick(e) {
+            const target = e.target;
+            const todoId = target.dataset.id;
+            const todosPath = `/artifacts/${appId}/users/${userId}/todos`;
+
+            if (!todoId) return;
+
+            if (target.classList.contains('delete-btn')) {
+                try {
+                    await deleteDoc(doc(db, todosPath, todoId));
+                    statusMessage.textContent = 'Aufgabe gelöscht!';
+                    statusMessage.className = 'mt-4 text-sm text-center text-orange-500';
+                } catch (e) {
+                    console.error("Fehler beim Löschen der Aufgabe: ", e);
+                    statusMessage.textContent = 'Fehler beim Löschen der Aufgabe.';
+                    statusMessage.className = 'mt-4 text-sm text-center text-red-500';
+                }
+            } else if (target.classList.contains('toggle-btn')) {
+                const isCompleted = target.dataset.completed === 'true';
+                try {
+                    const todoRef = doc(db, todosPath, todoId);
+                    // Firestore unterstützt updateDoc(), um nur bestimmte Felder zu aktualisieren
+                    await setDoc(todoRef, { completed: !isCompleted }, { merge: true });
+                    statusMessage.textContent = `Aufgabe als ${!isCompleted ? 'erledigt' : 'unerledigt'} markiert.`;
+                    statusMessage.className = 'mt-4 text-sm text-center text-blue-500';
+                } catch (e) {
+                    console.error("Fehler beim Aktualisieren der Aufgabe: ", e);
+                    statusMessage.textContent = 'Fehler beim Aktualisieren der Aufgabe.';
+                    statusMessage.className = 'mt-4 text-sm text-center text-red-500';
+                }
+            }
+        }
+
+        // Event-Listener zuweisen
+        addTodoBtn.addEventListener('click', addTodo);
+        todoInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addTodo();
+            }
+        });
+        todoList.addEventListener('click', handleListClick);
+
+        // Die Anwendung starten
+        window.onload = initializeFirebaseAndAuth;
+
+    </script>
+</body>
+</html>
