@@ -113,8 +113,7 @@ const ZenithKeyController = ({ userId, db }) => {
     } else {
       setIsVaultAccessGranted(false);
       setAuditResult({
-        success: false,
-        message: "Iris-Hash-Fehler. Tresorzugriff verweigert.",
+        success: fa
       });
     }
   };
