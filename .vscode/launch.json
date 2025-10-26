@@ -4,7 +4,9 @@
     // Weitere Informationen finden Sie unter https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
+                git remote add origin https://github.com/DEIN-BENUTZERNAME/MEGA-ULTRA-ROBOTER-KI.git
+        git branch -M main
+        git push -u origin main
 
 
 
