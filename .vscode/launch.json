@@ -1,69 +1,17 @@
 {
-    // Verwendet IntelliSense zum Ermitteln möglicher Attribute.
-    // Zeigen Sie auf vorhandene Attribute, um die zugehörigen Beschreibungen anzuzeigen.
-    // Weitere Informationen finden Sie unter https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-                git remote add origin https://github.com/DEIN-BENUTZERNAME/MEGA-ULTRA-ROBOTER-KI.git
-        git branch -M main
-        git push -u origin main
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: import_test",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/import_test.py"
+    },
+    {
+      "name": "Node.js: server",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/server.mjs"
+    }
+  ]
 }
