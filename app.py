@@ -1,17 +1,27 @@
 from dotenv import load_dotenv
 import os
-import openai
+from openai import OpenAI
 
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# Beispiel-Request
-response = openai.Completion.create(
-    model="text-davinci-003",
-    prompt="Sag Hallo!",
-    max_tokens=10
-)
-print(response.choices[0].text)import streamlit as st
+# Beispiel-Request (nur wenn API-Key vorhanden)
+if os.getenv("OPENAI_API_KEY"):
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "user", "content": "Sag Hallo!"}
+            ],
+            max_tokens=10
+        )
+        print(response.choices[0].message.content)
+    except Exception as e:
+        print(f"OpenAI-Fehler: {e}")
+else:
+    print("Kein OpenAI-API-Key gesetzt.")
+
+import streamlit as st
 import sys
 
 # --- Benutzerverwaltung ---
@@ -23,7 +33,7 @@ def login():
     user = st.text_input("Benutzername")
     pw = st.text_input("Passwort", type="password")
     if st.button("Login"):
-        if user == "admin" and pw == "geheim":
+        if user == "Gazmend Mehmeti" and pw == "Nazmi2015":
             st.session_state.logged_in = True
             st.success("Login erfolgreich!")
         else:

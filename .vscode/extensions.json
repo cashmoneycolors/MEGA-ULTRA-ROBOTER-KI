@@ -25,6 +25,7 @@
         "ms-vscode.powershell",
         "vscjava.vscode-java-test",
         "devsense.phptools-vscode",
-        "ms-dotnettools.csdevkit"
+        "ms-dotnettools.csdevkit",
+        "kilocode.kilo-code"
     ]
 }

@@ -41,8 +41,8 @@
 - [x] C#-Kernmodule (AIIntegrator, Orchestrator, NetworkComponents, AdvancedNetworkComponents, NetworkSyncAuth)
 - [x] Python-Module (INSTALLER_FINAL, AI_CORE)
 - [x] PowerShell/Bash-Installer (post_install_max.ps1, post_install_max.sh, setup_all.sh)
-- [ ] Frontend (React, ZENITH) – Node.js/npm und index.html fehlen noch
-- [ ] numpy (Python) – Build-Fehler (stdalign.h fehlt, Workaround nötig)
+- [x] Frontend (React, ZENITH) – Node.js/npm installiert, index.html vorhanden, npm install durchgeführt
+- [x] numpy (Python) – Installiert als Binary (pip install numpy)
 - [x] Healthcheck-Skripte und API-Endpoints
 - [x] Dokumentation aktuell (README.md, PRODUKTIONSSTATUS.md)
 
@@ -62,23 +62,11 @@
 
 ## Troubleshooting & Hinweise
 
-### numpy Build-Fehler (Windows/MSVC)
-**Problem:** Beim Build von numpy unter Windows/MSVC fehlt die Datei `stdalign.h`.
-**Lösung:**
-- Installiere das Windows SDK (prüfe, ob stdalign.h verfügbar wird)
-- Alternativ: Installiere numpy als Binary mit `pip install numpy` (kein Build from Source)
-- Siehe https://github.com/numpy/numpy/issues/22344 für Details
+### numpy Build-Fehler (Windows/MSVC) – BEHOBEN
+**Behoben:** numpy wurde als Binary installiert (`pip install numpy`). Kein Build-Fehler mehr.
 
-### ZENITH_FRONTEND: index.html fehlt, Node.js/npm nicht installiert
-**Problem:** React-Frontend kann nicht gestartet werden, da Node.js/npm und/oder index.html fehlen.
-**Lösung:**
-- Installiere Node.js und npm: https://nodejs.org/
-- Stelle sicher, dass `ZENITH_FRONTEND/public/index.html` existiert (ggf. aus Git wiederherstellen oder Vorlage nutzen)
-- Danach im Verzeichnis `ZENITH_FRONTEND`:
-	```powershell
-	npm install
-	npm start
-	```
+### ZENITH_FRONTEND – BEHOBEN
+**Behoben:** Node.js (v25.0.0) und npm (11.6.2) sind installiert. `index.html` vorhanden. `npm install` durchgeführt. Frontend bereit zum Start mit `npm start`.
 
 ### Allgemeine Hinweise
 - Für neue Module: Siehe README.md (Secret-Handling, Healthcheck, Doku-Muster)
@@ -139,7 +127,5 @@ In produktiven AOT-Umgebungen: JsonSerializer-Kontext generieren und als Argumen
 
 ---
 
-**WICHTIGER HINWEIS (ZENITH_FRONTEND):**
-- Node.js und npm sind auf diesem System nicht installiert. Die React-Komponente ZENITH_FRONTEND kann daher nicht automatisch getestet oder installiert werden.
-- Um das Frontend zu installieren, bitte Node.js (https://nodejs.org/) und npm installieren und dann im Verzeichnis `ZENITH_FRONTEND` den Befehl `npm install` ausführen.
-- Erst danach steht die Komponente zur Verfügung und die Lockfile-Warnung verschwindet.
+**WICHTIGER HINWEIS (ZENITH_FRONTEND) – BEHOBEN:**
+- Node.js (v25.0.0) und npm (11.6.2) sind installiert. `npm install` wurde durchgeführt. Frontend bereit.
