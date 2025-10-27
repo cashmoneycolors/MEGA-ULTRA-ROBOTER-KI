@@ -1,0 +1,9 @@
+# ZENITH_FRONTEND
+
+Dieses Verzeichnis enthält das React-Frontend-Modul „Zenith SCSC Master Kontrollzentrum (KI & Keys)“.
+
+- Hauptdatei: `ZenithKeyController.jsx`
+- Installationsanleitung: Siehe README.md
+- Integration: Kann als Sideboard-Frontend oder Admin-Panel in das Hauptsystem eingebunden werden.
+
+**Letzte Änderung:** 14.10.2025

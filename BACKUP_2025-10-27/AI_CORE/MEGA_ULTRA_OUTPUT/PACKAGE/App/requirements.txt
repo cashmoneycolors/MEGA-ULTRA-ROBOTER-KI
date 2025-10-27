@@ -1,0 +1,11 @@
+# MEGA ULTRA Creative Studio - Dependencies
+# Install with: pip install -r requirements.txt
+
+# Image processing and manipulation  
+Pillow>=9.0.0
+
+# Numerical operations and arrays
+numpy>=1.21.0
+
+# System and process utilities
+psutil>=5.8.0

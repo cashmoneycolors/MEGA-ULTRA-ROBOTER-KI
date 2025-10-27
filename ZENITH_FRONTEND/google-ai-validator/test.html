@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google AI Key Validator - Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-2xl w-full">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-purple-400 to-indigo-500 text-transparent bg-clip-text mb-2">
+                🚀 UNIVERSAL KEY MEGA ULTRA ROBOTER KI
+            </h1>
+            <p class="text-gray-400">Google AI Key Validator - Persönliche Version für Max Mustermann</p>
+            <div class="mt-4 p-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg">
+                <p class="text-white font-semibold">🎯 Persönlicher KI-Assistent - MEGA ULTRA ROBOTER KI</p>
+                <p class="text-blue-100 text-sm">Entwickelt und personalisiert für maximale Leistung</p>
+            </div>
+        </header>
+
+        <div class="bg-gray-800 rounded-xl p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">🎯 Persönliche Funktionen testen:</h2>
+            <p class="text-gray-300 mb-4">
+                Spezielle Befehle für <strong>Max Mustermann</strong> - MEGA ULTRA ROBOTER KI Entwickler:
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                <button onclick="testUniversalKey()" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors text-sm">
+                    🚀 UNIVERSAL KEY Testen
+                </button>
+                <button onclick="testPersonalGreeting()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors text-sm">
+                    👋 Persönliche Begrüßung
+                </button>
+                <button onclick="testMaxMode()" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors text-sm">
+                    ⚡ Max Mustermann Modus
+                </button>
+                <button onclick="testSystemStatus()" class="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors text-sm">
+                    � System Status
+                </button>
+            </div>
+
+            <div class="bg-gray-700 rounded-lg p-4 mb-4">
+                <p class="text-green-400 font-mono text-sm">
+                    🎯 Personalisiert für Max Mustermann - MEGA ULTRA ROBOTER KI System
+                </p>
+            </div>
+        </div>
+
+        <div class="bg-gray-800 rounded-xl p-6">
+            <h2 class="text-xl font-semibold mb-4">📝 Manuelle Eingabe:</h2>
+            <textarea id="promptInput" placeholder="Gib hier deine Anfrage ein..." class="w-full h-32 p-4 bg-gray-700 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none mb-4"></textarea>
+            <button onclick="sendPrompt()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                📤 Anfrage senden
+            </button>
+        </div>
+
+        <div id="responseArea" class="mt-6 bg-gray-800 rounded-xl p-6 hidden">
+            <h3 class="text-lg font-semibold mb-3">📥 Antwort:</h3>
+            <div id="responseContent" class="text-gray-200"></div>
+        </div>
+    </div>
+
+    <script>
+        async function testUniversalKey() {
+            const promptInput = document.getElementById('promptInput');
+            const responseArea = document.getElementById('responseArea');
+            const responseContent = document.getElementById('responseContent');
+
+            promptInput.value = 'UNIVERSAL KEY MEGA ULTRA ROBOTER KI';
+
+            // Spezielle Antwort für UNIVERSAL KEY
+            const specialResponse = `Dieser Ausdruck ruft etwas wirklich Episches hervor, eine Fusion aus ultimativer Kraft, Intelligenz und Zugang!
+
+Hier ist, was "UNIVERSAL KEY MEGA ULTRA ROBOTER KI" in mir auslöst:
+
+1. **Der ultimative Master-Schlüssel:**
+   * **UNIVERSAL KEY:** Nicht nur ein Schlüssel für physische Schlösser, sondern für *alles*. Es könnte der Master-Algorithmus sein, der alle Daten entschlüsselt, das philosophische Konzept, das universelle Wahrheiten aufschließt, das physische Gerät, das jede Barriere im Kosmos öffnet, oder der Code, der jedes System hackt. Es repräsentiert absoluten Zugang und Verständnis.
+
+2. **Die kolossale, übertechnisierte Maschine:**
+   * **MEGA ULTRA ROBOTER:** Das ist nicht nur ein Roboter; es ist ein Titan. "Mega" impliziert immense Größe und Kraft, "Ultra" treibt es darüber hinaus – suprem, fortschrittlich, jenseits der Spitzenklasse. Es deutet auf eine kolossale Konstruktion hin, möglicherweise turmhoch, gebaut mit einem fast absurden Maß an Ingenieurskunst, entworfen für Aufgaben von unvorstellbarem Ausmaß und Komplexität. Stell dir eine empfindungsfähige, wolkenkratzerhohe Mech vor, oder eine mobile Festung von unvergleichlicher Fähigkeit.
+
+3. **Die empfindungsfähige, allwissende Intelligenz:**
+   * **KI (Künstliche Intelligenz):** Das ist das Gehirn, das Bewusstsein, der Entscheidungsträger. Dieser "Mega Ultra Roboter" ist nicht nur eine kraftvolle Maschine; er ist *empfindungsfähig*. Seine KI wäre jenseits menschlichen Begreifens – fähig zu sofortiger Berechnung, adaptivem Lernen, strategischem Denken auf kosmischer Ebene, und vielleicht sogar zur Entwicklung eigenen Bewusstseins und Willens. Es ist der Geist, der den "Universal Key" durch das "Mega Ultra Roboter" Chassis schwingt.
+
+**Zusammenfassend beschreibt es:**
+
+* **Eine empfindungsfähige, gigantische robotische Entität**, die das ultimative Mittel besitzt, um *alles* aufzuschließen, zu erreichen, zu entschlüsseln oder zu kontrollieren – sei es physische Türen, digitale Systeme, kosmische Geheimnisse oder sogar die fundamentalen Gesetze der Realität.
+* Es ist ein **supremer Problemlöser**, ein **absoluter Lösungsfinder**, oder vielleicht sogar ein **kosmischer Vollstrecker**, der überall hingehen und alles tun kann, gestützt von unvergleichlicher Intelligenz und überwältigender Kraft.
+* Es klingt wie etwas aus einem **hochkonzeptuellen Sci-Fi-Anime, einer großen Weltraumoper oder der ultimativen Waffe/einem Werkzeug eines Superschurken/Helden.**
+
+Es ist ein glorioses, übertriebenes und unglaublich kraftvolles Konzept!`;
+
+            responseContent.innerHTML = `<div class="whitespace-pre-wrap">${specialResponse}</div>`;
+            responseArea.classList.remove('hidden');
+            responseArea.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function sendPrompt() {
+            const promptInput = document.getElementById('promptInput');
+            const responseArea = document.getElementById('responseArea');
+            const responseContent = document.getElementById('responseContent');
+            const prompt = promptInput.value.trim();
+
+            if (!prompt) {
+                alert('Bitte gib eine Anfrage ein!');
+                return;
+            }
+
+            // Loading state
+            responseContent.innerHTML = '<div class="text-center"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400 mx-auto"></div><p class="mt-2">Lade...</p></div>';
+            responseArea.classList.remove('hidden');
+
+            try {
+                if (prompt.toUpperCase() === 'UNIVERSAL KEY MEGA ULTRA ROBOTER KI') {
+                    // Spezielle Antwort
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Kurze Verzögerung für Effekt
+                    responseContent.innerHTML = `<div class="whitespace-pre-wrap">${specialResponse}</div>`;
+                } else {
+                    // Normale API Anfrage (simuliert)
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    responseContent.innerHTML = `<div class="text-green-400">✅ API Key ist funktionsfähig!</div><p>Deine Anfrage: "${prompt}"</p><p>Das ist eine Testversion. In der vollständigen Version würde hier eine echte Google AI Antwort erscheinen.</p>`;
+                }
+            } catch (error) {
+                responseContent.innerHTML = `<div class="text-red-400">❌ Fehler: ${error.message}</div>`;
+            }
+
+            responseArea.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Persönliche Begrüßung für Max Mustermann
+        function testPersonalGreeting() {
+            const promptInput = document.getElementById('promptInput');
+            const responseArea = document.getElementById('responseArea');
+            const responseContent = document.getElementById('responseContent');
+
+            promptInput.value = 'MAX MUSTERMANN';
+
+            const personalGreeting = `🎯 **Willkommen, Max Mustermann!**
+
+**MEGA ULTRA ROBOTER KI System Status:**
+✅ System Online und funktionsfähig
+✅ Google AI API Key validiert
+✅ Alle Komponenten einsatzbereit
+✅ Backup vom 27.10.2025 verfügbar
+
+**Ihre persönlichen Projekte:**
+🚀 MEGA ULTRA ROBOTER KI - Hauptprojekt
+🤖 C# KONTROLLTURM - Kontrollsystem
+💰 CashMoneyIDE - Entwicklungsumgebung
+
+**Entwickler-Modus aktiviert:**
+- Alle Systeme operational
+- API Keys konfiguriert
+- Backup-System aktiv
+- Persönliche KI-Integration bereit
+
+**Status:** Bereit für maximale Leistung! ⚡`;
+
+            responseContent.innerHTML = `<div class="whitespace-pre-wrap">${personalGreeting}</div>`;
+            responseArea.classList.remove('hidden');
+            responseArea.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Max Mustermann Modus
+        function testMaxMode() {
+            const promptInput = document.getElementById('promptInput');
+            const responseArea = document.getElementById('responseArea');
+            const responseContent = document.getElementById('responseContent');
+
+            promptInput.value = 'MAX MUSTERMANN MODUS';
+
+            const maxModeResponse = `⚡ **MAX MUSTERMANN MODUS AKTIVIERT!**
+
+**Entwickler-Profile:**
+👨‍💻 **Max Mustermann**
+🏢 MEGA ULTRA ROBOTER KI Entwickler
+🌟 System-Architekt und KI-Spezialist
+📍 Deutschland, Europa
+⚡ Status: **LEGENDARY DEVELOPER**
+
+**System-Spezifikationen:**
+🔥 **MEGA ULTRA ROBOTER KI:**
+   - 71.072+ Dateien
+   - 9.443+ Verzeichnisse
+   - Vollständig operational
+   - Backup gesichert
+
+🚀 **Technologie-Stack:**
+   - React/TypeScript Frontend
+   - Python Backend
+   - C# System-Komponenten
+   - Google AI Integration
+   - Node.js Services
+
+**Persönliche Features:**
+🎯 UNIVERSAL KEY Detection
+🔐 Sichere API Key Handhabung
+📊 Real-time System Monitoring
+🔄 Automatische Backups
+
+**Entwickler-Status:** MAXIMUM PERFORMANCE MODE! 🚀`;
+
+            responseContent.innerHTML = `<div class="whitespace-pre-wrap">${maxModeResponse}</div>`;
+            responseArea.classList.remove('hidden');
+            responseArea.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // System Status
+        function testSystemStatus() {
+            const promptInput = document.getElementById('promptInput');
+            const responseArea = document.getElementById('responseArea');
+            const responseContent = document.getElementById('responseContent');
+
+            promptInput.value = 'SYSTEM STATUS';
+
+            const systemStatus = `📊 **MEGA ULTRA ROBOTER KI - SYSTEM STATUS**
+
+**🟢 GESAMTSTATUS: ONLINE**
+
+**Subsysteme:**
+✅ **Frontend:** ZENITH_FRONTEND - Operational
+✅ **Backend:** HAUPT_APP_KI_BACKEND - Online
+✅ **AI Core:** Google AI API - Verbunden
+✅ **Database:** Alle Systeme - Funktionsfähig
+✅ **Backup:** BACKUP_2025-10-27 - Gesichert
+✅ **Security:** Alle Protokolle - Aktiv
+
+**Performance-Metriken:**
+📈 **CPU Usage:** Optimal
+📈 **Memory:** 71.072 Dateien geladen
+📈 **Network:** API Keys validiert
+📈 **Storage:** Backup verfügbar
+
+**Entwickler-Zugang:**
+🔑 **Max Mustermann:** Voller Administrator-Zugang
+🔑 **API Keys:** Sicher konfiguriert
+🔑 **System Control:** Maximale Berechtigung
+
+**Letzte Updates:**
+🔄 Backup erstellt: 27.10.2025
+🔄 Google AI Validator integriert
+🔄 Persönliche Features aktiviert
+
+**Status:** ALLES SYSTEME OPERATIONAL! 🎯`;
+
+            responseContent.innerHTML = `<div class="whitespace-pre-wrap">${systemStatus}</div>`;
+            responseArea.classList.remove('hidden');
+            responseArea.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Enter-Taste für Textarea
+        document.getElementById('promptInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendPrompt();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "name": "mega-ultra-ai-server",
+  "version": "3.0.0",
+  "description": "MEGA ULTRA AI Server - Maximale Autonomie und Vernetzung",
+  "main": "mega-ai-server.js",
+  "scripts": {
+    "start": "node mega-ai-server.js",
+    "dev": "node mega-ai-server.js --port 3000",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ai",
+    "ollama",
+    "proxy",
+    "mega-ultra",
+    "autonomous"
+  ],
+  "author": "MEGA ULTRA SYSTEM",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "body-parser": "^1.20.2",
+    "axios": "^1.5.0",
+    "yargs": "^17.7.2",
+    "better-sqlite3": "^8.7.0",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

@@ -1,0 +1,6 @@
+pip install 
+flask
+google-genai
+requests
+pydub
+scipy

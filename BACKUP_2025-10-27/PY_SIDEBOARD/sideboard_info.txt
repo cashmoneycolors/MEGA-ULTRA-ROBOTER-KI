@@ -1,0 +1,6 @@
+Double Gazi AI Ultimate 2.6 ist als eigenständiges Python-Sideboard im Projekt verfügbar.
+
+- Start: python double_gazi_ai_ultimate.py
+- Abhängigkeiten: siehe requirements.txt
+- Sicherheit: siehe SECURITY_DOC_AND_TESTS.md
+- Integration: unabhängig, aber erweiterbar

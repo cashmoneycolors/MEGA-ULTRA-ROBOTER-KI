@@ -1,0 +1,13 @@
+torch
+torchvision
+torchaudio
+openai
+python-dotenv
+streamlit
+pandas
+modin
+dask
+boto3
+cryptography
+gtts
+SpeechRecognition

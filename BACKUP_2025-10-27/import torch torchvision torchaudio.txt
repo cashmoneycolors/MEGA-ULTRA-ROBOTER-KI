@@ -1,0 +1,17 @@
+import torch
+import torchvision
+import torchaudio
+import openai
+import dotenv
+import streamlit
+import pandas
+import modin
+import dask
+import boto3
+import cryptography
+import gtts
+import speech_recognition
+from dotenv import load_dotenv
+
+load_dotenv()
+print("Alle Kernpakete erfolgreich importiert und .env geladen.")

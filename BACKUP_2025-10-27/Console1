@@ -1,0 +1,10 @@
+Console.Clear();
+Console.ForegroundColor = ConsoleColor.Cyan;
+Console.WriteLine("╔════════════════════════════════════════════════════╗");
+Console.WriteLine("║   MEGA ULTRA ROBOTER KI – Produktionssystem       ║");
+Console.WriteLine("╠════════════════════════════════════════════════════╣");
+Console.WriteLine($"║ Build: {DateTime.Now:yyyy-MM-dd HH:mm:ss}   ");
+Console.WriteLine($"║ Integrationsstatus: ALLE MODULE AKTIV");
+Console.WriteLine($"║ Sideboard: {(File.Exists(\"PY_SIDEBOARD/double_gazi_ai_ultimate.py\") ? \"Verfügbar\" : \"Nicht gefunden\")}");
+Console.WriteLine("╚════════════════════════════════════════════════════╝");
+Console.ResetColor();

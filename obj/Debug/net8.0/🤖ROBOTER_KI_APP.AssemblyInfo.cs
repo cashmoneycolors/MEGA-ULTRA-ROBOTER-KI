@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("🤖ROBOTER_KI_APP")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+aca7369f40c43097abb1b3120119849ddc7db5a9")]
 [assembly: System.Reflection.AssemblyProductAttribute("🤖ROBOTER_KI_APP")]
 [assembly: System.Reflection.AssemblyTitleAttribute("🤖ROBOTER_KI_APP")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

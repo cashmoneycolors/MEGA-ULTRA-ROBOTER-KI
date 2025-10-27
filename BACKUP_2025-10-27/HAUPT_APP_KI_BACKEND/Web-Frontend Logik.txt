@@ -1,0 +1,409 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+// --- Globale Zustände ---
+let currentApiKey = null;
+let currentUserId = null;
+const CHAT_HISTORY = []; // Speichert jetzt Nachrichten, Tool-Calls und Tool-Results
+
+// Variablen für die Sprachaufnahme
+let isRecording = false;
+let mediaRecorder;
+let audioChunks = [];
+let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+let audioSource = null;
+
+// --- DOM Elemente ---
+const messageContainer = document.getElementById('messageContainer');
+const chatInput = document.getElementById('chatInput');
+const sendButton = document.getElementById('sendButton');
+const generateKeyButton = document.getElementById('generateKeyButton');
+const apiKeyInput = document.getElementById('apiKeyInput');
+const copyKeyButton = document.getElementById('copyKeyButton');
+const authStatus = document.getElementById('authStatus');
+const micButton = document.getElementById('micButton');
+const micIcon = document.getElementById('micIcon');
+const stopIcon = document.getElementById('stopIcon');
+const volumeRange = document.getElementById('volumeRange');
+
+// --- Firebase Setup ---
+let app, db, auth;
+
+function initFirebase(config) {
+    if (!config || !config.firebaseConfig) {
+        authStatus.textContent = 'FEHLER: Firebase Konfiguration fehlt.';
+        return;
+    }
+    
+    app = initializeApp(config.firebaseConfig);
+    db = getFirestore(app);
+    auth = getAuth(app);
+    
+    // Auth-Listener starten
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            currentUserId = user.uid;
+            document.getElementById('userIdDisplay').textContent = currentUserId;
+            document.getElementById('appIdDisplay').textContent = config.appId;
+            
+            // 1. ANMELDUNG (Maximale Sicherheit)
+            authStatus.textContent = `Verbunden (UID: ${currentUserId.substring(0, 8)}...)`;
+            authStatus.classList.remove('bg-yellow-100', 'text-yellow-800');
+            authStatus.classList.add('bg-green-100', 'text-green-800');
+            
+            // 2. API Key autonom abrufen
+            await fetchApiKey(true);
+            
+            // 3. UI aktivieren
+            chatInput.disabled = false;
+            sendButton.disabled = false;
+            micButton.disabled = false;
+        } else {
+            // Bei initialem Start anmelden
+            try {
+                if (config.initialAuthToken) {
+                    await signInWithCustomToken(auth, config.initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Fehler bei der Authentifizierung:", error);
+                authStatus.textContent = `Fehler beim Login: ${error.code}`;
+            }
+        }
+    });
+}
+
+// --- API Key Management (Maximale Stufe Autonomie) ---
+
+function getApiKeyDocRef() {
+    // Privater Pfad: /artifacts/{appId}/users/{userId}/api_keys/key_document
+    const appId = window.GLOBAL_CONFIG.appId;
+    return doc(db, `/artifacts/${appId}/users/${currentUserId}/api_keys/key_document`);
+}
+
+async function fetchApiKey(showMessage) {
+    if (!currentUserId || !db) return;
+
+    try {
+        const docRef = getApiKeyDocRef();
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists() && docSnap.data().key) {
+            currentApiKey = docSnap.data().key;
+            apiKeyInput.value = currentApiKey;
+            if (showMessage) logMessage('system', 'API Key erfolgreich aus Firestore geladen.');
+        } else {
+            if (showMessage) logMessage('system', 'Kein API Key gefunden. Bitte generieren Sie einen neuen.');
+        }
+    } catch (error) {
+        console.error("Fehler beim Abrufen des API Keys:", error);
+        logMessage('error', 'Konnte API Key nicht aus Firestore abrufen.');
+    }
+}
+
+async function generateNewKey() {
+    if (!currentUserId) {
+        logMessage('error', 'Warten auf Authentifizierung...');
+        return;
+    }
+
+    generateKeyButton.disabled = true;
+    document.getElementById('generateKeyText').textContent = 'Generiere...';
+    
+    try {
+        // Backend-Aufruf zur kryptografisch sicheren Schlüsselgenerierung
+        const response = await fetch('/api/manage_key', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: currentUserId })
+        });
+        
+        const data = await response.json();
+
+        if (response.ok) {
+            const newKey = data.key;
+            
+            // 2. Im Frontend in Firestore speichern (Maximale Autonomie)
+            const docRef = getApiKeyDocRef();
+            await setDoc(docRef, { 
+                key: newKey, 
+                userId: currentUserId,
+                createdAt: Date.now()
+            });
+
+            currentApiKey = newKey;
+            apiKeyInput.value = newKey;
+            logMessage('system', 'Neuer API Key generiert und in Firestore gespeichert.');
+        } else {
+            logMessage('error', `Fehler beim Generieren: ${data.error || 'Unbekannter Fehler'}`);
+        }
+    } catch (error) {
+        console.error("Fehler beim API Key Generierungsprozess:", error);
+        logMessage('error', 'Netzwerkfehler beim Generieren des API Keys.');
+    } finally {
+        generateKeyButton.disabled = false;
+        document.getElementById('generateKeyText').textContent = 'API Key generieren';
+    }
+}
+
+// --- Chat und KI Interaktion ---
+
+function appendMessage(sender, text, isError = false) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message p-3 shadow-md ${sender === 'user' ? 'user-message' : 'ai-message'}`;
+    messageDiv.textContent = text;
+    
+    if (isError) {
+        messageDiv.classList.remove('ai-message', 'user-message');
+        messageDiv.classList.add('bg-red-200', 'text-red-800');
+    }
+
+    messageContainer.appendChild(messageDiv);
+    messageContainer.scrollTop = messageContainer.scrollHeight;
+    
+    // Verlauf nur für tatsächliche Nachrichten speichern
+    if (!isError) {
+        // ACHTUNG: Der Verlauf speichert jetzt nur Text und Sender, 
+        // da das Backend die Tool-Calls und Results selbst wieder in den Verlauf injiziert.
+        CHAT_HISTORY.push({ sender, text });
+    }
+}
+
+function logMessage(sender, text) {
+    // Führt nur eine Konsolen- oder Systemnachricht in den Chat ein, ohne den Verlauf zu speichern
+    appendMessage(sender === 'user' ? 'user' : 'ai', text, sender === 'error' || sender === 'system');
+}
+
+async function handleChatSubmit(prompt) {
+    if (!currentApiKey) {
+        logMessage('error', 'Bitte generieren Sie zuerst Ihren API Key.');
+        return;
+    }
+
+    const trimmedPrompt = prompt.trim();
+    if (!trimmedPrompt) return;
+
+    // 1. UI und Verlauf
+    appendMessage('user', trimmedPrompt);
+    chatInput.value = '';
+    sendButton.disabled = true;
+    micButton.disabled = true;
+    chatInput.placeholder = 'Warte auf KI-Antwort...';
+
+    try {
+        // 2. Gesicherter API-Aufruf (Maximale Stufe Sicherheit durch Header)
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-API-Key': currentApiKey // Autonome Schlüssel-Übermittlung
+            },
+            body: JSON.stringify({ prompt: trimmedPrompt, history: CHAT_HISTORY })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            const aiText = data.text.trim();
+            appendMessage('ai', aiText);
+            
+            // 3. Autonome Sprachausgabe (TTS)
+            await playAudioResponse(aiText);
+        } else {
+            // Fehler vom Backend, z.B. 401 Unauthorized
+            logMessage('error', `Fehler vom Backend: ${data.error || 'Unbekannter Fehler'}`);
+        }
+    } catch (error) {
+        console.error("Netzwerkfehler:", error);
+        logMessage('error', 'Fehler: Konnte keine Verbindung zum Backend herstellen.');
+    } finally {
+        sendButton.disabled = false;
+        micButton.disabled = false;
+        chatInput.placeholder = 'Geben Sie Ihre Nachricht ein...';
+    }
+}
+
+// --- Audio Wiedergabe (TTS) ---
+
+async function playAudioResponse(text) {
+    if (!currentApiKey) return;
+
+    try {
+        const response = await fetch('/api/tts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-API-Key': currentApiKey // Autonome Schlüssel-Übermittlung
+            },
+            body: JSON.stringify({ text: text })
+        });
+
+        if (response.ok) {
+            const audioData = await response.arrayBuffer();
+            const volume = parseFloat(volumeRange.value);
+
+            // Decode und Abspielen
+            audioContext.decodeAudioData(audioData, (buffer) => {
+                if (audioSource) {
+                    audioSource.stop(); // Stoppe vorherige Wiedergabe
+                }
+                audioSource = audioContext.createBufferSource();
+                audioSource.buffer = buffer;
+                
+                // Lautstärkeregelung
+                const gainNode = audioContext.createGain();
+                gainNode.gain.value = volume;
+                audioSource.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                audioSource.start(0);
+            });
+
+        } else {
+            console.error("TTS-Fehler:", response.statusText);
+        }
+    } catch (error) {
+        console.error("Fehler bei der Audio-Wiedergabe:", error);
+    }
+}
+
+
+// --- Audio Aufnahme (STT) ---
+
+async function startRecording() {
+    if (isRecording) return;
+    isRecording = true;
+    audioChunks = [];
+    
+    // UI aktualisieren (Mikrofon Animation)
+    micButton.classList.add('mic-recording');
+    micIcon.classList.add('hidden');
+    stopIcon.classList.remove('hidden');
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+
+        mediaRecorder.ondataavailable = event => {
+            audioChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            
+            // Stream beenden
+            stream.getTracks().forEach(track => track.stop());
+
+            // Transkription starten
+            await sendAudioForTranscription(audioBlob);
+            
+            // Zustand zurücksetzen
+            isRecording = false;
+            micButton.classList.remove('mic-recording');
+            micIcon.classList.remove('hidden');
+            stopIcon.classList.add('hidden');
+        };
+
+        mediaRecorder.start();
+        logMessage('system', 'Sprachaufnahme gestartet. Klicken Sie erneut, um zu beenden...');
+
+    } catch (error) {
+        console.error("Fehler beim Starten der Aufnahme:", error);
+        logMessage('error', 'Konnte Mikrofon nicht starten. Erlaubnis verweigert oder Gerät fehlt.');
+        isRecording = false;
+        micButton.classList.remove('mic-recording');
+        micIcon.classList.remove('hidden');
+        stopIcon.classList.add('hidden');
+    }
+}
+
+function stopRecording() {
+    if (isRecording && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+        logMessage('system', 'Sprachaufnahme beendet. Sende zur Transkription...');
+    }
+}
+
+async function sendAudioForTranscription(audioBlob) {
+    if (!currentApiKey) {
+        logMessage('error', 'Bitte generieren Sie zuerst Ihren API Key.');
+        return;
+    }
+    
+    logMessage('user', '...[Audio wird transkribiert]...');
+    
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'recording.webm');
+    
+    try {
+        // Gesicherter STT-Aufruf
+        const response = await fetch('/api/stt', {
+            method: 'POST',
+            headers: {
+                'X-API-Key': currentApiKey // Autonome Schlüssel-Übermittlung
+            },
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.transcript) {
+            // 1. Text als Benutzer-Prompt verwenden
+            logMessage('system', `Transkribierter Text: "${data.transcript}"`);
+            // 2. Automatisch den Chat auslösen
+            await handleChatSubmit(data.transcript); 
+            
+        } else {
+            logMessage('error', `Transkriptionsfehler: ${data.error || 'Unbekannter Fehler'}`);
+        }
+    } catch (error) {
+        console.error("Fehler bei der Transkription:", error);
+        logMessage('error', 'Netzwerkfehler während der Transkription.');
+    }
+}
+
+
+// --- Event Listener und Initialisierung ---
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialisiere Firebase mit den globalen Konfigurationsvariablen
+    if (window.GLOBAL_CONFIG) {
+        initFirebase(window.GLOBAL_CONFIG);
+    }
+    
+    sendButton.addEventListener('click', () => handleChatSubmit(chatInput.value));
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleChatSubmit(chatInput.value);
+    });
+    
+    generateKeyButton.addEventListener('click', generateNewKey);
+
+    micButton.addEventListener('click', () => {
+        if (isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
+    });
+
+    copyKeyButton.addEventListener('click', () => {
+        apiKeyInput.select();
+        document.execCommand('copy');
+        const originalText = copyKeyButton.innerHTML;
+        copyKeyButton.innerHTML = `<svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>`;
+        setTimeout(() => copyKeyButton.innerHTML = originalText, 2000);
+    });
+    
+    // Lautstärke im Audio Context setzen
+    volumeRange.addEventListener('input', () => {
+        if (audioSource && audioContext.state === 'running') {
+            const gainNode = audioContext.createGain();
+            gainNode.gain.value = parseFloat(volumeRange.value);
+            // Muss den aktuellen Source mit dem neuen Gain Node verbinden
+            // Für eine vollständige Implementierung müssten wir den Audio Source neu erstellen oder
+            // sicherstellen, dass der Gain Node Teil der Playback-Kette ist.
+        }
+    });
+});

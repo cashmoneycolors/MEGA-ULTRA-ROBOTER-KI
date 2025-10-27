@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>AI Converter - Demo</title>
+  <style>
+    body{font-family: Arial; max-width:900px;margin:40px auto;}
+    textarea{width:100%;height:200px;}
+    .row{margin:10px 0;}
+  </style>
+</head>
+<body>
+  <h1>AI Converter — Demo</h1>
+
+  <h2>Text → Datei</h2>
+  <form id="textForm">
+    <textarea id="text" placeholder="Gib Text oder füge Screenshot-Beschreibung ein...">Hallo Welt!</textarea>
+    <div class="row">
+      Ausgabe: <input id="out" value="docx,pdf,jpg,stl" style="width:300px;">
+      <button type="submit">Konvertieren</button>
+    </div>
+  </form>
+
+  <h2>Screenshot → Datei</h2>
+  <form id="imgForm">
+    <input type="file" id="screenshot">
+    <div class="row">
+      Ausgabe: <input id="outimg" value="pdf,jpg,docx" style="width:300px;">
+      <button type="button" id="uploadBtn">Hochladen & Konvertieren</button>
+    </div>
+  </form>
+
+  <div id="result"></div>
+
+<script>
+async function postText(evt){
+  evt.preventDefault();
+  const text = document.getElementById('text').value;
+  const outputs = document.getElementById('out').value;
+  const form = new FormData();
+  form.append('text', text);
+  form.append('outputs', outputs);
+  const r = await fetch('/convert/text', { method:'POST', body: form });
+  if(!r.ok){ alert('Fehler: '+r.statusText); return; }
+  const disposition = r.headers.get('Content-Disposition') || 'file.bin';
+  const blob = await r.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const fname = disposition.split('filename=')[1] || 'out.bin';
+  a.download = fname;
+  a.textContent = 'Download '+fname;
+  document.getElementById('result').innerHTML = '';
+  document.getElementById('result').appendChild(a);
+}
+
+async function postImg(){
+  const file = document.getElementById('screenshot').files[0];
+  const outputs = document.getElementById('outimg').value;
+  if(!file){ alert('Wähle eine Datei'); return; }
+  const form = new FormData();
+  form.append('file', file);
+  form.append('outputs', outputs);
+  const r = await fetch('/convert/screenshot', { method:'POST', body: form });
+  if(!r.ok){ alert('Fehler: '+r.statusText); return; }
+  const disposition = r.headers.get('Content-Disposition') || 'file.bin';
+  const blob = await r.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const fname = disposition.split('filename=')[1] || 'out.bin';
+  a.download = fname;
+  a.textContent = 'Download '+fname;
+  document.getElementById('result').innerHTML = '';
+  document.getElementById('result').appendChild(a);
+}
+
+document.getElementById('textForm').addEventListener('submit', postText);
+document.getElementById('uploadBtn').addEventListener('click', postImg);
+</script>
+</body>
+</html>
