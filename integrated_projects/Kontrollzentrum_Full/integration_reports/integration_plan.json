@@ -1,0 +1,31 @@
+{
+  "timestamp": "2025-11-20T06:16:40.391146",
+  "phases": [
+    {
+      "id": 1,
+      "name": "Analyse & Inventarisierung",
+      "status": "completed"
+    },
+    {
+      "id": 2,
+      "name": "Vorbereitung & Planung",
+      "status": "in_progress"
+    },
+    {
+      "id": 3,
+      "name": "Repository-Integration",
+      "status": "pending"
+    },
+    {
+      "id": 4,
+      "name": "Asset-Konsolidierung",
+      "status": "pending"
+    },
+    {
+      "id": 5,
+      "name": "Validierung & Berichte",
+      "status": "pending"
+    }
+  ],
+  "tasks": []
+}
