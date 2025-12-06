@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AIServiceBicepAssistant</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.BicepAssistant.BicepAssistantOptions">
+            <summary>
+            Options for the Bicep Assistant service.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.BicepAssistant.BicepAssistantOptions.Uri">
+            <summary>
+            Base Url for the Bicep Assistant service.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.BicepAssistant.BicepAssistantOptions.OAuthScopes">
+            <summary>
+            OAuth scopes required to access the Bicep Assistant service.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.BicepAssistant.BicepAssistantOptions.UseAppOnlyToken">
+            <summary>
+            Indicates if an app-only token is required to access the Bicep Assistant service.
+            If false, unauthenticated access is permitted.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.BicepAssistant.ServiceCollectionExtensions.AddBicepAssistantClient(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds an instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.BicepAssistant.IBicepAssistantClient"/> as a transient service into
+            <paramref name="services"/>.
+            </summary>
+            <param name="services">Service collection to add a service registration to.</param>
+            <returns>
+            The <paramref name="services"/> for chaining, like to add registration
+            of the required <see cref="!:IMSLearnTokenProvider"/>.
+            </returns>
+        </member>
+    </members>
+</doc>

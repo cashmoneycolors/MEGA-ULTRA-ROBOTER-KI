@@ -1,0 +1,20 @@
+{
+    "description": "A validation tool that checks if a file size requires the use of change_applier tool. For large files exceeding the specified size threshold, the change_applier tool must be used instead of direct updates. This helps ensure proper handling of large files by enforcing the use of change_applier when necessary.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "path": {
+                "type": "string",
+                "description": "Path to the file to check size"
+            },
+            "size_threshold": {
+                "type": "integer",
+                "description": "Maximum file size in bytes before requiring change_applier (defaults to 6000)",
+                "default": 6000
+            }
+        },
+        "required": [
+            "path"
+        ]
+    }
+}

@@ -36,7 +36,7 @@ namespace RoboterKIMaxUltra
 
         public static async Task Main(string[] args)
         {
-            Console.Clear();
+            try { try { try { Console.Clear(); } catch { } } catch { /* Non-console mode */ } } catch { }
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("╔════════════════════════════════════════════════════╗");
             Console.WriteLine("║   MEGA ULTRA ROBOTER KI – Produktionssystem       ║");
@@ -547,6 +547,9 @@ namespace RoboterKIMaxUltra
         }
     }
 }
+
+
+
 
 
 

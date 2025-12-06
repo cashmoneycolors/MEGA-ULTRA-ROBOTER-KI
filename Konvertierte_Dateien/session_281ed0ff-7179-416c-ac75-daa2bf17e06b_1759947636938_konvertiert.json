@@ -1,0 +1,19 @@
+{
+  "sessionId": "281ed0ff-7179-416c-ac75-daa2bf17e06b",
+  "startTime": "2025-10-08T18:20:36.938Z",
+  "chatMessages": [],
+  "timeline": [
+    {
+      "id": "2edf330d-e3e8-4f1d-9ce2-1874aa94b1a2",
+      "timestamp": "2025-10-08T18:21:04.733Z",
+      "type": "error",
+      "text": "You must be logged in to send messages. Please run /login"
+    },
+    {
+      "id": "a6dd917f-481e-405b-96a9-cec3e5830c56",
+      "timestamp": "2025-10-08T18:21:22.090Z",
+      "type": "error",
+      "text": "You must be logged in to send messages. Please run /login"
+    }
+  ]
+}

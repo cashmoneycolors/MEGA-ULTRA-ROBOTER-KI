@@ -1,0 +1,91 @@
+{
+  "sessionId": "fdb9c2c4-7fb9-4a3d-abb2-a4ee2830907d",
+  "startTime": "2025-10-08T18:21:44.034Z",
+  "chatMessages": [],
+  "timeline": [
+    {
+      "id": "68b03fa2-00ce-44a2-8567-891157c1ca33",
+      "timestamp": "2025-10-08T18:22:25.108Z",
+      "type": "error",
+      "text": "You must be logged in to send messages. Please run /login"
+    },
+    {
+      "id": "0179f9ca-9804-4bfc-8e85-a2860d3576ee",
+      "timestamp": "2025-10-08T18:22:36.956Z",
+      "type": "error",
+      "text": "You must be logged in to send messages. Please run /login"
+    },
+    {
+      "id": "9173664d-1c0e-4af5-9c0c-4010a1399cfd",
+      "timestamp": "2025-10-08T18:23:30.893Z",
+      "type": "error",
+      "text": "You must be logged in to send messages. Please run /login"
+    },
+    {
+      "id": "689259ff-c362-4634-96b3-cd28a8c6d71b",
+      "timestamp": "2025-10-08T18:23:42.899Z",
+      "type": "error",
+      "text": "You must be logged in to send messages. Please run /login"
+    },
+    {
+      "id": "a81477b3-dfe6-4334-9b50-d6a60fe129d3",
+      "timestamp": "2025-10-08T18:24:23.589Z",
+      "type": "error",
+      "text": "You must be logged in to send messages. Please run /login"
+    },
+    {
+      "id": "b1d64200-264c-41f7-b4b8-85f7a29b016a",
+      "timestamp": "2025-10-08T18:25:37.874Z",
+      "type": "error",
+      "text": "You must be logged in to send messages. Please run /login"
+    },
+    {
+      "id": "f0dfa86f-2028-4cbe-89c2-3591a42b1aef",
+      "timestamp": "2025-10-08T18:25:49.788Z",
+      "type": "error",
+      "text": "You must be logged in to send messages. Please run /login"
+    },
+    {
+      "id": "3453f427-157f-434f-af7a-c2ab6ee6ca48",
+      "timestamp": "2025-10-08T18:26:04.822Z",
+      "type": "error",
+      "text": "You must be logged in to send messages. Please run /login"
+    },
+    {
+      "id": "87a8dc07-5257-427e-b31e-99f1075216a0",
+      "timestamp": "2025-10-08T18:26:27.322Z",
+      "type": "error",
+      "text": "You must be logged in to send messages. Please run /login"
+    },
+    {
+      "id": "7ac3124a-9096-43f3-8a56-92a3d398065c",
+      "timestamp": "2025-10-08T18:26:44.559Z",
+      "type": "error",
+      "text": "You must be logged in to send messages. Please run /login"
+    },
+    {
+      "id": "cff3db96-61de-44d2-a174-ac9d0cc5e3b1",
+      "timestamp": "2025-10-08T18:27:07.798Z",
+      "type": "error",
+      "text": "You must be logged in to send messages. Please run /login"
+    },
+    {
+      "id": "b08b31b9-e883-4d68-8167-c13b116be31f",
+      "timestamp": "2025-10-08T18:27:22.533Z",
+      "type": "error",
+      "text": "You must be logged in to send messages. Please run /login"
+    },
+    {
+      "id": "9a1b952b-69c7-4050-8de6-889ab67aec4c",
+      "timestamp": "2025-10-08T18:27:40.517Z",
+      "type": "error",
+      "text": "You must be logged in to send messages. Please run /login"
+    },
+    {
+      "id": "3ccb63ce-46c5-4e8f-9cc8-95618463003a",
+      "timestamp": "2025-10-08T18:27:42.718Z",
+      "type": "error",
+      "text": "You must be logged in to send messages. Please run /login"
+    }
+  ]
+}

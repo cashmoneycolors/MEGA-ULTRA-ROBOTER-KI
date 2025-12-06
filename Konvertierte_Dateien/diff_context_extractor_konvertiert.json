@@ -1,0 +1,69 @@
+{
+    "name": "diff_context_extractor",
+    "version": "1.0.0",
+    "description": "Extracts context files relevant to a unified diff by parsing changed files, extracting symbols from changed lines, and finding references to those symbols across the codebase. Returns a prioritized list of files with line ranges that are most relevant for understanding the impact of the changes.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "diff": {
+                "type": "string",
+                "description": "The unified diff content to analyze for changed files and lines"
+            },
+            "codebase_root": {
+                "type": "string",
+                "description": "Absolute path to the root directory of the codebase to search for related files (default: current directory)"
+            },
+            "max_files": {
+                "type": "integer",
+                "description": "Maximum number of context files to return (default: 10)",
+                "default": 10
+            }
+        },
+        "required": [
+            "diff",
+            "codebase_root"
+        ]
+    },
+    "output_schema": {
+        "type": "object",
+        "properties": {
+            "success": {
+                "type": "boolean",
+                "description": "Whether the operation completed successfully"
+            },
+            "files": {
+                "type": "array",
+                "description": "Array of relevant files with their line ranges",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "path": {
+                            "type": "string",
+                            "description": "Absolute path to the relevant file"
+                        },
+                        "start_line": {
+                            "type": "integer",
+                            "description": "Starting line number of the relevant section (1-based indexing)"
+                        },
+                        "end_line": {
+                            "type": "integer",
+                            "description": "Ending line number of the relevant section (1-based indexing)"
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "start_line",
+                        "end_line"
+                    ]
+                }
+            },
+            "error": {
+                "type": "string",
+                "description": "Error message if success is false"
+            }
+        },
+        "required": [
+            "success"
+        ]
+    }
+}

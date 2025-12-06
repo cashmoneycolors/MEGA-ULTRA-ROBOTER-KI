@@ -1,0 +1,148 @@
+{
+    "created": "2025-09-29T01:42:49.753603",
+    "version": "1.0",
+    "apis": {
+        "openai": {
+            "api_key": "",
+            "organization": "",
+            "model": "gpt-3.5-turbo",
+            "max_tokens": 1000,
+            "temperature": 0.7,
+            "status": "❌ Nicht konfiguriert"
+        },
+        "alpha_vantage": {
+            "api_key": "",
+            "base_url": "https://www.alphavantage.co/query",
+            "rate_limit": 5,
+            "status": "❌ Nicht konfiguriert",
+            "functions": [
+                "TIME_SERIES_DAILY",
+                "CURRENCY_EXCHANGE_RATE",
+                "GLOBAL_QUOTE"
+            ]
+        },
+        "cryptocompare": {
+            "api_key": "",
+            "base_url": "https://min-api.cryptocompare.com/data/",
+            "rate_limit": 100,
+            "status": "❌ Nicht konfiguriert",
+            "functions": [
+                "price",
+                "histoday",
+                "histohour"
+            ]
+        },
+        "yfinance": {
+            "status": "✅ Verfügbar (Kostenlos)",
+            "symbols": [
+                "AAPL",
+                "MSFT",
+                "GOOGL",
+                "AMZN",
+                "TSLA"
+            ],
+            "indices": [
+                "^GSPC",
+                "^DJI",
+                "^IXIC",
+                "^GDAXI"
+            ],
+            "rate_limit": "Unbegrenzt"
+        },
+        "twitter": {
+            "api_key": "",
+            "api_secret": "",
+            "access_token": "",
+            "access_secret": "",
+            "bearer_token": "",
+            "status": "❌ Nicht konfiguriert",
+            "functions": [
+                "tweets",
+                "trends",
+                "user_timeline"
+            ]
+        },
+        "google_trends": {
+            "status": "✅ Verfügbar (Kostenlos)",
+            "regions": [
+                "DE",
+                "US",
+                "GB",
+                "FR"
+            ],
+            "categories": [
+                0,
+                3,
+                7,
+                12,
+                16
+            ],
+            "rate_limit": "Limitiert (Google intern)"
+        },
+        "news_api": {
+            "api_key": "",
+            "base_url": "https://newsapi.org/v2/",
+            "status": "❌ Nicht konfiguriert",
+            "sources": [
+                "bbc-news",
+                "cnn",
+                "reuters",
+                "bloomberg"
+            ]
+        },
+        "web_scraping": {
+            "status": "✅ Verfügbar (Kostenlos)",
+            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "timeout": 10,
+            "rate_limit": "Selbst verwaltet"
+        },
+        "smtp_email": {
+            "smtp_server": "smtp.gmail.com",
+            "smtp_port": 587,
+            "email": "",
+            "password": "",
+            "status": "❌ Nicht konfiguriert"
+        },
+        "system_monitoring": {
+            "status": "✅ Verfügbar (Kostenlos)",
+            "cpu_threshold": 80,
+            "memory_threshold": 85,
+            "disk_threshold": 90,
+            "network_threshold": 100
+        },
+        "paypal": {
+            "client_id": "",
+            "client_secret": "",
+            "sandbox": true,
+            "status": "❌ Nicht konfiguriert"
+        },
+        "stripe": {
+            "public_key": "",
+            "secret_key": "",
+            "webhook_secret": "",
+            "status": "❌ Nicht konfiguriert"
+        }
+    },
+    "database": {
+        "type": "sqlite",
+        "sqlite": {
+            "file": "money_suite.db",
+            "status": "✅ Verfügbar (Local File)"
+        },
+        "mysql": {
+            "host": "localhost",
+            "port": 3306,
+            "database": "",
+            "username": "",
+            "password": "",
+            "status": "❌ Nicht konfiguriert"
+        }
+    },
+    "security": {
+        "encryption_key": "",
+        "jwt_secret": "",
+        "password_salt": "",
+        "session_timeout": 3600,
+        "max_login_attempts": 5
+    }
+}

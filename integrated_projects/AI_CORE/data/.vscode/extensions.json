@@ -1,0 +1,7 @@
+{
+    "recommendations": [
+        "postman.postman-for-vscode",
+        "ms-dotnettools.vscode-dotnet-pack",
+        "grafana.vscode-jsonnet"
+    ]
+}

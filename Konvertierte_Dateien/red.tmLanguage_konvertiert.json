@@ -1,0 +1,107 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Red",
+	"patterns": [
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#routines"
+		},
+		{
+			"include": "#constants"
+		},
+		{
+			"include": "#variables"
+		}
+	],
+	"repository": {
+		"comments": {
+			"patterns": [
+				{
+					"begin": "//",
+					"beginCaptures": {
+						"0": {
+							"name": "punctuation.definition.comment.red"
+						}
+					},
+					"end": "\\n",
+					"name": "comment.line.number-sign.red"
+				}
+			]
+		},
+		"keywords": {
+			"patterns": [
+				{
+					"name": "entity.name.function",
+					"match": "\\b(not|shift|add|xor|or|and|compare)\\b"
+				},
+				{
+					"name": "keyword.control.red",
+					"match": "\\b(use|using|export|import|from|as|into|goto|exit|unless)\\b"
+				},
+				{
+					"name": "entity.name.tag",
+					"match": "\\b(read|write)\\b"
+				},
+				{
+					"name": "constant.numeric",
+					"match": "\\b(auto)\\b"
+				},
+				{
+					"begin": "\\b(ram|device|input):",
+					"beginCaptures": {
+						"1": {
+							"name": "constant.character.red"
+						}
+					},
+					"end": "\\b"
+				}
+			]
+		},
+		"routines": {
+			"patterns": [
+				{
+					"name": "markup.heading.red",
+					"match": "(\\[[A-Z][a-zA-Z._*0-9]*]*\\])"
+				}
+			]
+		},
+		"variables": {
+			"patterns": [
+				{
+					"name": "markup.heading.red",
+					"match": "\\b([A-Z][a-zA-Z._*0-9]*)\\b"
+				},
+				{
+					"name": "variable.name.red",
+					"match": "\\b([a-z][a-zA-Z._*0-9]*)\\b"
+				},
+				{
+					"name": "string.red",
+					"match": "(\".*?\")"
+				}
+			]
+		},
+		"constants": {
+			"patterns": [
+				{
+					"name": "constant.character.escape.red",
+					"match": "(#[0-9a-f]+)\\b"
+				},
+				{
+					"name": "string.interpolated.red",
+					"match": "\\b([01.]+b)\\b"
+				},
+				{
+					"name": "constant.numeric.red",
+					"match": "\\b(\\d+)\\b"
+				}
+			]
+		}
+	},
+	"scopeName": "source.red"
+}

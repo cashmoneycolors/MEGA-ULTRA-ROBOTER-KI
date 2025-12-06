@@ -1,0 +1,61 @@
+{
+  "name": "weather_info",
+  "description": "A weather data service that provides current weather conditions for specified locations. Returns comprehensive weather metrics including temperature, wind conditions, humidity, and precipitation. Can accept both city names and coordinates. Essential for weather-dependent applications and location-based services.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "location": {
+        "type": "string",
+        "description": "The location to retrieve weather information for (city name or coordinates)"
+      }
+    },
+    "required": ["location"]
+  },
+  "trigger_patterns": [
+    "weather",
+    "current weather",
+    "weather forecast"
+  ],
+  "examples": [
+    "get weather for New York",
+    "what's the weather like in Paris",
+    "check weather in London"
+  ],
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "location": {
+        "type": "string",
+        "description": "The location the weather information is for"
+      },
+      "weather_summary": {
+        "type": "string",
+        "description": "A brief summary of the current weather conditions"
+      },
+      "temperature": {
+        "type": "number",
+        "description": "The current temperature in Celsius"
+      },
+      "wind_speed": {
+        "type": "number",
+        "description": "The current wind speed in km/h"
+      },
+      "humidity": {
+        "type": "number",
+        "description": "The current humidity percentage"
+      },
+      "precipitation": {
+        "type": "number",
+        "description": "The current precipitation in mm"
+      }
+    },
+    "required": [
+      "location",
+      "weather_summary",
+      "temperature",
+      "wind_speed",
+      "humidity",
+      "precipitation"
+    ]
+  }
+}

@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using MegaUltraSystem;
 
 /// <summary>
 /// 🚀🌐⚡ MEGA ULTRA AUTONOMOUS NETWORKED SYSTEM LAUNCHER ⚡🌐🚀
@@ -58,7 +59,7 @@ public class MegaUltraAutonomousLauncher
             WriteColorLine("🚀 Starte MEGA ULTRA System mit autonomer Vernetzung...", ConsoleColor.Green);
             
             // Starte das komplette System (inklusive autonomer Vernetzung)
-            var (success, message, process) = await aiIntegrator.StartMegaUltraSystem();
+            var (success, message) = await aiIntegrator.StartMegaUltraSystem();
             
             if (success)
             {

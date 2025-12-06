@@ -1,0 +1,23 @@
+{
+    "description": "A file reading utility that reads files in chunks of specified size. Supports both text and binary files, provides chunk information and file statistics. Works cross-platform (Linux, Unix, Mac, Windows) and maintains consistent chunk handling across systems. Essential for processing large files and streaming content.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "path": {
+                "type": "string",
+                "description": "Path of the file to read"
+            },
+            "chunk_size": {
+                "type": "integer",
+                "description": "Size of each chunk in bytes",
+                "minimum": 1
+            },
+            "chunk_number": {
+                "type": "integer",
+                "description": "Zero-based chunk number to read",
+                "minimum": 0
+            }
+        },
+        "required": ["path", "chunk_size", "chunk_number"]
+    }
+}

@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AIServiceCommon</name>
+    </assembly>
+    <members>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Common.ActivityExtensions.SetStatusCancelled(System.Diagnostics.Activity)">
+            <summary>
+            Sets the <paramref name="activity"/> as "cancelled" status. This is simply a wrapper
+            around <see cref="M:System.Diagnostics.Activity.SetStatus(System.Diagnostics.ActivityStatusCode,System.String)"/> with a consistent
+            convention for our product.
+            </summary>
+            <param name="activity">
+            The <see cref="T:System.Diagnostics.Activity"/> during which there was a user-cancellation.
+            </param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Common.ActivityExtensions.SetStatusErrorIfUnset(System.Diagnostics.Activity)">
+            <summary>
+            Sets the <paramref name="activity"/>'s status as <see cref="F:System.Diagnostics.ActivityStatusCode.Error"/>
+            if and only if the current status is <see cref="F:System.Diagnostics.ActivityStatusCode.Unset"/>.
+            </summary>
+            <param name="activity"></param>
+            <remarks>
+            This is useful for broad <see langword="catch"/> blocks to set a default value if
+            a previous code path didn't already set a value. By default,
+            <see cref="M:System.Diagnostics.Activity.SetStatus(System.Diagnostics.ActivityStatusCode,System.String)"/> overrides any previously set
+            code and description, so this method can be used to avoid stomping a previous value.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Common.ExceptionExtensions.IsOperationCanceledException(System.Exception,System.Threading.CancellationToken)">
+            <summary>
+            Checks if the current operation should be considered cancelled.
+            </summary>
+            <param name="ex">A caught exception.</param>
+            <param name="cancellationToken">The cancellation token representing the current ongoing work.</param>
+            <returns>
+            <c>true</c> if both <paramref name="ex"/> is <see cref="T:System.OperationCanceledException"/> and
+            <paramref name="cancellationToken"/> is cancelled; otherwise, <c>false</c>.
+            </returns>
+            <remarks>
+            A <c>true</c> value does not mean the exception was thrown due to the given cancellation
+            token being cancelled. However, both conditions being true means it's appropriate to act cancelled.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Common.ExceptionExtensions.IsNotOperationCanceledException(System.Exception,System.Threading.CancellationToken)">
+            <summary>
+            Checks if the current operation should not be considered cancelled.
+            </summary>
+            <param name="ex">A caught exception.</param>
+            <param name="cancellationToken">The cancellation token representing the current ongoing work.</param>
+            <returns>
+            <c>true</c> if <paramref name="ex"/> is not <see cref="T:System.OperationCanceledException"/> or
+            <paramref name="cancellationToken"/> is not cancelled; otherwise, <c>false</c>.
+            </returns>
+            <remarks>
+            If <paramref name="ex"/> happens to be an <see cref="T:System.OperationCanceledException"/> but
+            <paramref name="cancellationToken"/> is not cancelled, then this method returns <c>false</c>.
+            This can be useful when writing <c>catch</c> blocks that should not handle cancellation.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Common.IHostEnvironmentExtensions.IsDevelopmentOrStaging(Microsoft.Extensions.Hosting.IHostEnvironment)">
+            <summary>
+            Checks if the current host environment name is <see cref="F:Microsoft.Extensions.Hosting.Environments.Development"/>
+            or  <see cref="F:Microsoft.Extensions.Hosting.Environments.Staging"/>. Since we are using the non-standard environment names,
+            we need to check the base environment name without any suffixes (like ".eastus" or ".westus").
+            </summary>
+            <param name="hostEnvironment">An instance of <see cref="T:Microsoft.Extensions.Hosting.IHostEnvironment"/>.</param>
+            <returns>
+            True if the environment name is <see cref="F:Microsoft.Extensions.Hosting.Environments.Development"/> or
+            <see cref="F:Microsoft.Extensions.Hosting.Environments.Staging"/>; otherwise false.
+            </returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Common.IHostEnvironmentExtensions.IsProductionEnvironment(Microsoft.Extensions.Hosting.IHostEnvironment)">
+            <summary>
+            Checks if the current host environment name is <see cref="F:Microsoft.Extensions.Hosting.Environments.Production"/>
+            </summary>
+            <param name="hostEnvironment">An instance of <see cref="T:Microsoft.Extensions.Hosting.IHostEnvironment"/>.</param>
+            <returns>
+            True if the environment name is <see cref="F:Microsoft.Extensions.Hosting.Environments.Production"/>; otherwise false.
+            </returns>
+        </member>
+    </members>
+</doc>

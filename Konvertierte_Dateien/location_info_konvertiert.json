@@ -1,0 +1,48 @@
+{
+  "name": "location_info",
+  "description": "A geolocation service that determines the current geographical location based on the system's IP address. Provides details like city, country, coordinates, and timezone. Useful for location-aware applications and regional customization.",
+  "input_schema": {
+    "type": "object"
+  },
+  "examples": [
+    "get my location",
+    "find out where I am"
+  ],
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "ip_address": {
+        "type": "string",
+        "description": "The machine's IP address"
+      },
+      "country": {
+        "type": "string",
+        "description": "The country the machine is located in"
+      },
+      "region": {
+        "type": "string",
+        "description": "The region/state the machine is located in"
+      },
+      "city": {
+        "type": "string",
+        "description": "The city the machine is located in"
+      },
+      "latitude": {
+        "type": "number",
+        "description": "The latitude of the machine's location"
+      },
+      "longitude": {
+        "type": "number",
+        "description": "The longitude of the machine's location"
+      }
+    },
+    "required": [
+      "ip_address",
+      "country",
+      "region",
+      "city",
+      "latitude",
+      "longitude"
+    ]
+  }
+}

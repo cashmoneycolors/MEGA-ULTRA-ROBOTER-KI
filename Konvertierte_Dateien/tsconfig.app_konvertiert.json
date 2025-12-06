@@ -1,0 +1,54 @@
+{
+	"compilerOptions": {
+		"declaration": false,
+		"target": "ES2020",
+		"useDefineForClassFields": true,
+		"lib": ["ES2020", "DOM", "DOM.Iterable"],
+		"types": ["node"],
+		"module": "ESNext",
+		"skipLibCheck": true,
+
+		/* Bundler mode */
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true,
+		"isolatedModules": true,
+		"moduleDetection": "force",
+		"noEmit": true,
+		"jsx": "react-jsx",
+
+		/* Linting */
+		"strict": true,
+		"noFallthroughCasesInSwitch": true,
+
+		/* Aliasing */
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["src/*"],
+			"@components/*": ["src/components/*"],
+			"@context/*": ["src/context/*"],
+			"@shared/*": ["../src/shared/*"],
+			"@utils/*": ["../src/utils/*", "src/utils/*"],
+			"@integrations/*": ["../src/integrations/*"]
+		}
+	},
+	"include": [
+		"src/**/*",
+		"../src/shared/**/*.ts",
+		"../src/shared/**/*.tsx",
+		"../src/api/providers/types.ts",
+		"../src/services/error/ClineError.ts",
+		"../src/utils/git.ts",
+		"../src/integrations/misc/link-preview.ts"
+	],
+	"exclude": [
+		"../src/shared/**/*.test.ts",
+		"../src/shared/**/*.test.tsx",
+		"../src/shared/**/*.spec.ts",
+		"../src/shared/**/*.spec.tsx",
+		"src/**/*.test.ts",
+		"src/**/*.test.tsx",
+		"src/**/*.spec.ts",
+		"src/**/*.spec.tsx",
+		"**/__tests__/**"
+	]
+}

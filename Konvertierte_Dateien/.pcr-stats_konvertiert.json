@@ -1,0 +1,10 @@
+{
+    "puppeteerVersion": "23.1.1",
+    "platform": "win64",
+    "revision": "1531881",
+    "cacheDir": "C:/Users/Laptop/.monica-code/.utils",
+    "snapshotsDir": "C:/Users/Laptop/.monica-code/.utils/.chromium-browser-snapshots",
+    "executablePath": "C:/Users/Laptop/.monica-code/.utils/.chromium-browser-snapshots/chromium/win64-1531881/chrome-win/chrome.exe",
+    "chromiumVersion": "Chrome/143.0.7481.0",
+    "launchable": true
+}

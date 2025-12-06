@@ -1,0 +1,23 @@
+{
+    "noSuggestionFromCRA": "Code Review Agent didn't find any issue in this code change. Your code may be in great shape. However, AI isn't perfect, so we recommend reviewing your changes manually to ensure accuracy.",
+    "craOutputErrorMessage": "Code Review Agent experienced an issue while generating suggestions. We're working to resolve it quickly. Thank you for your understanding!",
+    "craInProgressText": "AI code review is in progress. Typically, it takes less than 3 minutes unless it's a large code change. You can continue your work; Bito will notify you when the review is complete. You can also track the progress in the IDE status bar and navigate to the agent session from there.",
+    "abortCRAText": "The Code Review Agent session was terminated by the user.",
+    "incorrectAgentCommandErrMsg": "One or more parameters are incorrect. Please rerun the agent command with the correct parameters. You can view the command format by using /help.",
+    "tooManyRequestsAgentErrMsg": "You can only run three concurrent sessions of the Code Review Agent. Please wait for one or more active sessions to finish.",
+    "nonGitWorkspaceErrMsg": "Bito Code Review Agent works on changes in a Git repository only. Please ensure you are in a valid Git project to use this feature.",
+    "genericAgentServerErrMsg": "Bito encountered technical difficulties while attempting to generate code feedback. Please try again or contact support@bito.ai.",
+    "largerDiffErrMsg": "Your code difference or modification is too large for us to review right now.",
+    "emptyGitDiffErrMsgForUnstagedChanges": "There are no local code changes to review. To review staged changes, try the '@codereview #stagedchanges' command.",
+    "emptyGitDiffErrMsgForStagedChanges": "There are no staged code changes to review. To review local changes, try the '@codereview #localchanges' command.",
+    "emptyGitDiffErrMsgForStagedAndUnstagedChanges": "There are no staged or unstaged code changes to review. To review committed changes, try the '@codereview #commitId' command.",
+    "cprInProgressText": "Generating pull request title and description…",
+    "abortCPRText": "The Create Pull Request session was terminated by the user.",
+    "largerDiffCreatePRErrMsg": "Bito cannot generate a title and description for the pull request as the diff size exceeds Bito's limit. You can add details manually in the pull request.",
+    "currentBranchNotPushedCreatePR": "The branch {branchname} hasn't been published yet. Please publish the branch before creating a pull request.",
+    "currentBranchChangesNotPushedCreatePR": "The branch {branchname} has local changes that haven't been published yet. Do you want to continue creating the pull request?",
+    "identicalBranchesCreatePR": "There are no changes between the {source} and {target} branches. Select another target branch and try again",
+    "genericCreatePRServerErrMsg": "We encountered technical difficulties while trying to create a pull request. Please try again or contact support@bito.ai.",
+    "createprErrMsg": "Bito encountered technical difficulties while trying to create a pull request. Please try again or contact support@bito.ai.",
+    "incorrectCommitIdErrMsg": "An invalid commit hash was entered. Please retry the review command with a valid commit hash from the current branch's commit history."
+}

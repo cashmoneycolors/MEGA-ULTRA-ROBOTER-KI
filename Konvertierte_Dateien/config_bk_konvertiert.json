@@ -1,0 +1,253 @@
+{
+  "sessions": {
+    "defaultSessionID": "default-session",
+    "maxActiveSessions": 5,
+    "maxSessionHistory": 100,
+    "autoSaveInterval": 300000
+  },
+  "paths": {
+    "toolsDir": "C:\\Users\\Laptop\\.bitowingman\\bin\\tools",
+    "dataDir": "C:\\Users\\Laptop\\.bitowingman",
+    "historyFile": "C:\\Users\\Laptop\\.bitowingman\\history.json",
+    "configFile": "C:\\Users\\Laptop\\.bitowingman\\config.json",
+    "sessionsDir": "C:\\Users\\Laptop\\.bitowingman\\sessions",
+    "dataDbDir": "C:\\Users\\Laptop\\.bitowingman\\data",
+    "certsDir": "C:\\Users\\Laptop\\.bitowingman\\certsDir",
+    "envFilePath": "C:\\Users\\Laptop\\.bitowingman\\env",
+    "systemPromptFile": ""
+  },
+  "tools": {
+    "executionTimeout": 600000,
+    "maxRetries": 3,
+    "maxConsecutiveCalls": 50,
+    "maxParallelTools": 10,
+    "maxOutputSize": 1000000,
+    "retryBackoffBase": 2
+  },
+  "internalTools": {
+    "enabled": true,
+    "enabledTools": [
+      "all"
+    ],
+    "disabledTools": [],
+    "preferInternal": false,
+    "maxParallelExecutions": 10,
+    "maxQueueSize": 100,
+    "shellCommand": {
+      "enabled": true,
+      "timeout": 120000,
+      "maxOutputSize": 1000000,
+      "defaultShell": null,
+      "streamOutput": false
+    },
+    "fileOperations": {
+      "enabled": true,
+      "maxFileSize": 52428800,
+      "allowedPaths": [],
+      "blockedPaths": [],
+      "encoding": "utf8"
+    },
+    "queueTimeout": 300000
+  },
+  "context": {
+    "maxContextMessages": 20,
+    "maxConversationHistory": 100,
+    "maxToolResults": 50,
+    "maxExecutionTimes": 100,
+    "interactionHistoryHours": 1
+  },
+  "ui": {
+    "thinkingIndicatorInterval": 1000,
+    "debugMode": false,
+    "colorOutput": true,
+    "verbose": false
+  },
+  "monitoring": {
+    "enableMetrics": true,
+    "metricsRetentionDays": 7,
+    "logLevel": "info"
+  },
+  "server": {
+    "api": {
+      "port": 3500,
+      "host": "localhost",
+      "https": {
+        "enabled": false,
+        "certificates": {
+          "validityDays": 365,
+          "expirationBufferDays": 7,
+          "ca": {
+            "organization": "Bito Inc.",
+            "countryCode": "US",
+            "state": "California",
+            "locality": "San Francisco"
+          }
+        }
+      }
+    }
+  },
+  "llm": {
+    "defaultProvider": "bito",
+    "providers": {
+      "anthropic": {
+        "model": "claude-3-7-sonnet-20250219",
+        "maxTokens": 8000,
+        "temperature": 0.7,
+        "topP": 0.9,
+        "topK": 0,
+        "streamingEnabled": true,
+        "thinking": false,
+        "thinkingSettings": {
+          "type": "enabled",
+          "budget_tokens": 6000
+        },
+        "toolChoice": {
+          "type": "auto"
+        },
+        "envKeyVar": "ANTHROPIC_API_KEY",
+        "envUrlVar": "ANTHROPIC_API_URL"
+      },
+      "bito": {
+        "model": "claude-haiku-4-5",
+        "maxTokens": 16000,
+        "temperature": 0.7,
+        "topP": 0.9,
+        "streamingEnabled": true,
+        "thinking": false,
+        "thinkingSettings": {
+          "type": "enabled",
+          "budget_tokens": 6000
+        },
+        "toolChoice": {
+          "type": "auto"
+        },
+        "envKeyVar": "BITO_API_KEY",
+        "envUrlVar": "BITO_API_URL"
+      },
+      "openai": {
+        "model": "gpt-5",
+        "maxTokens": 32000,
+        "maxCompletionTokens": 32000,
+        "temperature": 0.7,
+        "reasoningEffort": "medium",
+        "verbosity": "medium",
+        "presencePenalty": 0,
+        "frequencyPenalty": 0,
+        "streamingEnabled": false,
+        "toolChoice": "auto",
+        "envKeyVar": "OPENAI_API_KEY"
+      },
+      "gemini": {
+        "model": "gemini-2.5-pro",
+        "maxTokens": 8000,
+        "thinkingBudget": 1024,
+        "temperature": 0.7,
+        "topP": 1,
+        "topK": 0,
+        "streamingEnabled": false,
+        "toolChoice": "auto",
+        "envKeyVar": "GEMINI_API_KEY"
+      },
+      "groq": {
+        "model": "moonshotai/kimi-k2-instruct",
+        "maxTokens": 16000,
+        "temperature": 0.7,
+        "topP": 1,
+        "streamingEnabled": true,
+        "toolChoice": "auto",
+        "envKeyVar": "GROQ_API_KEY"
+      },
+      "fireworks": {
+        "model": "accounts/fireworks/models/kimi-k2-instruct",
+        "maxTokens": 5000,
+        "temperature": 0.7,
+        "topP": 1,
+        "streamingEnabled": true,
+        "toolChoice": "auto",
+        "envKeyVar": "FIREWORKS_API_KEY"
+      },
+      "xai": {
+        "model": "grok-code-fast",
+        "maxTokens": 8000,
+        "temperature": 0.7,
+        "topP": 1,
+        "topK": 0,
+        "streamingEnabled": true,
+        "toolChoice": {
+          "type": "auto"
+        },
+        "envKeyVar": "XAI_API_KEY",
+        "envUrlVar": "XAI_API_URL"
+      }
+    },
+    "common": {
+      "timeout": 120000,
+      "retryAttempts": 3,
+      "retryDelay": 1000,
+      "contextWindow": 160000,
+      "maxOutputTokens": 8000,
+      "minTemperature": 0,
+      "maxTemperature": 2,
+      "maxRetryDelay": 60000
+    }
+  },
+  "mcp": {
+    "enabled": false,
+    "configFile": "/Users/bito/.bitowingman/mcp-config.json",
+    "autoRecover": true,
+    "autoReconnect": true,
+    "healthCheckInterval": 60000,
+    "exposeResources": true,
+    "exposePrompts": true,
+    "serverRecovery": {
+      "enabled": true,
+      "reconnectionInterval": 30000,
+      "capabilityRefreshInterval": 300000
+    },
+    "oauth": {
+      "clientId": "bito-wingman",
+      "scope": "",
+      "callbackPort": 0,
+      "authorizationTimeout": 300000,
+      "tokenStoragePath": "/Users/bito/.bitowingman/oauth-tokens.json",
+      "registrationStoragePath": "/Users/bito/.bitowingman/oauth-registrations.json",
+      "debug": false
+    },
+    "cache": {
+      "enabled": true,
+      "maxItems": 100,
+      "ttl": 300000
+    },
+    "transport": {
+      "stdio": {
+        "connectTimeout": 120000,
+        "maxReconnectAttempts": 3,
+        "reconnectDelay": 1000,
+        "captureStderr": false,
+        "timeout": 30000,
+        "maxReconnectDelay": 60000,
+        "maxBufferSize": null,
+        "stderrMode": "pipe"
+      },
+      "http": {
+        "timeout": 30000,
+        "retryAttempts": 3,
+        "retryDelay": 1000,
+        "rejectUnauthorized": true,
+        "maxRetryDelay": 60000,
+        "autoReconnect": false
+      },
+      "sse": {
+        "connectTimeout": 30000,
+        "timeout": 30000,
+        "retryDelay": 3000,
+        "maxReconnectAttempts": 10,
+        "rejectUnauthorized": true
+      }
+    },
+    "debug": false,
+    "verbose": false
+  },
+  "responseLanguage": "en",
+  "defaultAgent": "WINGMAN"
+}

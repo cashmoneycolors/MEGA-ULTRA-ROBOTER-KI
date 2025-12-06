@@ -1,0 +1,16 @@
+{
+  "commandHistory": [
+    "Copy-Item \"C:\\Users\\Laptop\\Desktop\\VISUAL STUDIO CODE'S\\C KONTROLLTURM GazOpenAIIntegrator.cs\" \"C:\\Zielordner\\C KONTROLLTURM GazOpenAIIntegrator.cs\"Copy-Item \"C:\\Users\\Laptop\\Desktop\\VISUAL STUDIO CODE'S\\C KONTROLLTURM GazOpenAIIntegrator.cs\" \"C:\\Zielordner\\C KONTROLLTURM GazOpenAIIntegrator.cs\"",
+    "Copy-Item \"C:\\Users\\Laptop\\Desktop\\VISUAL STUDIO CODE'S\\C KONTROLLTURM GazOpenAIIntegrator.cs\" \"C:\\Zielordner\\C KONTROLLTURM GazOpenAIIntegrator.cs\"",
+    "copilot -p \"List my open PRs\" --allow-all-tools",
+    "gh auth login",
+    "List all open issues assigned to me in OWNER/REPO",
+    "@[DIR] C:\\Windows\\System32",
+    "List my open PRs",
+    "\"C:\\Zielordner\\\"",
+    "Copy-Item \"C:\\Users\\Laptop\\Desktop\\VISUAL STUDIO CODE'S\\C KONTROLLTURM GazOpenAIIntegrator.cs\" \"C:\\Zielordner\\C KONTROLLTURM GazOpenAIIntegrator.cs\"Copy-Item \"C:\\Users\\Laptop\\Desktop\\VISUAL STUDIO CODE'S\\C KONTROLLTURM GazOpenAIIntegrator.cs\" \"C:\\Zielordner\\C KONTROLLTURM GazOpenAIIntegrator.cs\"Copy-Item \"C:\\Users\\Laptop\\Desktop\\VISUAL STUDIO CODE'S\\C KONTROLLTURM GazOpenAIIntegrator.cs\" \"C:\\Zielordner\\C KONTROLLTURM GazOpenAIIntegrator.cs\"",
+    "/login",
+    "gh auth logingh auth login",
+    "copilot"
+  ]
+}

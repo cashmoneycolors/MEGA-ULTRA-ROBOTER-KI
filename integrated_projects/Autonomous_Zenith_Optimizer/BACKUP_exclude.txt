@@ -1,0 +1,9 @@
+\.venv\
+\.venv_py312\
+\.venv_py311\
+\bin\
+\obj\
+\logs\*.log
+\__pycache__\
+\*.pyc
+\*.pdb

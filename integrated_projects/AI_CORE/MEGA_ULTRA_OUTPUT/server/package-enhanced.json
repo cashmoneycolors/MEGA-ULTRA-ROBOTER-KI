@@ -1,0 +1,201 @@
+{
+  "name": "mega-ultra-ai-system-enhanced",
+  "version": "2.0.0",
+  "description": "🔥 MEGA ULTRA AI SYSTEM - Enhanced OpenGazAI Server with Maximum Security & Performance 🔥",
+  "main": "opengazai-server-enhanced.js",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "scripts": {
+    "start": "node opengazai-server-enhanced.js",
+    "start:production": "NODE_ENV=production node opengazai-server-enhanced.js --cluster-mode --workers=4",
+    "start:dev": "NODE_ENV=development nodemon opengazai-server-enhanced.js",
+    "start:secure": "node opengazai-server-enhanced.js --secure-mode --rate-limit --enable-logging",
+    "test": "jest --coverage",
+    "test:security": "npm audit && node security-test.js",
+    "lint": "eslint *.js",
+    "benchmark": "autocannon -c 100 -d 30 http://localhost:3000/health",
+    "monitor": "pm2 start ecosystem.config.js",
+    "docker:build": "docker build -t mega-ultra-ai-system .",
+    "docker:run": "docker run -p 3000:3000 -p 3001:3001 mega-ultra-ai-system"
+  },
+  "keywords": [
+    "ai", "ollama", "llm", "autonomous", "mega-ultra", "security", "performance",
+    "proxy", "jwt", "rate-limiting", "intrusion-detection", "opengazai"
+  ],
+  "author": "MEGA ULTRA SYSTEM GmbH",
+  "license": "MIT",
+  "homepage": "https://github.com/mega-ultra-system/opengazai",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mega-ultra-system/opengazai.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mega-ultra-system/opengazai/issues"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6",
+    "jsonwebtoken": "^9.0.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "cors": "^2.8.5",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0",
+    "winston": "^3.11.0",
+    "winston-daily-rotate-file": "^4.7.1",
+    "minimist": "^1.2.8",
+    "bcryptjs": "^2.4.3",
+    "crypto": "^1.0.1",
+    "uuid": "^9.0.1",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4",
+    "node-cron": "^3.0.2",
+    "axios": "^1.6.2",
+    "joi": "^17.11.0",
+    "express-validator": "^7.0.1",
+    "express-slow-down": "^2.0.1",
+    "express-brute": "^1.0.1",
+    "express-session": "^1.17.3",
+    "connect-redis": "^7.1.0",
+    "ioredis": "^5.3.2",
+    "multer": "^1.4.5-lts.1",
+    "sharp": "^0.32.6",
+    "sanitize-html": "^2.11.0",
+    "dompurify": "^3.0.5",
+    "validator": "^13.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
+    "eslint": "^8.53.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-security": "^1.7.1",
+    "prettier": "^3.1.0",
+    "autocannon": "^7.12.0",
+    "pm2": "^5.3.0",
+    "docker": "^1.0.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.1.0",
+    "@types/node": "^20.9.0",
+    "typescript": "^5.2.2"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.8",
+    "utf-8-validate": "^6.0.3",
+    "cpu-features": "^0.0.4"
+  },
+  "peerDependencies": {
+    "redis": "^4.6.0",
+    "sqlite3": "^5.1.6",
+    "pg": "^8.11.3"
+  },
+  "config": {
+    "unsafe-perm": true
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "npm run test"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "*.js",
+      "!node_modules/**",
+      "!coverage/**"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.js",
+      "**/?(*.)+(spec|test).js"
+    ]
+  },
+  "eslintConfig": {
+    "extends": [
+      "standard",
+      "plugin:security/recommended"
+    ],
+    "env": {
+      "node": true,
+      "es2022": true,
+      "jest": true
+    },
+    "rules": {
+      "no-console": "warn",
+      "security/detect-object-injection": "error",
+      "security/detect-non-literal-regexp": "error"
+    }
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "es5",
+    "printWidth": 100
+  },
+  "pm2": {
+    "apps": [
+      {
+        "name": "mega-ultra-ai-main",
+        "script": "opengazai-server-enhanced.js",
+        "instances": "max",
+        "exec_mode": "cluster",
+        "env": {
+          "NODE_ENV": "production",
+          "PORT": 3000,
+          "ADMIN_PORT": 3001
+        },
+        "error_file": "./logs/pm2-err.log",
+        "out_file": "./logs/pm2-out.log",
+        "log_file": "./logs/pm2-combined.log",
+        "time": true,
+        "watch": false,
+        "max_memory_restart": "1G",
+        "node_args": "--max-old-space-size=2048"
+      }
+    ]
+  },
+  "docker": {
+    "image": "node:18-alpine",
+    "ports": ["3000:3000", "3001:3001"],
+    "volumes": ["./data:/app/data", "./logs:/app/logs"],
+    "environment": {
+      "NODE_ENV": "production"
+    }
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/mega-ultra-system"
+  },
+  "cpu": ["x64", "arm64"],
+  "os": ["win32", "darwin", "linux"],
+  "directories": {
+    "lib": "./lib",
+    "test": "./test",
+    "doc": "./docs"
+  },
+  "files": [
+    "*.js",
+    "lib/",
+    "config/",
+    "README.md",
+    "LICENSE"
+  ],
+  "man": "./man/mega-ultra-ai.1",
+  "preferGlobal": false,
+  "private": false,
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  }
+}

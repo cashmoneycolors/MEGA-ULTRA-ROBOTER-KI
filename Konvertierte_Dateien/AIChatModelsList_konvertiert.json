@@ -1,0 +1,42 @@
+{
+    "basic": [
+        {
+            "id": 0,
+            "name": "Basic",
+            "display_name": "Basic",
+            "is_default": true
+        },
+        {
+            "id": 28,
+            "name": "gpt-4o-mini",
+            "display_name": "GPT-4o mini",
+            "is_default": false
+        },
+        {
+            "id": 20,
+            "name": "claude-3-haiku-20240307",
+            "display_name": "Claude Haiku",
+            "is_default": false
+        }
+    ],
+    "advanced": [
+        {
+            "id": 1,
+            "name": "Advanced",
+            "display_name": "Advanced",
+            "is_default": true
+        },
+        {
+            "id": 31,
+            "name": "claude-3-5-sonnet-20241022",
+            "display_name": "Claude Sonnet 3.5",
+            "is_default": false
+        },
+        {
+            "id": 29,
+            "name": "gpt-4o-2024-08-06",
+            "display_name": "GPT-4o",
+            "is_default": false
+        }
+    ]
+}

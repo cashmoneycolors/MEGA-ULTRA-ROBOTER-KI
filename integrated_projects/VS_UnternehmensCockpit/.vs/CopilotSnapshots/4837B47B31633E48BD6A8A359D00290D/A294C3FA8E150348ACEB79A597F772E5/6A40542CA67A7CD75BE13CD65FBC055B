@@ -1,0 +1,32 @@
+﻿<?xml version = "1.0" encoding = "UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="UnternehmensCockpit.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <Color x:Key="Primary">#2196F3</Color> <Color x:Key="Secondary">#FF9800</Color> <Color x:Key="Gray100">#F0F0F0</Color>
+            <Color x:Key="Gray200">#E0E0E0</Color>
+            <Color x:Key="Gray700">#777777</Color>
+            <Color x:Key="Black">#1C1C1C</Color>
+
+            <Style TargetType="Button">
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Padding" Value="14,10" />
+            </Style>
+
+            <Style TargetType="Entry">
+                <Setter Property="HeightRequest" Value="48" />
+            </Style>
+
+            <Style TargetType="Frame" x:Key="CardViewStyle">
+                <Setter Property="CornerRadius" Value="10" />
+                <Setter Property="Padding" Value="15" />
+                <Setter Property="HasShadow" Value="True" />
+                <Setter Property="BorderColor" Value="{StaticResource Gray200}" />
+            </Style>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

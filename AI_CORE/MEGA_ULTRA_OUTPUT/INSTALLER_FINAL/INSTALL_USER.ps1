@@ -58,12 +58,12 @@ Write-Host "   • Run: $InstallDir\START.bat" -ForegroundColor White
 Write-Host ""
 
 # Test ob Python verfügbar ist
-Write-Host "🔧 System check..." -ForegroundColor Yellow
-try {
-    $PythonVersion = python --version 2>&1
-    Write-Host "✅ Python found: $PythonVersion" -ForegroundColor Green
-} catch {
-    Write-Host "⚠️ Python not found - please install Python 3.7+" -ForegroundColor Red
+Write-Host "System check..." -ForegroundColor Yellow
+$PythonVersion = python --version 2>&1
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "Python found: $PythonVersion" -ForegroundColor Green
+} else {
+    Write-Host "Python not found - please install Python 3.7+" -ForegroundColor Red
     Write-Host "   Download from: https://python.org" -ForegroundColor Yellow
 }
 

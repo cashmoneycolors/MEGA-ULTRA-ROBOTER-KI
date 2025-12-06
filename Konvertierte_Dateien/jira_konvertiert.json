@@ -1,0 +1,194 @@
+{
+  "name": "jira",
+  "description": "Read-only Jira integration tool for retrieving issue details and searching tickets. No write operations are supported (no create, update, transition, or post comment). Usage guidance: When given a single ticket key, call `get_issue`. `get_issue` returns the ticket’s details, its direct parent (one level up, up to epic), and all direct child tickets (one level down) for every issuetype, including Epics. For Epics, children are fetched internally (preferring Agile endpoints with a fallback to Search) to minimize unnecessary calls. If the `get_issue` response already includes a child tickets section, do not call `search_with_filters` again for the same children. Inputs are flat (no nested args) and operation-specific.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "operation": {
+        "type": "string",
+        "description": "Read-only Jira operation to perform.",
+        "enum": ["get_issue", "search_with_filters", "search_issues", "get_comments"]
+      },
+      "issue_key": {
+        "type": "string",
+        "description": "Jira issue key (e.g., PROJ-123). Required for get_issue and get_comments."
+      },
+      "expand": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Optional expansions for get_issue, e.g., ['parent-details','comments','renderedFields']"
+      },
+      "max_results": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 1000,
+        "description": "Maximum number of results to return for search_with_filters or search_issues. Default 50."
+      },
+      "order_by": {
+        "type": "string",
+        "description": "Order by clause for search_with_filters (e.g., 'created DESC')."
+      },
+      "jql": {
+        "type": "string",
+        "description": "Raw JQL string to execute for search_issues. Supports any valid Jira JQL query such as 'assignee = currentUser() AND status != Done ORDER BY updated DESC'."
+      },
+      "parent_key": {
+        "type": "string",
+        "description": "Parent issue key (use an Epic key to list its child issues)."
+      },
+      "project": {
+        "type": "string",
+        "description": "Project key for search (e.g., 'BITO')."
+      },
+      "status": {
+        "type": ["string", "array"],
+        "items": { "type": "string" },
+        "description": "Status or list of statuses."
+      },
+      "assignee": {
+        "type": "string",
+        "description": "Assignee accountId/displayName or 'unassigned'."
+      },
+      "reporter": {
+        "type": "string",
+        "description": "Reporter accountId/displayName."
+      },
+      "priority": {
+        "type": ["string", "array"],
+        "items": { "type": "string" },
+        "description": "Priority or list of priorities."
+      },
+      "labels": {
+        "type": ["string", "array"],
+        "items": { "type": "string" },
+        "description": "Label or list of labels."
+      },
+      "created": {
+        "type": "string",
+        "description": "Created date filter (YYYY-MM-DD)."
+      },
+      "updated": {
+        "type": "string",
+        "description": "Updated date filter (YYYY-MM-DD)."
+      },
+      "resolution": {
+        "type": "string",
+        "description": "Resolution value or 'unresolved'."
+      },
+      "text": {
+        "type": "string",
+        "description": "Full-text search term."
+      },
+      "epic": {
+        "type": "string",
+        "description": "Epic link key."
+      },
+      "sprint": {
+        "type": "string",
+        "description": "Sprint name or 'active'/'closed'."
+      },
+      "custom_jql": {
+        "type": "string",
+        "description": "Additional custom JQL to AND with other filters for search_with_filters."
+      }
+    },
+    "required": ["operation"],
+    "oneOf": [
+      {
+        "description": "get_issue requires a single issue_key",
+        "properties": { "operation": { "const": "get_issue" } },
+        "required": ["issue_key"]
+      },
+      {
+        "description": "get_comments requires issue_key",
+        "properties": { "operation": { "const": "get_comments" } },
+        "required": ["issue_key"]
+      },
+      {
+        "description": "search_with_filters requires at least one search field",
+        "properties": { "operation": { "const": "search_with_filters" } },
+        "anyOf": [
+          { "required": ["jql"] },
+          { "required": ["custom_jql"] },
+          { "required": ["project"] },
+          { "required": ["status"] },
+          { "required": ["assignee"] },
+          { "required": ["reporter"] },
+          { "required": ["priority"] },
+          { "required": ["labels"] },
+          { "required": ["created"] },
+          { "required": ["updated"] },
+          { "required": ["resolution"] },
+          { "required": ["text"] },
+          { "required": ["epic"] },
+          { "required": ["sprint"] }
+        ]
+      },
+      {
+        "description": "search_issues requires a JQL query",
+        "properties": { "operation": { "const": "search_issues" } },
+        "required": ["jql"]
+      }
+    ]
+  },
+  "output_schema": {
+    "type": "string",
+    "description": "Human-readable output of the Jira operation."
+  },
+  "operation_descriptions": {
+    "get_issue": "Retrieve detailed information about one Jira issue using top-level inputs. Provide 'issue_key'. Optional: 'expand' (['parent-details','comments','renderedFields']). Returns a consolidated, human-readable report including the issue’s key fields (summary, description, status, priority, labels, components, resolution, assignee), its comments (if requested), the direct parent ticket (one level up, up to epic), and the direct child tickets (one level down) for every issuetype, including Epics. For Epics, child tickets are fetched internally to minimize unnecessary tool calls. If the output already includes a 'Child Tickets' section, you should not issue a separate search_with_filters for the same Epic or parent — this avoids redundant calls. Read-only; no updates or transitions.",
+    "search_with_filters": "Builds and executes a search using flat top-level filter fields (e.g., 'parent_key', 'project', 'status', 'labels', etc.) and returns matching issues in a readable format (key, summary, status, priority, assignee, created date, link). Use 'parent_key' with an Epic key to retrieve its child issues explicitly when needed. Optional: 'max_results', 'order_by'. Read-only.",
+    "search_issues": "Executes a raw JQL query using Jira's /rest/api/3/search endpoint. Provide the 'jql' string (e.g., 'assignee = currentUser() AND status != Done ORDER BY updated DESC'). Supports any Jira field that is queryable in JQL. Optional: 'max_results' to control pagination. Read-only.",
+    "get_comments": "Retrieve comments for a specific issue and return them in a readable format. Required: 'issue_key'. Read-only."
+  },
+  "examples": [
+    {
+      "description": "Get a single issue (Story/Task/etc.) with parent details, direct children (subtasks), and comments",
+      "input": {
+        "operation": "get_issue",
+        "issue_key": "BITO-9530",
+        "expand": ["parent-details", "comments", "renderedFields"]
+      },
+      "expected_output": "Title: ...\nKey: BITO-9530\nStatus: ...\n...\nParent: ...\nChildren (direct): ...\nComments: ..."
+    },
+    {
+      "description": "Get an Epic with parent (if any) and direct children (stories/issues linked to the epic) — done within get_issue",
+      "input": {
+        "operation": "get_issue",
+        "issue_key": "BITO-9729",
+        "expand": ["parent-details", "renderedFields"]
+      },
+      "expected_output": "Title: ...\nKey: BITO-9729 (Epic)\n...\nParent: ...\nChildren (direct):\n1) BITO-XXXX - Child summary ... (Status: ...)\n..."
+    },
+    {
+      "description": "Search with mixed flat filters (alternative to programmatic children listing when needed explicitly)",
+      "input": {
+        "operation": "search_with_filters",
+        "project": "BITO",
+        "status": ["In Progress", "To Do"],
+        "labels": ["wingman", "cra"],
+        "text": "oauth",
+        "order_by": "updated DESC",
+        "max_results": 25
+      },
+      "expected_output": "Found X results:\n- BITO-1234 ...\n- BITO-5678 ..."
+    },
+    {
+      "description": "Run a raw JQL query to get all unresolved tickets assigned to XYZ",
+      "input": {
+        "operation": "search_issues",
+        "jql": "assignee = XYZ AND resolution = Unresolved ORDER BY updated DESC",
+        "max_results": 50
+      },
+      "expected_output": "Found X issues:\n- BITO-1111 ...\n- BITO-2222 ..."
+    },
+    {
+      "description": "Get comments for an issue",
+      "input": {
+        "operation": "get_comments",
+        "issue_key": "BITO-9530"
+      },
+      "expected_output": "Found X comments for BITO-9530:\n- Alice [YYYY-MM-DD]: ...\n- Bob [YYYY-MM-DD]: ..."
+    }
+  ]
+}

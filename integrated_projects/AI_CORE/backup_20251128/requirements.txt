@@ -1,0 +1,8 @@
+flask
+flask-cors
+schedule
+requests
+pyyaml
+paypal-checkout-sdk
+cryptography
+python-dotenv

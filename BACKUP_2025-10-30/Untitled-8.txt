@@ -1,0 +1,2 @@
+cd "C:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\ZENITH_FRONTEND"
+npm install

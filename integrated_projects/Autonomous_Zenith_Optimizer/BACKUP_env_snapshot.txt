@@ -1,0 +1,4 @@
+# Demo Environment Variables
+OPENAI_API_KEY=sk-demo-key-for-testing
+STRIPE_SECRET_KEY=sk_test_demo_key
+DEMO_MODE=true

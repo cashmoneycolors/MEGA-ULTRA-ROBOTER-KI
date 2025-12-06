@@ -8,6 +8,7 @@ using System.Text;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Logging;
+using MegaUltraSystem;
 
 /// <summary>
 /// 🔗 VERNETZTE AI-KOMPONENTEN - HYPER-INTEGRIERTE BAUSTEINE 🔗

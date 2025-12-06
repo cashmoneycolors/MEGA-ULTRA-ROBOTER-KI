@@ -1,0 +1,9 @@
+{
+    "wingmanModalCount": 10,
+    "wingmanRestrictions": {
+        "freePlan": {
+            "osRestrictions": ["win"],
+            "wsidAllowedEndings": ["0", "1", "2"]
+        }
+    }
+}

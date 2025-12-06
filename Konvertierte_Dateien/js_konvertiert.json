@@ -1,0 +1,12 @@
+{
+  "Easy Print clog 🍃": {
+    "prefix": "clog✨",
+    "body": ["console.log(${1})"],
+    "description": "Print a sentence."
+  },
+  "Easy Print 🍃": {
+    "prefix": "println✨",
+    "body": ["console.log(${1});"],
+    "description": "Print a sentence."
+  }
+}

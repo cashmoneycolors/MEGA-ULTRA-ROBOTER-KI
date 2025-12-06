@@ -1,0 +1,93 @@
+{
+    "name": "file_edit",
+    "version": "1.0.0",
+    "description": "Advanced file editing tool designed for Sonnet 3.7/4 with support for precise line-based edits, insertions, deletions, and replacements. This tool provides granular control over file modifications while maintaining safety through automatic backups and validation. Perfect for code modifications, content updates, and structured file editing tasks.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "operation": {
+                "type": "string",
+                "enum": [
+                    "insert_lines",
+                    "replace_lines", 
+                    "delete_lines",
+                    "replace_text",
+                    "insert_at_position",
+                    "append_to_file",
+                    "prepend_to_file"
+                ],
+                "description": "The type of edit operation to perform"
+            },
+            "file_path": {
+                "type": "string",
+                "description": "Path to the file to be edited (relative to current directory)"
+            },
+            "content": {
+                "type": "string",
+                "description": "The content to insert, replace with, or search for (depending on operation)"
+            },
+            "line_start": {
+                "type": "integer",
+                "description": "Starting line number for line-based operations (1-based indexing)",
+                "minimum": 1
+            },
+            "line_end": {
+                "type": "integer", 
+                "description": "Ending line number for range operations (1-based indexing, inclusive)",
+                "minimum": 1
+            },
+            "search_text": {
+                "type": "string",
+                "description": "Text to search for in replace_text operations"
+            },
+            "replace_with": {
+                "type": "string",
+                "description": "Text to replace the search_text with in replace_text operations"
+            },
+            "create_backup": {
+                "type": "boolean",
+                "default": true,
+                "description": "Whether to create a timestamped backup before editing"
+            },
+            "validate_syntax": {
+                "type": "boolean",
+                "default": false,
+                "description": "Whether to perform basic syntax validation for supported file types"
+            }
+        },
+        "required": ["operation", "file_path"]
+    },
+    "output_schema": {
+        "type": "object",
+        "properties": {
+            "success": {
+                "type": "boolean",
+                "description": "Whether the edit operation was successful"
+            },
+            "message": {
+                "type": "string", 
+                "description": "Descriptive message about the operation result"
+            },
+            "file_path": {
+                "type": "string",
+                "description": "Path to the edited file"
+            },
+            "backup_created": {
+                "type": "string",
+                "description": "Path to the backup file if created"
+            },
+            "lines_affected": {
+                "type": "integer",
+                "description": "Number of lines affected by the operation"
+            },
+            "operation_details": {
+                "type": "object",
+                "description": "Detailed information about the specific operation performed"
+            },
+            "error": {
+                "type": "string",
+                "description": "Error message if the operation failed"
+            }
+        }
+    }
+}

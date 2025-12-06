@@ -1,5 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <ItemGroup>
+    <Compile Remove="obj/**/*.cs" />
+    <Compile Remove="bin/**/*.cs" />
+  </ItemGroup>
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
@@ -8,17 +13,26 @@
   <AssemblyName>MegaUltraAISystemV2</AssemblyName>
   <RootNamespace>MegaUltraAISystem</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
 
   <ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-    <PackageReference Include="System.Management" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
+    <PackageReference Include="System.Management" Version="9.0.0" />
+    <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>
-    <PackageReference Include="System.Management" Version="7.0.0" />
-    <PackageReference Include="System.Text.Json" Version="8.0.0" />
+
+  <ItemGroup>
+    <!-- Korrektur: Referenz ohne übergeordneten Pfad, da Integrator im selben Ordner liegt -->
+    <ProjectReference Include="MegaUltraAIIntegrator.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Problematische Dateien nur aus diesem Projekt ausschließen (nicht löschen) -->
+    <Compile Remove="MegaUltraAIIntegratorEnhanced.cs" />
+    <Compile Remove="MegaUltraAIIntegratorEnhanced.cs.bak" />
   </ItemGroup>
 
   <!-- Keine Compile Remove mehr nötig, da keine doppelten Einstiegspunkte -->

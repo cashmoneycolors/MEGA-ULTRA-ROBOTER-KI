@@ -1,0 +1,329 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AIServiceOrchestration</name>
+    </assembly>
+    <members>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.AIServiceExtensions.GetTokenizer(Microsoft.SemanticKernel.Services.IAIService)">
+            <summary>
+            Gets the tokenizer for the AI service.
+            </summary>
+            <param name="aiService">The AI service.</param>
+            <returns>The tokenizer for the AI service, or null if the model ID is not available.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.AzureOpenAIOrchestrator.GetInputTokenLimit(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.AzureOpenAIOrchestrator.AddChatCompletionService(Microsoft.SemanticKernel.IKernelBuilder,Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters,Microsoft.Extensions.Logging.ILogger,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.ChatHistoryBuffer">
+            <summary>
+            Manages a buffer of chat messages to keep track of the chat history.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.ChatHistoryBuffer.#ctor(Microsoft.ML.Tokenizers.Tokenizer,Microsoft.SemanticKernel.ChatMessageContent,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.ChatHistoryBuffer"/> class.
+            </summary>
+            <param name="tokenizer">The tokenizer to encode the text of the messages.</param>
+            <param name="systemMessage">The system message to be included in the chat history buffer. (Optional)</param>
+            <param name="maxTokenSize">The maximum number of tokens allowed in the chat history buffer. (Default: 11 * 1024)</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.ChatHistoryBuffer.PushMessageAsync(Microsoft.SemanticKernel.ChatMessageContent,System.Threading.CancellationToken)">
+            <summary>
+            Pushes a chat message to the chat history buffer.
+            </summary>
+            <param name="messageContent">The chat message content to push.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.ChatHistoryBuffer.PushMessagesAsync(System.Collections.Generic.IEnumerable{Microsoft.SemanticKernel.ChatMessageContent},System.Threading.CancellationToken)">
+            <summary>
+            Pushes chat messages to the chat history buffer.
+            </summary>
+            <param name="messages">The chat messages  to push.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.ChatHistoryBuffer.GetHistoryAsync(System.Threading.CancellationToken,System.Int64@)">
+            <summary>
+            Retrieves the chat history.
+            </summary>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>The chat history.</returns>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.DisposableDelegate">
+            <summary>
+            Wraps an <see cref="T:System.Action"/> delegate as an <see cref="T:System.IDisposable"/>, ensuring it is called
+            only once, the first time <see cref="M:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.DisposableDelegate.Dispose"/> is called.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.IChatHistoryBuffer.PushMessageAsync(Microsoft.SemanticKernel.ChatMessageContent,System.Threading.CancellationToken)">
+            <summary>
+            Pushes a chat message to the chat history buffer.
+            </summary>
+            <param name="messageContent">The chat message content to push.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.IChatHistoryBuffer.GetHistoryAsync(System.Threading.CancellationToken,System.Int64@)">
+            <summary>
+            Retrieves the chat history.
+            </summary>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>The chat history.</returns>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters.ClientVersion">
+            <summary>
+            The version of the chat client that is making the request.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters.ClientTime">
+            <summary>
+            A string which communicates the current time of the client.
+            Should be in the timezone of the client.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters.LocalPluginCollection">
+            <summary>
+            Local plugins provided by the chat client.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters.SideChannelClient">
+            <summary>
+            Object used to invoke side channel functions.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters.Persona">
+            <summary>
+            Settings to customize the persona of the "chat agent".
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters.UserSettings">
+            <summary>
+            Settings configured by user in VS Code.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters.UserContext">
+            <summary>
+            The user context for the chat session. Much of this context is given to the LLM automatically, but
+            these values may also be used programmatically if needed.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters.PluginsMetadata">
+            <summary>
+            Metadata that plugins previously set/left for themselves on a prior turn.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters.LoggerFactory" -->
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters.GiveSamplePrompts">
+            <summary>
+            If the orchestrator should return generic sample prompts to the client.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters.ChatSessionId">
+            <summary>
+            A GUID that identifies the chat session in the client.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters.CapiToken">
+            <summary>
+            If provided and not expired, the AI service will use this token instead of obtaining a new
+            one. If a new token does need to be obtained, it will be sent back to the client over
+            a SignalR call as defined by the <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Contract.WebApi.ISideChannelClient"/> being used by the AI service.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters.UserAgentString">
+            <summary>
+            A user agent string that can be used in http requests to identify the client.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters.PluginInvocationRequest">
+            <summary>
+            A request for the AI Driver to invoke a specific plugin instead of performing a full
+            chat request. If provided, the AI Driver will not respond to the user's message, and
+            will instead invoke the plugin and return the result to the client over a SignalR call
+            as defined by the <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Contract.WebApi.ISideChannelClient"/> being used by the AI service.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters.RequestSource">
+            <summary>
+            Identifies the source from which request originated.
+            Eg: If the request is coming from Chat or Agentic Edits mode.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters.AzmcpPath">
+            <summary>
+            The path to the azmcp executable on the user machine.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters.AzmcpAuthenticationRecord">
+            <summary>
+            Information on the authentication session to use in Azure MCP.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.LocalPluginCollection">
+            <summary>
+            Implements comparison of local and server-side plugin manifests, and creation of kernel functions.
+            </summary>
+            <remarks>
+            <para>
+            When a client sends a chat request to us, a set of local plugin manifests is sent up which are used to create <see cref="T:Microsoft.SemanticKernel.KernelFunction"/>s. Since the local plugins
+            can come from other extensions installed on the user's machine, the set of plugins isn't always the same. This can create a few challenges:
+            </para>
+            <list type="number">
+            <item>The extension's functions might have issues around intent detection, either causing them to not run or (worse) steal running from some other feature.</item>
+            <item>If the extension isn't installed, the user won't necessarily know they can install something to make it work.</item>
+            </list>
+            <para>
+            Our approach to fixing this is to have a copy of potential extension-provided local plugins on the server, and we'll use that manifest in place of what ever is sent up from the client.
+            The actual descriptions from the client are never used.
+            </para>
+            <para>This of course creates two big questions -- what happens if things need to change, and what happens if something else gets mismatched anyways. The policy we chose was
+            that the plugin version is used to differentiate one manifest from another -- the server can have multiple manifests that differ by version, and any time a client needs to modify
+            their manifest, say because they've added a new function, added/changed a parameter, or need to modify the prompting text because they've added new functionality, they bump the version
+            number they send to the server, and the server can have a copy for each version that's still in use. We still do some basic validation that the functions match when the versions match;
+            that catches a potential mistake where somebody makes a change on one side, forgets to update the version, and now the sever would be using a manifest that would no longer functionally work
+            with the client. For example, passing the wrong parameter names to the client on a function invocation would just break at runtime.
+            </para>
+            <para>
+            This decision to simply throw things away unless there's a matching server version can make local testing of a new plugin more difficult, but we felt this actually set is up for success.
+            If we allowed the client to send up a different local manifest and we just went with that one, our server-side tests that assert plugins are being chosen correctly would be useless -- we're not running
+            against the actual things the client uses. By forcing any developer changing a local plugin manifest to have to enlist in this repository, and add a new file means they've had to make
+            the change on both sides, _and_ they already have a PR ready to go with the change into our repository. Otherwise being too forgiving for local development simply meant we might have things
+            that work fine during local development, but silently succeed in production until we realize we forgot to update server manifests.
+            </para>
+            <para>
+            It's of course possible that this approach might be too strict, and we need to revisit it; the policy is easy to change in this code.
+            </para>
+            </remarks>
+        </member>
+        <member name="F:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.LocalPluginCollection._localPluginInvoker">
+            <summary>
+            The abstraction to invoke the plugins through; this is null only if <see cref="F:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.LocalPluginCollection._localPluginManifests" /> is empty.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.LocalPluginCollection._promptService">
+            <summary>
+            The prompt service to fetch the server-stored local plugin manifests; this is null only if <see cref="F:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.LocalPluginCollection._localPluginManifests" /> is empty.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "F:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.LocalPluginCollection._suggestAllMissingPlugins" -->
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.LocalPluginCollection.#ctor(Microsoft.Azure.CopilotForAzure.AIService.Prompts.IPromptService,System.Boolean)">
+            <summary>
+            Creates a collection where there is no way for local plugins to actually be invoked.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.LocalPluginCollection.CreateKernelFunctionsAsync(Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters,Microsoft.Extensions.Logging.ILogger,System.Threading.CancellationToken)">
+            <returns>A dictionary mapping the plugin name to the kernel functions created for it</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.LoggerWithClientForwardingFactory.CreateLoggerFactory(Microsoft.Extensions.Logging.ILoggerFactory,System.Threading.Channels.ChannelWriter{Microsoft.Azure.CopilotForAzure.AIService.Contract.WebApi.ChatResponsePart},Microsoft.Extensions.Logging.LogLevel)">
+            <summary>
+            Creates a new <see cref="T:Microsoft.Extensions.Logging.ILoggerFactory"/> that logs to both an existing <see cref="T:Microsoft.Extensions.Logging.ILoggerFactory"/> (so we can continue to log to the server)
+            while also send log messages to the client that are at least as severe as <paramref name="minimumLogLevel"/>
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.OrchestratorBase.GetInputTokenLimit(System.String)">
+            <summary>
+            Returns the input token limit for the given model name.
+            </summary>
+            <param name="modelName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.OrchestratorBase.AddChatCompletionService(Microsoft.SemanticKernel.IKernelBuilder,Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters,Microsoft.Extensions.Logging.ILogger,System.Threading.CancellationToken)">
+            <summary>
+            Adds an appropriate <see cref="T:Microsoft.SemanticKernel.ChatCompletion.IChatCompletionService"/> to the <paramref name="kernelBuilder"/>.
+            </summary>
+            <param name="kernelBuilder">The kernel being built.</param>
+            <param name="kernelParameters">Parameters for the current chat request.</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.OrchestratorBase.SendSamplePromptsAsFollowUps(Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters,Microsoft.SemanticKernel.Kernel,Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Sends predefined follow-up prompts when the user is unsure of how to interact with @azure (e.g., they used /help or submitted an empty prompt).
+            </summary>
+            <param name="kernelParameters"></param>
+            <param name="kernel"></param>
+            <param name="logger"></param>
+            <returns>Returns up to 3 follow-up questions selected from all available plugin sample prompts.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.OrchestratorBase.SendPluginsFollowUps(Microsoft.SemanticKernel.Kernel,Microsoft.SemanticKernel.ChatCompletion.ChatHistory,Microsoft.SemanticKernel.ChatCompletion.IChatCompletionService,System.Collections.Generic.IEnumerable{Microsoft.Azure.CopilotForAzure.AIService.Contract.WebApi.PluginInvocationMetadata},System.Threading.CancellationToken,Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Sends follow-up questions from plugins wherever we configured to send customized follow-up prompts.
+            </summary>
+            <param name="kernel"></param>
+            <param name="history"></param>
+            <param name="chatCompletionService"></param>
+            <param name="cancellationToken"></param>
+            <param name="logger"></param>
+            <returns></returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.OrchestratorBase.GetQualityMetrics(System.String,System.String,Microsoft.SemanticKernel.ChatMessageContent,Microsoft.SemanticKernel.Kernel,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{Microsoft.Azure.CopilotForAzure.AIService.Contract.WebApi.PluginInvocationMetadata},Microsoft.Extensions.Logging.ILogger{Microsoft.Azure.CopilotForAzure.AIService.Orchestration.OrchestratorBase})" -->
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.Resources.ErrAccess">
+            <summary>
+              Looks up a localized string similar to Sorry, the request failed due to authorization..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.Resources.ErrCompleteRequest">
+            <summary>
+              Looks up a localized string similar to Due to an error I am unable to complete your request at this time. Please open an issue to report this problem. Error: &quot;{0}&quot;.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.Resources.ErrRateLimited">
+            <summary>
+              Looks up a localized string similar to Sorry, your request was rate-limited. Please wait and try sending again later..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.Resources.ErrUnexpected">
+            <summary>
+              Looks up a localized string similar to Sorry, the request failed due to an unexpected error..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.Resources.InstallExtensionButtonLabel">
+            <summary>
+              Looks up a localized string similar to Install {0}.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.Resources.NewChat">
+            <summary>
+              Looks up a localized string similar to new chat.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.Resources.NewConversationTip">
+            <summary>
+              Looks up a localized string similar to *This conversation contains a large amount of content, which could affect the quality of future responses. It&apos;s recommended that you start a {0}. The current chat will be saved in the **Show Chats** history.*.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.ServiceCollectionExtensions.AddAzureOpenAIOrchestrator(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.AzureOpenAIOrchestrator"/> to the service collection as a scoped service.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns><paramref name="services"/> for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Orchestration.SignalRLocalPluginInvoker.InvokeLocalPluginAsync(Microsoft.SemanticKernel.Kernel,System.String,System.String,System.Collections.Generic.IReadOnlyDictionary{System.String,System.Object},System.Threading.CancellationToken)">
+            <summary>
+            Invoke a local plugin function on the client side and return its result.
+            </summary>
+            <param name="kernel">The Semantic Kernel kernel used for this call</param>
+            <param name="pluginName">The plugin name declared by the local plugin</param>
+            <param name="functionName">The function name declared by the local plugin for the function</param>
+            <param name="parameters"></param>
+            <param name="cancellationToken"></param>
+            <returns>A JsonElement returned by the client</returns>
+        </member>
+    </members>
+</doc>

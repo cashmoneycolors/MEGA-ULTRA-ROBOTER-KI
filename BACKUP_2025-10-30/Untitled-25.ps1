@@ -1,0 +1,1 @@
+streamlit run app.pynpm start.\.venv\Scripts\activate

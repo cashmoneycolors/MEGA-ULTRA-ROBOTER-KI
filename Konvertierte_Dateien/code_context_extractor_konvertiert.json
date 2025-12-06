@@ -1,0 +1,60 @@
+{
+    "name": "code_context_extractor",
+    "version": "1.0.0",
+    "description": "Given one or more changed code hunks, return just enough surrounding context for solid review or impact analysis. For each hunk the tool: (1) grabs its enclosing function/method/class, (2) lists all imports in the file, (3) shows related global/static/member variables or enums, and (4) lists both callers and callees of that enclosing function. It prefers precise language-server indices, falling back to AST-based fuzzy search when needed. Output is plain text: a header with the file path followed by only the relevant line ranges (original numbers kept). Skip this tool for repo-wide scans that aren't tied to specific hunks.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "files": {
+                "type": "array",
+                "description": "Array of file objects with their changed line intervals",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "relativeFilePath": {
+                            "type": "string",
+                            "description": "Relative path to the file containing changes"
+                        },
+                        "hunks": {
+                            "type": "array",
+                            "description": "Array of line intervals representing changed code",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "startLine": {
+                                        "type": "integer",
+                                        "description": "Starting line number of the changed code (1-based indexing)"
+                                    },
+                                    "count": {
+                                        "type": "integer",
+                                        "description": "Number of consecutive lines changed"
+                                    }
+                                },
+                                "required": [
+                                    "startLine",
+                                    "count"
+                                ]
+                            }
+                        }
+                    },
+                    "required": [
+                        "relativeFilePath",
+                        "hunks"
+                    ]
+                }
+            },
+            "codebase_root": {
+                "type": "string",
+                "description": "Absolute path of root directory of the codebase to search for related files (default: current directory)."
+            }
+        },
+        "required": [
+            "files",
+            "codebase_root"
+        ]
+    },
+    "output_schema": {
+        "type": "text",
+        "description": "Formatted text containing a header filepath followed by only relevent code lines and line numbers"
+    }
+}

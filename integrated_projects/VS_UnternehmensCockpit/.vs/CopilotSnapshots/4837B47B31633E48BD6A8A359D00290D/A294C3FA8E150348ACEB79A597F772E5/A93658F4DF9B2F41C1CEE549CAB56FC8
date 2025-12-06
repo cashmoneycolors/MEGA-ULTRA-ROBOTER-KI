@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="UnternehmensCockpit.AppShellNeu"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:UnternehmensCockpit"
+    Shell.FlyoutBehavior="Disabled">
+
+    <ShellContent
+        Title="Login"
+        ContentTemplate="{DataTemplate local:LoginPage}"
+        Route="LoginPage" />
+
+    <TabBar>
+        
+        <ShellContent
+            Title="Dashboard"
+            Icon="dashboard_icon.png"
+            ContentTemplate="{DataTemplate local:DashboardPage}"
+            Route="DashboardPage" />
+
+        <ShellContent
+            Title="Katalog"
+            Icon="catalog_icon.png"
+            ContentTemplate="{DataTemplate local:ProductListPage}"
+            Route="ProductListPage" />
+        
+        <ShellContent
+            Title="Kontakt"
+            Icon="contact_icon.png"
+            ContentTemplate="{DataTemplate local:ContactFormPage}"
+            Route="ContactFormPage" />
+        
+    </TabBar>
+</Shell>

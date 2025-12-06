@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AIServiceMSLearn</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.MSLearn.IMSLearnClient">
+            <summary>
+            A client to get Microsoft Learn public documentation.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.MSLearn.IMSLearnClient.SearchLearnPlatformAsync(Microsoft.Learn.KnowledgeSearchRequest,System.Nullable{System.Int32},Microsoft.Extensions.Logging.ILogger,System.Threading.CancellationToken)">
+            <summary>
+            Gets documentation based on a given search query via Learn Platform API.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.MSLearn.IMSLearnClient.SearchProxyAsync(Microsoft.Azure.CopilotForAzure.AIService.Contract.MSLearn.MSLearnRequest,Microsoft.Extensions.Logging.ILogger,System.Threading.CancellationToken)">
+            <summary>
+            Gets documentation based on a given search query via GitHub Copilot for Azure Learn proxy service.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.MSLearn.IMSLearnClient.SearchAsync(Microsoft.Azure.CopilotForAzure.AIService.Contract.MSLearn.MSLearnRequest,Microsoft.Extensions.Logging.ILogger,System.Threading.CancellationToken)">
+            <summary>
+            Gets documentation based on a given search query via legacy MS Learn API.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.MSLearn.MSLearnClient.SearchProxyAsync(Microsoft.Azure.CopilotForAzure.AIService.Contract.MSLearn.MSLearnRequest,Microsoft.Extensions.Logging.ILogger,System.Threading.CancellationToken)">
+            <summary>
+            Search for MS Learn documentations via the GitHub Copilot for Azure Learn proxy service.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.MSLearn.MSLearnClient.SearchLearnPlatformAsync(Microsoft.Learn.KnowledgeSearchRequest,System.Nullable{System.Int32},Microsoft.Extensions.Logging.ILogger,System.Threading.CancellationToken)">
+            <summary>
+            Search for MS Learn documentations via the Learn Platform Knowledge Search API.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.MSLearn.MSLearnClient.SearchAsync(Microsoft.Azure.CopilotForAzure.AIService.Contract.MSLearn.MSLearnRequest,Microsoft.Extensions.Logging.ILogger,System.Threading.CancellationToken)">
+            <summary>
+            Search for MS Learn documentations via the legacy MS Learn Relevance API.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.MSLearn.MSLearnOptions">
+            <summary>
+            The options used to configure implementations of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.MSLearn.IMSLearnClient"/>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.MSLearn.MSLearnOptions.Uri">
+            <summary>
+            The base URL to make requests.
+            For GitHub Copilot for Azure VS Code client, this URL will be the endpoint of its Learn proxy service.
+            For the Learn proxy service, this URL will be the endpoint of the Learn Platform Knowledge Search API.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.MSLearn.MSLearnOptions.LegacyUri">
+            <summary>
+            The base URL of the legacy MS Learn Relevance API.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.MSLearn.MSLearnOptions.OAuthScopes">
+            <summary>
+            The scopes to be used when acquiring an access token.
+            This may be empty if the request doesn't need authentication.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.MSLearn.MSLearnOptions.UseOboToken">
+            <summary>
+            Gets or sets a value indicating whether calling <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.MSLearn.MSLearnOptions.Uri"/> requires an on-behalf-of
+            token. A value of <see langword="true"/> indicates using an OBO token (i.e., used when calling our
+            own middle-tier before MS Learn), and a value of <see langword="false"/> indicates using an app-only
+            token (i.e., calling the MS Learn endpoint directly).
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.MSLearn.MSLearnOptions.AdditionalSources">
+            <summary>
+            Additional, non-MS sources that should be queried by MSLearn.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.MSLearn.ServiceCollectionExtensions.AddMSLearnClient(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds an instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.MSLearn.IMSLearnClient"/> as a transient service into
+            <paramref name="services"/>.
+            </summary>
+            <param name="services">Service collection to add a service registration to.</param>
+            <returns>
+            The <paramref name="services"/> for chaining, like to add registration
+            of the required <see cref="!:IMSLearnTokenProvider"/>.
+            </returns>
+        </member>
+    </members>
+</doc>

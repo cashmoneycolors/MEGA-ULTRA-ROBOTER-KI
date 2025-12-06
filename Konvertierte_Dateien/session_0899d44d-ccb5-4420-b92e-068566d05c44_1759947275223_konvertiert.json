@@ -1,0 +1,31 @@
+{
+  "sessionId": "0899d44d-ccb5-4420-b92e-068566d05c44",
+  "startTime": "2025-10-08T18:14:35.223Z",
+  "chatMessages": [],
+  "timeline": [
+    {
+      "id": "c69a1dca-31cc-48fc-9179-c2af57248bb3",
+      "timestamp": "2025-10-08T18:15:27.911Z",
+      "type": "error",
+      "text": "You must be logged in to send messages. Please run /login"
+    },
+    {
+      "id": "62745aab-1d88-41e3-ba66-5a8d5a80e327",
+      "timestamp": "2025-10-08T18:17:03.725Z",
+      "type": "error",
+      "text": "You must be logged in to send messages. Please run /login"
+    },
+    {
+      "id": "68a486b1-3384-48fd-88be-4e06662ab25f",
+      "timestamp": "2025-10-08T18:17:08.329Z",
+      "type": "error",
+      "text": "You must be logged in to send messages. Please run /login"
+    },
+    {
+      "id": "31a2d5fa-ef62-4ec1-89da-7f9078a08280",
+      "timestamp": "2025-10-08T18:17:09.945Z",
+      "type": "error",
+      "text": "You must be logged in to send messages. Please run /login"
+    }
+  ]
+}

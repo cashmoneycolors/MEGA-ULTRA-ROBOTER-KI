@@ -1,0 +1,209 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AIServiceLocalPackage</name>
+    </assembly>
+    <members>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.AbstractHeaderSuppliedValueProvider.HeaderName">
+            <summary>
+            Gets the name of the incoming request header to retrieve a token from.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.GitHubOrchestrator.GetInputTokenLimit(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.GitHubOrchestrator.AddChatCompletionService(Microsoft.SemanticKernel.IKernelBuilder,Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters,Microsoft.Extensions.Logging.ILogger,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.HeaderSuppliedArmTokenProvider.GetToken">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.HeaderSuppliedGitHubApiTokenProvider.GetToken">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.HeaderSuppliedOnBehalfOfExtensionProvider.GetValue">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.IGitHubApiTokenProvider">
+            <summary>
+            Token provider for calling GitHub Copilot's API with a user's token.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.IGitHubApiTokenProvider.GetToken">
+            <summary>
+            Gets a token to use to call the service.
+            </summary>
+            <returns>A GitHub token with the Bearer prefix.</returns>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.OpenTelemetryLoggerOptionsExtensions">
+            <summary>
+            Extension helper for initializing a LogExporter with default values.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.OpenTelemetryLoggerOptionsExtensions.AddVSTelemetryLogExporter(OpenTelemetry.Logs.OpenTelemetryLoggerOptions,Microsoft.VisualStudio.Telemetry.TelemetrySession)">
+            <summary>
+            Adds a log exporter to the log pipeline for VS Telemetry.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.ServiceCollectionExtensions.AddGitHubChatOrchestrator(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.GitHubOrchestrator"/> to the service collection as a scoped service.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns><paramref name="services"/> for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.ServiceCollectionExtensions.AddLearnAboutResources(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds an instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.LearnAboutResourcesPlugin"/>.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns><paramref name="services"/> for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.ServiceCollectionExtensions.AddVSCodeDevLearn(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds an instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.VSCodeDevLearn.VSCodeDevLearnPlugin"/>.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns><paramref name="services"/> for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.ServiceCollectionExtensions.AddCreateApp(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds an instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CreateApp.CreateAppPlugin"/> and its dependency for a service
+            of <see cref="!:ICreateAppTokenProvider"/>.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns><paramref name="services"/> for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.ServiceCollectionExtensions.AddAzd(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds an instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Azd.AzdPlugin"/>
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns><paramref name="services"/> for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.ServiceCollectionExtensions.AddTalkToAzureServicesAsUser(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds an instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.IArmTokenProvider"/> to the service collection.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns><paramref name="services"/> for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.ServiceCollectionExtensions.AddArmTokenProvider(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds a singleton instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.IArmTokenProvider"/> to the service collection.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns><paramref name="services"/> for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.ServiceCollectionExtensions.AddAppLens(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds an instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensPlugin"/> and its dependency for a service
+            of <see cref="!:IAppLensTokenProvider"/>.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns><paramref name="services"/> for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.ServiceCollectionExtensions.AddGitHubApiTokenProvider(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds a singleton instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.IGitHubApiTokenProvider"/> to the service collection.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns><paramref name="services"/> for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.ServiceCollectionExtensions.AddOnBehalfOfExtensionProvider(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds a singleton instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.IOnBehalfOfExtensionProvider"/> to the service collection
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns><paramref name="services"/> for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.ServiceCollectionExtensions.AddVSTelemetryLoggerProvider(Microsoft.Extensions.Logging.ILoggingBuilder)">
+            <summary>
+            Adds a singleton instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.VSTelemetryLoggerProvider"/> to the service collection
+            </summary>
+            <param name="builder">The logging builder</param>
+            <returns><paramref name="builder"/> for chaining.</returns>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.VSCodeTelemetryServiceForSideCar">
+            <summary>
+            Telemetry initializer creates sidecar specific Telemetry metadata in conjunction with VS Code.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.VSCodeTelemetryServiceForSideCar.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="!:VSCodeTelemetry"/> class.
+            Used only by the Reliability Monitor.
+            </summary>
+            <param name="vsCodeTelemetryLevel">Configured Telemetry Level from VS Code.</param>
+            <param name="customSessionId">SessionID generated by VS Code.</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.VSCodeTelemetryServiceForSideCar.StartTelemetrySessionAndCollector">
+            <summary>
+            Starts a Telemetry Default Session an Collector instance using the VSTelemetryAPI.
+            Should only be called once.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.VSCodeTelemetryServiceForSideCar.CreateVSCodeSessionSettings">
+            <summary>
+            Used to create a Telemetry Session input string for VS Code specific values.
+            </summary>
+            <returns>Serialized string for <see cref="T:Microsoft.VisualStudio.Telemetry.TelemetrySessionSettings"/>.</returns>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.VSTelemetryExporter`1">
+            <summary>
+            VSTelemetryExporter is an OpenTelemetry exporter that sends telemetry data to Visual Studio Telemetry.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.VSTelemetryExporter`1.#ctor(Microsoft.VisualStudio.Telemetry.TelemetrySession)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.VSTelemetryExporter`1"/> class.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.VSTelemetryExporter`1.Export(OpenTelemetry.Batch{`0}@)">
+            <summary>
+            Exports a batch of log or trace data to Visual Studio Telemetry.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.VSTelemetryExporter`1.OnShutdown(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.WebApi.LocalPackage.VSTelemetryExporter`1.Dispose(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="T:ICapiTokenProvider">
+            <summary>
+            Provides a CAPI token for the current user. For more information on what a CAPI token
+            is see <see cref="T:CapiToken"/>.
+            </summary>
+        </member>
+        <member name="M:ICapiTokenProvider.GetToken(Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters,Microsoft.Extensions.Logging.ILogger,System.Threading.CancellationToken)">
+            <summary>
+            Gets a CAPI token for the current user and returns it. If no token could be
+            retrieved, returns <see langword="null"/>.
+            </summary>
+            <param name="logger"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="T:CapiTokenProvider">
+            <summary>
+            An implementation of <see cref="T:ICapiTokenProvider"/>.
+            </summary>
+        </member>
+        <member name="M:CapiTokenProvider.GetToken(Microsoft.Azure.CopilotForAzure.AIService.Orchestration.KernelParameters,Microsoft.Extensions.Logging.ILogger,System.Threading.CancellationToken)">
+            <summary>
+            <inheritdoc/>
+            
+            <para>For this implementation:</para>
+            <list type="bullet">
+            <item><description>If a "CapiToken" parameter is present in the kernel parameters, that token will be used (if not expired).</description></item>
+            <item><description>If a "SideChannelClient" is present in the kernel parameters, then once a token is retrieved, it will be
+            sent back to the client for caching and future use in the current session.</description></item>
+            </list>
+            </summary>
+            <param name="logger"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

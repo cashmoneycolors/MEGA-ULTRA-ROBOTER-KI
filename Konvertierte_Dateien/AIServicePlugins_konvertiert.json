@@ -1,0 +1,1903 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AIServicePlugins</name>
+    </assembly>
+    <members>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.ActivityLog.ActivityLogClient.ListAsync(System.String,System.Double,System.Nullable{Microsoft.Azure.CopilotForAzure.AIService.Plugins.ActivityLog.Models.ActivityLogEventLevel},Microsoft.Extensions.Logging.ILogger,System.Threading.CancellationToken)">
+            <summary>
+            https://learn.microsoft.com/en-us/rest/api/monitor/activity-logs/list
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.ActivityLog.IActivityLogTelemetry">
+            <summary>
+            <para>
+            Defines the set of data that we want to collect for every invocation of an ActivityLog kernel function.
+            </para>
+            <para>
+            To obtain an instance of this type include it as a parameter to the kernel function, and tag it with
+            a <see cref="T:Microsoft.SemanticKernel.FromKernelServicesAttribute"/>.
+            </para>
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.ActivityLog.ActivityLogTelemetry">
+            <summary>
+            An implementation of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.ActivityLog.IActivityLogTelemetry"/> that attaches the data to the <see cref="T:System.Diagnostics.Activity"/>
+            created by Semantic Kernel for the current function invocation.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.ActivityLog.Models.ActivityLogEventLevel">
+            <summary>
+            https://learn.microsoft.com/en-us/rest/api/monitor/activity-logs/list#eventlevel
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.ActivityLog.Models.ActivityLogLocalizableString">
+            <summary>
+            https://learn.microsoft.com/en-us/rest/api/monitor/activity-logs/list#localizablestring
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.ActivityLog.Models.ActivityLogEventData">
+            <summary>
+            https://learn.microsoft.com/en-us/rest/api/monitor/activity-logs/list#eventdata
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.ActivityLog.Models.ActivityLogListResponse">
+            <summary>
+            https://learn.microsoft.com/en-us/rest/api/monitor/activity-logs/list#response
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensSession">
+            <summary>
+            Represents an <em>AppLens</em> conversation about a particular resource.
+            </summary>
+            <remarks>
+            Not to be confused with the bigger conversation the end user is having with our language model.
+            </remarks>
+            <param name="SessionId">The unique ID of this conversation.</param>
+            <param name="ResourceId">The ARM resource ID of the resource in question, in the format "subscriptions/14300d68-d0c8-4060-82af-bf2d9b70f130/resourceGroups/bakeryapp-rg/providers/Microsoft.Web/sites/takeithomebakery".</param>
+            <param name="Token">The authorization token.</param>
+            <param name="ExpiresIn">The length of time the <paramref name="Token"/> will remain valid.</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensSession.#ctor(System.String,System.String,System.String,System.Int32)">
+            <summary>
+            Represents an <em>AppLens</em> conversation about a particular resource.
+            </summary>
+            <remarks>
+            Not to be confused with the bigger conversation the end user is having with our language model.
+            </remarks>
+            <param name="SessionId">The unique ID of this conversation.</param>
+            <param name="ResourceId">The ARM resource ID of the resource in question, in the format "subscriptions/14300d68-d0c8-4060-82af-bf2d9b70f130/resourceGroups/bakeryapp-rg/providers/Microsoft.Web/sites/takeithomebakery".</param>
+            <param name="Token">The authorization token.</param>
+            <param name="ExpiresIn">The length of time the <paramref name="Token"/> will remain valid.</param>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensSession.SessionId">
+            <summary>The unique ID of this conversation.</summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensSession.ResourceId">
+            <summary>The ARM resource ID of the resource in question, in the format "subscriptions/14300d68-d0c8-4060-82af-bf2d9b70f130/resourceGroups/bakeryapp-rg/providers/Microsoft.Web/sites/takeithomebakery".</summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensSession.Token">
+            <summary>The authorization token.</summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensSession.ExpiresIn">
+            <summary>The length of time the <paramref name="Token"/> will remain valid.</summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.GetAppLensSessionResult">
+            <summary>
+            Represents the result of trying to obtain an <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensSession"/> by calling <see cref="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensClient.GetAppLensSessionAsync(System.String,Microsoft.Extensions.Logging.ILogger,System.Threading.CancellationToken)"/>.
+            This will either be a <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.SuccessfulAppLensSessionResult"/> in the case that a session was
+            successfully created, or a <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.FailedAppLensSessionResult"/> if it was not.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.SuccessfulAppLensSessionResult">
+            <summary>
+            Represents the successful creation of an <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensSession"/>. The session can be retrieved
+            via the <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.SuccessfulAppLensSessionResult.Session"/> member.
+            </summary>
+            <param name="Session">The new <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensSession"/>.</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.SuccessfulAppLensSessionResult.#ctor(Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensSession)">
+            <summary>
+            Represents the successful creation of an <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensSession"/>. The session can be retrieved
+            via the <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.SuccessfulAppLensSessionResult.Session"/> member.
+            </summary>
+            <param name="Session">The new <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensSession"/>.</param>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.SuccessfulAppLensSessionResult.Session">
+            <summary>The new <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensSession"/>.</summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.FailedAppLensSessionResult">
+            <summary>
+            Represents a failure while trying to create an <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensSession"/>. The failure message can
+            be retrieve via the <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.FailedAppLensSessionResult.Message"/> member.
+            </summary>
+            <param name="Message">A message about the failure suitable for display to the user or to be returned
+            to the language model. This message may contain PII and should <em>not</em> be logged.</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.FailedAppLensSessionResult.#ctor(System.String)">
+            <summary>
+            Represents a failure while trying to create an <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensSession"/>. The failure message can
+            be retrieve via the <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.FailedAppLensSessionResult.Message"/> member.
+            </summary>
+            <param name="Message">A message about the failure suitable for display to the user or to be returned
+            to the language model. This message may contain PII and should <em>not</em> be logged.</param>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.FailedAppLensSessionResult.Message">
+            <summary>A message about the failure suitable for display to the user or to be returned
+            to the language model. This message may contain PII and should <em>not</em> be logged.</summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensClient">
+            <summary>
+            Handles authorizing to the AppLens API, asking a question, and receiving the response.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensClient.GetAppLensSessionAsync(System.String,Microsoft.Extensions.Logging.ILogger,System.Threading.CancellationToken)" -->
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensClient.AskAppLensAsync(Microsoft.SemanticKernel.Kernel,Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensSession,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Asks the AppLens API a single <paramref name="question"/> about a resource associated with the given <paramref name="session"/> and returns the response as stream of asynchronous messages.
+            </summary>
+            <param name="kernel">The <see cref="N:Microsoft.SemanticKernel"/> processing the overall request.</param>
+            <param name="question">The question or query to pose to AppLens.</param>
+            <param name="session">The <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensSession"/> representing the overall conversation.</param>
+            <param name="cancellationToken">A cancellation token to cancel the request.</param>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensClient.ParseGetTokenResponseException">
+            <summary>
+            Used by <see cref="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensClient.ParseGetTokenResponse(System.String)"/> to represent a failure while attempting to
+            extract the necessary information for an <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensSession"/>. Generally this indicates that
+            the response is in JSON format but does not have the shape we expect.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensClient.ParseGetTokenResponseException.FailureMessageForLogging">
+            <summary>
+            A message about the failure suitable for logging.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensMessageFormatter">
+            <summary>
+            Converts objects returned by the diagnostics API into text-based messages to be consumed by the LM.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensMessageFormatter.FormatInference(Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.InferenceComponentOutput)">
+            <summary>
+            Formats an <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.InferenceComponentOutput"/> (representing the diagnosis of a problem) into Markdown.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensMessageFormatter.FormatSolution(Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.SolutionComponentOutput)">
+            <summary>
+            Formats a <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.SolutionComponentOutput"/> (representing a possible solution for a problem) into Markdown.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensOptions">
+            <summary>
+            Options controlling the behavior of the <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensPlugin"/>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensOptions.MessageTimeOutInSeconds">
+            <summary>
+            Gets or sets the time in seconds to wait for the next SignalR message from AppLens.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensOptions.ClientName">
+            <summary>
+            The client name to report to AppLens when making a request.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensPlugin.ApplicableTopicScopes">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensPlugin.FindResourceIdAsync(System.Threading.Channels.ChannelWriter{Microsoft.Azure.CopilotForAzure.AIService.Contract.WebApi.ChatResponsePart},System.String,System.String,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.IAppLensTelemetry,System.Threading.CancellationToken)">
+            <remarks>
+            Only the resource name is required. The subscription ID, resource group, and resource type are
+            optional and only used in situations where we find more than one resource with the same name.
+            In addition, we filter out any resources of types not well-supported by the conversational
+            diagnostics API.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensPlugin.IsResourceTypeSupported(System.String,System.String)">
+            <remarks>
+            TODO: Ideally this would be replaced by an API provided by AppLens to determine if a given resource
+            type is supported or not so that we don't need to worry about updating this set as they make changes.
+            At the moment we have enough users encountering ambiguity between multiple resources with the same
+            name that it makes sense to filter out the ones that aren't supported.
+            </remarks>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.IAppLensTelemetry">
+            <summary>
+            <para>
+            Defines the set of data that we want to collect for every invocation of an AppLens kernel function.
+            </para>
+            <para>
+            To obtain an instance of this type include it as a parameter to the kernel function, and tag it with a <see cref="T:Microsoft.SemanticKernel.FromKernelServicesAttribute"/>.
+            </para>
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.IAppLensTelemetry.InferenceReceived">
+            <summary>
+            Indicates whether or not the AppLens API has returned an <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.InferenceComponentOutput"/>.
+            This indicates that AppLens has finished processing the user's question and returned a response.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.IAppLensTelemetry.RootCauseFound">
+            <summary>
+            Indicates whether or not the AppLens API believes it found the root cause of the issue the user is
+            asking about. Note this will be <see langword="false"/> if it finds no problems, or finds problems
+            unrelated to the user's question.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.IAppLensTelemetry.DidNotFindSpecifiedResource">
+            <summary>
+            Indicates that we were not able to find any resources with the given name using ARG. This is not an
+            error as the user may have simply mistyped the name, or the LM may have hallucinated it.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.IAppLensTelemetry.FoundResourceThatDidNotMatchConstraints">
+            <summary>
+            Indicates that we found at least one resource with the given name, but it did not match the
+            constraints (subscription, resource group, etc.) provided by the LM.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.IAppLensTelemetry.MoreThanOneResourceFound">
+            <summary>
+            Indicates that we found more than one resource with the given name using ARG. 
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.IAppLensTelemetry.UnsupportedResourceType">
+            <summary>
+            Indicates that the resource type is not supported by AppLens and so we can't provide diagnostics.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.IAppLensTelemetry.SolutionReceived">
+            <summary>
+            Indicates whether or not the AppLens API has returned a <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.SolutionComponentOutput"/>.
+            Note that even if this is false the user may still received suggestions, solutions, or next steps
+            either from the information in the <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.InferenceComponentOutput"/> or generated by the LM
+            itself.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.IAppLensTelemetry.NoResponseReceived">
+            <summary>
+            Indicates that we did not receive any sort of content response from the AppLens API: no root cause,
+            no solution, no clarification question, etc. We may still have received status updates. One possible
+            cause of this is that we timed out waiting for the next response or status update.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.IAppLensTelemetry.RequestedResourceType">
+            <summary>
+            The type and kind of the requested resource, e.g. Microsoft.Web/sites/linux. The kind is only included
+            if it is known.
+            This is only set if we have positively identified the resource to diagnose.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensActivityTelemetry">
+            <summary>
+            An implementation of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.IAppLensTelemetry"/> that attaches the data to the <see cref="T:System.Diagnostics.Activity"/>
+            created by Semantic Kernel for the current function invocation.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.ActionType" -->
+        <!-- Badly formed XML comment ignored for member "T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.ArmApiOptions" -->
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.ChatContext">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=%2Fsrc%2FDiagnostics.SemanticService%2FModels%2FDataModels%2FChatContextModels.cs
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.ChatMessage">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=%2Fsrc%2FDiagnostics.SemanticService%2FModels%2FDataModels%2FChatContextModels.cs
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.ChatMessage.DisplayMessage">
+            <summary>
+            The actual content of the message, suitable for display (but pay attention to the <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.ChatMessage.MessageSource"/>).
+            Note that this should be the same as <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.ChatMessage.Message"/> for all intents and purposes.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.ChatMessage.Message">
+            <summary>
+            The actual content of the message, suitable for display (but pay attention to the <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.ChatMessage.MessageSource"/>).
+            Note that this should be the same as <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.ChatMessage.DisplayMessage"/> for all intents and purposes.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.ChatMessageRequestBody">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=/src/Diagnostics.SemanticService/Models/RequestResponseModels/ChatMessageRequestBody.cs
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.ChatMessageResponseBody">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=/src/Diagnostics.SemanticService/Models/RequestResponseModels/ChatMessageResponseBody.cs
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.ClearChatResponse">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=/src/Diagnostics.SemanticService/Models/RequestResponseModels/ChatMessageResponseBody.cs
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.ComponentExecutionStatus" -->
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.DiagnosticState">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=%2Fsrc%2FDiagnostics.SemanticService%2FModels%2FDataModels%2FChatContextModels.cs
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.DocumentReference">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=/src/Diagnostics.SemanticService/Models/DataModels/DocumentContent.cs
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.DocumentReferenceResponse">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=/src/Diagnostics.SemanticService/Models/DataModels/DocumentContent.cs
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.DocumentType">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=/src/Diagnostics.SemanticService/Models/DataModels/DocumentContent.cs
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.DocumentVisibility">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=/src/Diagnostics.SemanticService/Models/DataModels/DocumentContent.cs
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.GoToBladeOptions" -->
+        <!-- Badly formed XML comment ignored for member "T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.InferenceComponentOutput" -->
+        <!-- Badly formed XML comment ignored for member "T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.InferenceSupportingData" -->
+        <!-- Badly formed XML comment ignored for member "T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.ISemanticComponentOutput" -->
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.MessageRenderingType">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=%2Fsrc%2FDiagnostics.SemanticService%2FModels%2FDataModels%2FChatContextModels.cs
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.MessageResponseType">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=/src/Diagnostics.SemanticService/Models/RequestResponseModels/ChatMessageResponseBody.cs
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.MessageSource">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=%2Fsrc%2FDiagnostics.SemanticService%2FModels%2FDataModels%2FChatContextModels.cs
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.MessageStatus">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=%2Fsrc%2FDiagnostics.SemanticService%2FModels%2FDataModels%2FChatContextModels.cs
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.OpenTabOptions" -->
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.QueryResponseStatus">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=/src/Diagnostics.SemanticService/Models/RequestResponseModels/ChatMessageResponseBody.cs
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.Reference">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=/src/Diagnostics.SemanticService/Models/DataModels/DocumentContent.cs
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.ResourceContext">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=%2Fsrc%2FDiagnostics.SemanticService%2FModels%2FDataModels%2FChatContextModels.cs
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.SemanticComponentOutput" -->
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.SessionContext">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=%2Fsrc%2FDiagnostics.SemanticService%2FModels%2FDataModels%2FChatContextModels.cs
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.Solution">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=/src/Diagnostics.ModelsAndUtils/Models/ResponseExtensions/Solution.cs
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.Solution.Name">
+            <summary>
+            Name of the Solution.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.Solution.Title">
+            <summary>
+            Solution title.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.Solution.DescriptionMarkdown">
+            <summary>
+            A description which will be rendered as Markdown.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.Solution.Action">
+            <summary>
+            Denotes which action will be performed, such as calling an ARM API or navigating to a Portal Blade.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.Solution.ApiOptions">
+            <summary>
+            Options pertaining to <see cref="F:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.ActionType.ArmApi"/>.
+            This is ignored if <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.Solution.Action"/> is not <see cref="F:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.ActionType.ArmApi"/>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.Solution.BladeOptions">
+             <summary>
+             Options pertaining to <see cref="F:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.ActionType.GoToBlade"/>.
+             This is ignored if <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.Solution.Action"/> is not <see cref="F:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.ActionType.GoToBlade"/>.
+            
+             Configuring BladeOptions:
+             Navigate to the the blade you would like to configure in Azure Portal.
+             Press ctrl+alt+d to open the Ibiza debugging context. Open the debugger in your browser as well.
+             Click on the link with the blade name in the yellow popup debug window.
+             A console event will show the BladeName and BladeInputs passed to Ibiza for the blade.
+             Copy these into the DetailBlade and DetailBladeInputs of the GoToBladeOptions object.
+             </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.Solution.TabOptions">
+            <summary>
+            Options pertaining to <see cref="F:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.ActionType.OpenTab"/>.
+            This is ignored if <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.Solution.Action"/> is not <see cref="F:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.ActionType.OpenTab"/>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.Solution.OverrideOptions">
+            <summary>
+            Free-form JSON-serializable options that will override <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.Solution.ApiOptions"/>,
+            <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.Solution.BladeOptions"/>, or <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.Solution.TabOptions"/> for the purpose of compatibility.
+            Prefer the aforementioned first-class option objects.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.Solution.RequiresConfirmation">
+            <summary>
+            If the solution requires confirmation, it will signify a potentially dangerous action in the UI.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.Solution.ResourceUri">
+            <summary>
+            The URI of the target resource on which an action will be performed.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.Solution.InternalMarkdown">
+            <summary>
+            Instructions that will be sent to the customer by support staff. Rendered as Markdown.
+            Any instance of "{detectorLink}" will be replaced with a link to the detector.
+            If "{detectorLink}" is not present in the string, the detector link will be appended to the
+            end of the markdown.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.Solution.IsInternal">
+            <summary>
+            This is set automatically.
+            Reads <see cref="!:OperationContext"/> to determine if an internal view should be rendered.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.Solution.DetectorId">
+            <summary>
+            This is set automatically.
+            Used to create a deep link back to the Solution's detector in case the customer is receiving
+            Solution information from support staff.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.SolutionButtonOption">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=/src/Diagnostics.ModelsAndUtils/Models/ResponseExtensions/Solution.cs
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.SolutionButtonPosition">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=/src/Diagnostics.ModelsAndUtils/Models/ResponseExtensions/Solution.cs
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.SolutionButtonType">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=/src/Diagnostics.ModelsAndUtils/Models/ResponseExtensions/Solution.cs
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.SolutionComponentOutput">
+            <summary>
+            Model fro https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=/src/Diagnostics.SemanticService/Models/ComponentInputOutputModels/SolutionComponentModels.cs
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.SolutionModel">
+            <summary>
+            Model fro https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=/src/Diagnostics.SemanticService/Models/ComponentInputOutputModels/SolutionComponentModels.cs
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.SolutionType">
+            <summary>
+            Model fro https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=/src/Diagnostics.SemanticService/Models/ComponentInputOutputModels/SolutionComponentModels.cs
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.SolutionTypeTag" -->
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.TextSolution">
+            <summary>
+            Model fro https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=/src/Diagnostics.SemanticService/Models/ComponentInputOutputModels/SolutionComponentModels.cs
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.Models.TimeRangeType">
+            <summary>
+            Model from https://dev.azure.com/msazure/One/_git/AAPT-Antares-AppServiceDiagnostics?path=%2Fsrc%2FDiagnostics.SemanticService%2FModels%2FDataModels%2FChatContextModels.cs
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Azd.AzdPlugin.HowToInitializeOrDeployAppForAzureWithAzd(Microsoft.SemanticKernel.Kernel,Microsoft.Extensions.Logging.ILogger,System.Threading.CancellationToken)">
+            <summary>
+            Kernel function for getting AZD init/deploy instructions
+            </summary>
+            <param name="kernel">The SemanticKernel object</param>
+            <param name="cancellationToken">A cancellation token</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Azd.AzdPlugin.ConfigureGitHubActionsPipelineWithAzd(Microsoft.SemanticKernel.Kernel,Microsoft.Extensions.Logging.ILogger,System.Threading.CancellationToken)">
+            <summary>
+            Kernel function for getting AZD pipeline config instructions
+            </summary>
+            <param name="kernel">The SemanticKernel object</param>
+            <param name="cancellationToken">A cancellation token</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Azd.AzdPlugin.TakeDownAppFromAzureWithAzd(Microsoft.SemanticKernel.Kernel,Microsoft.Extensions.Logging.ILogger,System.Threading.CancellationToken)">
+            <summary>
+            Kernel function for getting AZD down instructions
+            </summary>
+            <param name="kernel">The SemanticKernel object</param>
+            <param name="cancellationToken">A cancellation token</param>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureCLI.IAzureCliCopilotTelemetry">
+            <summary>
+            <para>
+            Defines the set of data that we want to collect for every invocation of an AzureCli kernel function.
+            </para>
+            <para>
+            To obtain an instance of this type include it as a parameter to the kernel function, and tag it with
+            a <see cref="T:Microsoft.SemanticKernel.FromKernelServicesAttribute"/>.
+            </para>
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureCLI.IAzureCliCopilotTelemetry.ReceivedSuccessStatusCode">
+            <summary>
+            Whether or not <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureCLI.IAzureCliCopilotTelemetry.StatusCode"/> is a "success" status code.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureCLI.IAzureCliCopilotTelemetry.StatusCode">
+            <summary>
+            The status code returned by the call to the Azure CLI Copilot endpoint.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureCLI.AzureCliCopilotTelemetry">
+            <summary>
+            An implementation of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureCLI.IAzureCliCopilotTelemetry"/> that attaches the data to the <see cref="T:System.Diagnostics.Activity"/>
+            created by Semantic Kernel for the current function invocation.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.ArgClient">
+            <summary>
+            A strongly typed client for making calls to Azure Resource Graph, ARG. It is
+            injected with a <see cref="F:Microsoft.Extensions.DependencyInjection.ServiceLifetime.Scoped"/> lifetime.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.ArgClient.GenerateQueryAsync(Microsoft.SemanticKernel.Kernel,System.String,Microsoft.SemanticKernel.ChatCompletion.ChatHistory,Microsoft.Extensions.Logging.ILogger,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.ArgClient.InvokeQueryAsync(System.String,System.String[],System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.ArgGenerateQueryException">
+            <summary>
+            Represents a problem that occurred when trying to generate an ARG query.
+            </summary>
+            <remarks>
+            <para>
+            When the ARG API returns a <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.Models.ArgGenerateQueryResponse"/> that does not include a query,
+            use <see cref="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.ArgGenerateQueryException.#ctor(Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.Models.ArgGenerateQueryResponse)"/>.
+            </para>
+            <para>
+            When the ARG API returns a <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.Models.ArgErrorResponse"/>, use <see cref="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.ArgGenerateQueryException.#ctor(Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.Models.ArgErrorResponse)"/>.
+            </para>
+            <para>
+            When an exception occurs while processing the response, use <see cref="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.ArgGenerateQueryException.#ctor(System.Exception)"/>.
+            </para>
+            </remarks>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.ArgGenerateQueryException.Response">
+            <summary>
+            Gets the "success" response from ARG. This will be <c>null</c> when ARG returned an "error" response
+            (see <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.ArgGenerateQueryException.ErrorResponse"/>) or an exception occurred while processing the response (see <see cref="P:System.Exception.InnerException"/>).
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.ArgGenerateQueryException.ErrorResponse">
+            <summary>
+            Gets the "error" response from ARG This will be <c>null</c> when ARG returned a "success" response
+            (see <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.ArgGenerateQueryException.Response"/>) or an exception occurred while processing the response (see <see cref="P:System.Exception.InnerException"/>).
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.IAzureResourceGraphTelemetry.IsResultTruncated">
+            <summary>
+            Indicates whether the Azure Resource Graph query result was truncated before being presented to the LLM for generating a response.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.IAzureResourceGraphTelemetry.PluginError">
+            <summary>
+            The error that occured while calling the Azure Resource Graph plugin function.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.IAzureResourceGraphTelemetry.MaxTokenCount">
+            <summary>
+            The maximum number of token that we can use for the plugin result.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.IAzureResourceGraphTelemetry.TokenCount">
+            <summary>
+            The number of tokens we used for the plugin result.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.IAzureResourceGraphTelemetry.ItemCount">
+            <summary>
+            The number of records in the query result before any truncation.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.IArgClient.GenerateQueryAsync(Microsoft.SemanticKernel.Kernel,System.String,Microsoft.SemanticKernel.ChatCompletion.ChatHistory,Microsoft.Extensions.Logging.ILogger,System.Threading.CancellationToken)">
+            <summary>
+            Generates an ARG query based on the provided prompt.
+            </summary>
+            <param name="history">The chat history including the user's prompt.</param>
+            <param name="cancellationToken">A cancellation token.</param>
+            <returns>
+            The generated ARG query.
+            </returns>
+            <exception cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.ArgGenerateQueryException">
+            Thrown when ARG responds with any kind of error or empty query text.
+            </exception>
+            <exception cref="T:System.Threading.Tasks.TaskCanceledException">
+            Thrown when <paramref name="cancellationToken"/> is cancelled.
+            </exception>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.IArgClient.InvokeQueryAsync(System.String,System.String[],System.Threading.CancellationToken)">
+            <summary>
+            Invokes an ARG query.
+            </summary>
+            <param name="query">The query to invoke.</param>
+            <param name="subscriptionIds">A list of subscription IDs to scope the query to. Leave empty to scope to the entire directory.</param>
+            <param name="cancellationToken">A cancellation token.</param>
+            <returns>The results of the ARG query.</returns>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.Models.ArgGenerateQueryResponse.IsFailure">
+            <summary>
+            <see langword="true"/> when <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.Models.ArgGenerateQueryResponse.Status"/> indicates a failure, or <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.Models.ArgGenerateQueryResponse.Query"/> is <see langword="null"/>
+            or empty. <see langword="false"/> otherwise.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.AzdTemplatePricingResponse.TemplateUrl">
+            <summary>
+            The url to the azd template.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.AzdTemplatePricingResponse.TemplateName">
+            <summary>
+            A human readable name of the azd template.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.AzdTemplatePricingResponse.AzurePricingCalculatorUrl">
+            <summary>
+            The url to the Azure Pricing Calculator.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.AzdTemplatePricingResponse.Tip">
+            <summary>
+            A natrual language sentence providing tips on how to use Azure Pricing Calculator.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.CostManagementPlugin.ApplicableTopicScopes">
+            <summary>
+            A list of topic scopes that are applicable to this plugin. If a chat request is made with any
+            subset of these topic scopes, then the plugin is applicable.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.AskCostManagementData.UserPrompt">
+            <summary>
+            The user prompt that captures what the user's intention.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.AskCostManagementData.SubscriptionId">
+            <summary>
+            The id of the subscription to scope the request to.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.AskCostManagementData.TargetPluginName">
+            <summary>
+            The target plugin to invoke.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.AskCostManagementData.Operation">
+            <summary>
+            The target operation of the target plugin to invoke.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.BillingProperty.BillingAccountAgreementType">
+            <summary>
+            Agreement type of the billing property.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.BillingProperty.BillingAccountType">
+            <summary>
+            Account type of the billing property.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.CostManagementPluginMetadata.SubscriptionId">
+            <summary>
+            The subscription id used in the last successful cost management plugin invocation.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.CostManagementPluginMetadata.AccountType">
+            <summary>
+            The account type of the subscription used in the last successful cost management plugin invocation.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.CostManagementPluginMetadata.AgreementType">
+            <summary>
+            The agreement type of the subscription used in the last successful cost management plugin invocation.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.ICostManagementTelemetry.HasSubscription">
+            <summary>
+            Indicates whether a subscription name or id is associated from the parameter passed to the function..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.ICostManagementTelemetry.PluginError">
+            <summary>
+            Indicates whether an error is returned as the result of the function invocation.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.Models.SendMessageRequest">
+            <summary>
+            Documentations for the API contract can be found at https://eng.ms/docs/office-of-coo/commerce-ecosystems/commerce-platform-experiences/cloud-growth-insights-cgi/cost-management-ai/cost-management-ai-assistant/overview/sendmessageapi
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.Models.SendMessageRequest.ConversationId">
+            <summary>
+            A client generated GUID that can be used by the cost management service to correlate requests from the same conversation.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.Models.SendMessageRequest.MessageId">
+            <summary>
+            A client generated GUID that can be used by the cost management service to associate telemetry data of the request.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.Models.SendMessageRequest.UserPrompt">
+            <summary>
+            A user question related to cost management in Azure.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.Models.SendMessageRequest.ContextVariables">
+            <summary>
+            Information of the billing scope for the cost management related question.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.Models.SendMessageRequest.MessageMode">
+            <summary>
+            A boolean indicating whether to enable Message Mode or not.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.Models.SendMessageRequest.GenerateLLMResponse">
+            <summary>
+            A boolean indicating whether the cost management service should generate a response using its LLM.
+            If set to true, the response will contain an LLM generated response that can be directly presented to the user.
+            If set to false, the response will contain the raw RAG contents that can be used to generate a response.
+            It's recommended to set this option to false and have the caller generate human readable responses instead to reduce the latency of getting responses from the cost management service.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.Models.SendMessageRequest.PlannerBypass">
+            <summary>
+            Information to tell the cost managment service what operation to invoke after bypassing the planner.
+            This is required when Message Mode is enabled.
+            This is optional when Message Mode is disabled.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.Models.ContextVariables.SubscriptionDisplayName">
+            <summary>
+            The name of the subscription.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.Models.ContextVariables.AccountType">
+            <summary>
+            The type of the billing account associated with the subscription.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.Models.ContextVariables.AgreementType">
+            <summary>
+            The type of the billing agreement associated with the subscription.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.Models.ContextVariables.TargetPluginName" -->
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.Models.PlannerBypass.Operation">
+            <summary>
+            The intended operation for the current message.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CreateApp.CreateAppPlugin.SearchForAppTemplatesAsync(System.String,Microsoft.SemanticKernel.Kernel,Microsoft.Extensions.Logging.ILogger,System.Threading.CancellationToken)">
+            <summary>
+            Kernel function for creating an app based on user's requirements
+            </summary>
+            <param name="query">The user's requirements</param>
+            <param name="kernel">The SemanticKernel object</param>
+            <param name="cancellationToken">A cancellation token</param>
+            <returns>The URL of an azd template</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.FollowUpQuestions.ExtractFollowUpQuestions(System.String)">
+            <summary>
+            Extracts follow-up questions from the JSON response.
+            Here's an example of how the JSON input might look:
+            '{ "followUpOne": "How do I deploy a Bicep template to Azure?", "followUpTwo": "Can you show me an example of a Bicep template for creating a Key Vault?" }'
+            </summary>
+            <param name="json"></param>
+            <returns> Returns list of trimmed follow-up questions without the keys like followUpOne, followUpTwo</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.FollowUpQuestions.GenerateFollowUpQuestionsAsync(System.String,Microsoft.SemanticKernel.Kernel,Microsoft.SemanticKernel.ChatCompletion.ChatHistory,Microsoft.SemanticKernel.Connectors.OpenAI.OpenAIPromptExecutionSettings,Microsoft.SemanticKernel.ChatCompletion.IChatCompletionService,System.Threading.CancellationToken,Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Generates follow-up questions based on the conversation history by prompting the LLM as if the request was a user message.
+            </summary>
+            <param name="UserMessagePromptFile">Contents of user message</param>
+            <param name="kernel"></param>
+            <param name="history"></param>
+            <param name="OpenAIPromptExecutionSettings"></param>
+            <param name="chatCompletionService"></param>
+            <param name="cancellationToken"></param>
+            <param name="logger"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.FollowUpQuestions.GetConversationAsString(Microsoft.SemanticKernel.ChatCompletion.ChatHistory,System.String)">
+             <summary>
+             Return the chat history as a string along with the user message prompt.
+             </summary>
+             <param name="history"></param>
+             <param name="generateFollowUpQuestionsAsUserMessage"></param>
+             <returns>
+            You are an expert in looking at conversations, between a user and an assistant...
+            Conversation:
+            User: user question
+            Assistant: assistant response
+            User: user question
+             </returns>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.IAIServicePlugin">
+            <summary>
+            Interface for AI Service Plugin.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.IAIServicePlugin.RegisterWithKernelAsync(Microsoft.SemanticKernel.IKernelBuilder,System.Threading.CancellationToken)">
+            <summary>
+            Registers the plugin with the kernel asynchronously.
+            </summary>
+            <param name="builder">The kernel builder.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.IAIServicePlugin.ApplicableTopicScopes">
+            <summary>
+            A list of topic scopes that are applicable to this plugin. If a chat request is made with any
+            subset of these topic scopes, then the plugin is applicable.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.IAIServicePlugin.GetSamplePrompts(Microsoft.SemanticKernel.Kernel,Microsoft.Azure.CopilotForAzure.AIService.Contract.WebApi.PersonaSettings,Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Gets the sample prompts for the plugin. The prompts are not required to be related to the current
+            chat request.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.IAIServicePlugin.GetNextQuestionFollowUpsAsync(Microsoft.SemanticKernel.Kernel,Microsoft.SemanticKernel.ChatCompletion.ChatHistory,Microsoft.SemanticKernel.Connectors.OpenAI.OpenAIPromptExecutionSettings,Microsoft.SemanticKernel.ChatCompletion.IChatCompletionService,System.Threading.CancellationToken,Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Gets plugin specific follow-up questions.
+            </summary>
+            <param name="kernel"></param>
+            <param name="history"></param>
+            <param name="OpenAIPromptExecutionSettings"></param>
+            <param name="chatCompletionService"></param>
+            <param name="cancellationToken"></param>
+            <param name="logger"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.IAIServicePlugin.SupportedRequestSources">
+            <summary>
+            A list of modes that are applicable to this plugin. If a request is made from any
+            these modes (Chat or Agent), then the plugin is supported.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.ISubscriptionIdService.GetSubscriptionIdAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Given a string that could be a subscription name or ID, return the subscription ID.
+            </summary>
+            <remarks>
+            We start with the assumption that the string is a name and try to look up the ID based on that.
+            If that fails, we try to treat the string as an ID and validate that it represents a subscription
+            the user has access to.
+            </remarks>
+            <returns>
+            <see langword="null"/> if <paramref name="subscriptionNameOrId"/> is <see langword="null"/> or we
+            can't find a matching subscription, or the subscription ID otherwise
+            </returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.ISubscriptionIdService.GetSubscriptionNameAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Given a subscription ID, return the subscription name.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions">
+            <summary>
+            Extension methods for the <see cref="T:Microsoft.SemanticKernel.Kernel"/> class.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.GetResponseChannelWriter(Microsoft.SemanticKernel.Kernel)">
+            <summary>
+            Retrieves the response channel writer from the <paramref name="kernel"/>. Throws if the <see cref="T:System.Threading.Channels.ChannelWriter`1"/> has not been set on the <paramref name="kernel"/>.
+            </summary>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <returns>The response channel writer.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when the response channel writer is not set on the kernel.</exception>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.TerminateResponse(Microsoft.SemanticKernel.Kernel)">
+            <summary>
+            Terminates the response of the <paramref name="kernel"/>.
+            </summary>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.RecordPluginInvocation(Microsoft.SemanticKernel.Kernel,Microsoft.Azure.CopilotForAzure.AIService.Contract.WebApi.PluginInvocationMetadata)">
+            <summary>
+            Records the plugin invocation metadata in the <paramref name="kernel"/>.
+            </summary>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <param name="metadata">The plugin invocation metadata.</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.GetPluginInvocations(Microsoft.SemanticKernel.Kernel)">
+            <summary>
+            Retrieves the plugin invocation metadata from the <paramref name="kernel"/>.
+            </summary>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <returns>The plugin invocation metadata.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when the plugin invocation metadata is not found in the kernel.</exception>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.GetChatHistory(Microsoft.SemanticKernel.Kernel)">
+            <summary>
+            Retrieves the chat history from the <paramref name="kernel"/>.
+            </summary>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <returns>The chat history.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when the chat history is not found in the kernel.</exception>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.GetSelectedSubscriptionIds(Microsoft.SemanticKernel.Kernel,Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Gets the selected subscription IDs from the <paramref name="kernel"/>.
+            </summary>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <param name="logger">The logger.</param>
+            <returns>The selected subscription IDs.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.PrepareTextReference(Microsoft.SemanticKernel.Kernel,System.String,System.String,System.String)">
+            <summary>
+            Stashes a text reference to send to the client.
+            </summary>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <param name="content">The content of the text document.</param>
+            <param name="label">The file name of the text document.</param>
+            <param name="extension">The file extension of the text document.</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.DeferResponsePart(Microsoft.SemanticKernel.Kernel,Microsoft.Azure.CopilotForAzure.AIService.Contract.WebApi.ChatResponsePart)">
+            <summary>
+            Defers a <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Contract.WebApi.ChatResponsePart"/> to be sent after the main LLM response.
+            </summary>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <param name="deferredResponsePart">The part to defer.</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.SendDeferredResponsePartsAsync(Microsoft.SemanticKernel.Kernel,System.Threading.CancellationToken)">
+            <summary>
+            Sends all the stashed deferred response parts to the client.
+            </summary>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>A task representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.SetPluginMetadata``1(Microsoft.SemanticKernel.Kernel,Microsoft.Azure.CopilotForAzure.AIService.Plugins.IAIServicePlugin,``0)">
+            <summary>
+            Sets the metadata for a plugin, such that it can be retrieved during a later invocation or turn.
+            </summary>
+            <typeparam name="T">The type of the metadata.</typeparam>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <param name="plugin">The plugin.</param>
+            <param name="metadata">The metadata.</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.SetPluginMetadata``1(Microsoft.SemanticKernel.Kernel,System.String,``0)">
+            <summary>
+            Sets the metadata for a plugin, such that it can be retrieved during a later invocation or turn.
+            </summary>
+            <typeparam name="T">The type of the metadata.</typeparam>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <param name="pluginName">The name of the plugin.</param>
+            <param name="metadata">The metadata.</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.SetPluginMetadata(Microsoft.SemanticKernel.Kernel,Microsoft.Azure.CopilotForAzure.AIService.Plugins.IAIServicePlugin,System.Text.Json.JsonElement)">
+            <summary>
+            Sets the metadata for a plugin, such that it can be retrieved during a later invocation or turn.
+            </summary>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <param name="plugin">The plugin.</param>
+            <param name="metadata">The metadata.</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.ClearPluginMetadata(Microsoft.SemanticKernel.Kernel,Microsoft.Azure.CopilotForAzure.AIService.Plugins.IAIServicePlugin)">
+            <summary>
+            Clears the metadata for a plugin, such that it can no longer be retrieved during a later invocation or turn.
+            </summary>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <param name="plugin">The plugin.</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.ClearPluginMetadata(Microsoft.SemanticKernel.Kernel,System.String)">
+            <summary>
+            Clears the metadata for a plugin, such that it can no longer be retrieved during a later invocation or turn.
+            </summary>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <param name="pluginName">The name of the plugin.</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.SetPluginMetadata(Microsoft.SemanticKernel.Kernel,System.String,System.Text.Json.JsonElement)">
+            <summary>
+            Sets the metadata for a plugin, such that it can be retrieved during a later invocation or turn.
+            </summary>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <param name="pluginName">The name of the plugin.</param>
+            <param name="metadata">The metadata.</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.GetPluginMetadata(Microsoft.SemanticKernel.Kernel,Microsoft.Azure.CopilotForAzure.AIService.Plugins.IAIServicePlugin)">
+            <summary>
+            Retrieves the metadata for a plugin that was set during a previous invocation or turn.
+            </summary>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <param name="plugin">The plugin.</param>
+            <returns>The metadata that was set for the plugin.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.GetPluginMetadata(Microsoft.SemanticKernel.Kernel,System.String)">
+            <summary>
+            Retrieves the metadata for a plugin that was set during a previous invocation or turn.
+            </summary>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <param name="pluginName">The name of the plugin.</param>
+            <returns>The metadata that was set for the plugin.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.TryGetPluginMetadata``1(Microsoft.SemanticKernel.Kernel,Microsoft.Azure.CopilotForAzure.AIService.Plugins.IAIServicePlugin,System.Text.Json.JsonSerializerOptions,Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Tries to retrieve the metadata for a plugin that was set during a previous invocation or turn and deserializes it to the specified type. If here are any errors, the metadata is deleted and null is returned.
+            </summary>
+            <typeparam name="T">The type to deserialize the metadata to.</typeparam>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <param name="plugin">The plugin.</param>
+            <param name="options">The JSON serializer options.</param>
+            <param name="logger">The logger.</param>
+            <returns>An object of the specified type or null if the metadata cannot be found or deserialized.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.TryGetPluginMetadata``1(Microsoft.SemanticKernel.Kernel,System.String,System.Text.Json.JsonSerializerOptions,Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Tries to retrieve the metadata for a plugin that was set during a previous invocation or turn and deserializes it to the specified type. If here are any errors, the metadata is deleted and null is returned.
+            </summary>
+            <typeparam name="T">The type to deserialize the metadata to.</typeparam>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <param name="pluginName">The plugin name.</param>
+            <param name="options">The JSON serializer options.</param>
+            <param name="logger">The logger.</param>
+            <returns>An object of the specified type or null if the metadata cannot be found or deserialized.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.GetPluginMetadata``1(Microsoft.SemanticKernel.Kernel,Microsoft.Azure.CopilotForAzure.AIService.Plugins.IAIServicePlugin,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Retrieves the metadata for a plugin that was set during a previous invocation or turn and deserializes it to the specified type.
+            </summary>
+            <typeparam name="T">The type to deserialize the metadata to.</typeparam>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <param name="plugin">The plugin.</param>
+            <param name="options">The JSON serializer options.</param>
+            <returns>An object of the specified type or null if the metadata cannot be found.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.GetPluginMetadata``1(Microsoft.SemanticKernel.Kernel,System.String,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Retrieves the metadata for a plugin that was set during a previous invocation or turn and deserializes it to the specified type.
+            </summary>
+            <typeparam name="T">The type to deserialize the metadata to.</typeparam>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <param name="pluginName">The name of the plugin.</param>
+            <param name="options">The JSON serializer options.</param>
+            <returns>An object of the specified type or null if the metadata cannot be found.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.GetPluginsMetadata(Microsoft.SemanticKernel.Kernel)">
+            <summary>
+            Retrieves the metadata for all plugins from the <paramref name="kernel"/>.
+            </summary>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <returns>The metadata for all plugins.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.SetPluginsMetadata(Microsoft.SemanticKernel.Kernel,System.Collections.Generic.Dictionary{System.String,System.Text.Json.JsonElement})">
+            <summary>
+            Sets the metadata for all plugins in the <paramref name="kernel"/>.
+            </summary>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <param name="pluginsMetadata">The dictionary containing the plugin metadata.</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.GetClientOperatingSystem(Microsoft.SemanticKernel.Kernel)">
+            <summary>
+            Retrieves the client operating system from the <paramref name="kernel"/>.
+            </summary>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <returns>The client operating system.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.KernelExtensions.GetSideChannelClient(Microsoft.SemanticKernel.Kernel)">
+            <summary>
+            Retrieves the side channel client from the <paramref name="kernel"/>.
+            </summary>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> object.</param>
+            <returns>The side channel client.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when the side channel client is not found in the kernel.</exception>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.AfecClient">
+            <summary>
+            Client for Azure Feature exposure control.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.AfecClient.#ctor(Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureOnBehalfOfCredential,System.Net.Http.HttpClient,Microsoft.Extensions.Logging.ILogger{Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.AfecClient})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.AfecClient"/> class.
+            </summary>
+            <param name="oboCredentials">CopilotForAzureOnBehalfOfCredential.</param>
+            <param name="httpClient"></param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.AfecClient.IsSignedUpForPrivatePreviewAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Checks Afec feature flag - Microsoft.Experimentation/EXTERNAL is registered or not for the given subscription id.
+            </summary>
+            <param name="subscriptionId">Azure Subscription id.</param>
+            <param name="cancellationToken">CancellationToken.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.Models.AfecFeature">
+            <summary>
+            The Azure Feature exposure control feature model class.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.Models.AfecFeature.Id">
+            <summary>
+            Gets or sets the resource Id of the feature.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.Models.AfecFeature.Name">
+            <summary>
+            Gets or sets the name of the feature.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.Models.AfecFeature.Properties">
+            <summary>
+            Gets or sets the properties of the feature.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.Models.AfecFeature.Type">
+            <summary>
+            Gets or sets the resource type of the feature.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.Models.AfecFeatureProperties">
+            <summary>
+            The Azure Feature exposure control feature properties model class.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.Models.AfecFeatureProperties.State">
+            <summary>
+            Gets or sets the state of the feature.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.Models.AfecFeatureState">
+            <summary>
+            The Azure Feature exposure control feature state.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.Models.AfecFeatureState.Pending">
+            <summary>
+            The AFEC flag is pending for Approval.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.Models.AfecFeatureState.Registering">
+            <summary>
+            The AFEC flag is approved and currently registering.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.Models.AfecFeatureState.Registered">
+            <summary>
+            The AFEC flag is approved and registered.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.Models.AfecFeatureState.NotRegistered">
+            <summary>
+            The AFEC flag is not registered.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.Models.AfecFeatureState.Unregistered">
+            <summary>
+            The AFEC flag is unregistered.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.Models.ChatMessage">
+            <summary>
+            A chat completion message.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.Models.ChatMessage.Role">
+            <summary>
+            Gets or sets the role of the author of this message.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.Models.ChatMessage.Content">
+            <summary>
+            Gets or sets the content of the message.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.Models.ChatRequest.Messages">
+            <summary>
+            Gets or sets the messages in the chat.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.Models.ChatRequest.ConversationId">
+            <summary>
+            Gets or sets the conversation ID.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.Models.ChatRequest.AzureSubscriptionId">
+            <summary>
+            Gets or sets the Azure subscription ID.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.Models.ChatRequest.Agent">
+            <summary>
+            Gets or sets the agent.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.OnlineExperimentationClient">
+            <summary>
+            Online experimentation Bot client.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.OnlineExperimentationClient.#ctor(Microsoft.Extensions.Options.IOptions{Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.OnlineExperimentationOptions},Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureOnBehalfOfCredential,System.Net.Http.HttpClient,Microsoft.Extensions.Logging.ILogger{Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.OnlineExperimentationClient})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.OnlineExperimentationClient"/> class.
+            </summary>
+            <param name="options">OnlineExperimentationOptions for configuring <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.OnlineExperimentationClient"/>.</param>
+            <param name="oboCredentials">Copilot for Azure credentials.</param>
+            <param name="httpClient">HttpClient.</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.OnlineExperimentationClient.GetOnlineExperimentationResponseAsync(System.String,Microsoft.SemanticKernel.ChatCompletion.ChatHistory,Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.OnlineExperimentationPluginMetadata,System.Threading.CancellationToken)">
+            <summary>
+            Gets the online experimentation bot service response.
+            </summary>
+            <param name="chatMessages">list of messages for chat history.</param>
+            <param name="pluginMetadata"></param>
+            <param name="cancellationToken">Cancellation Tokne.</param>
+            <returns></returns>
+            <exception cref="T:System.Net.Http.HttpRequestException"></exception>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.OnlineExperimentationOptions">
+            <summary>
+            Options for the Online Experimentation service.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.OnlineExperimentationOptions.Uri">
+            <summary>
+            Base Url for the Online Experimentation service.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.OnlineExperimentationOptions.OAuthScopes">
+            <summary>
+            OAuth scopes required to access the Online Experimentation service.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.OnlineExperimentationPlugin">
+            <summary>
+            Plugin for Online Experimentation.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.OnlineExperimentationPlugin.ApplicableTopicScopes">
+            <summary>
+            A list of topic scopes that are applicable to this plugin. If a chat request is made with any
+            subset of these topic scopes, then the plugin is applicable.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.OnlineExperimentationPlugin.RegisterWithKernelAsync(Microsoft.SemanticKernel.IKernelBuilder,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.OnlineExperimentationPluginMetadata.SubscriptionId">
+            <summary>
+            The subscription id used in the last successful online experimentation plugin invocation.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.OnlineExperimentationPluginMetadata.ResourceId">
+            <summary>
+            The online experimentation workspace resource id used in the last successful online experimentation plugin invocation.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.OnlineExperimentationPluginMetadata.ConversationId">
+            <summary>
+            The conversation id of the last successful online experimentation plugin invocation.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.ResourceFinderService">
+            <summary>
+            An implementation of the <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.IResourceFinderService"/> interface that uses the Azure Resource
+            Graph to find a resource, returning its ID.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.AppLensLookingForResourceId">
+            <summary>
+              Looks up a localized string similar to Finding the ID for &apos;{0}&apos;....
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.AppLensPluginSamplePromptDiagnoseNetworkIssues">
+            <summary>
+              Looks up a localized string similar to Diagnose network issues that may be affecting my application..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.AppLensPluginSamplePromptIsCpuUsageHigh">
+            <summary>
+              Looks up a localized string similar to Check if my application has abnormal CPU usage, and if so, what is causing it?.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.AppLensPluginSamplePromptWhySlow">
+            <summary>
+              Looks up a localized string similar to Why is my application running slowly?.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.ARGAzureResourceGraph">
+            <summary>
+              Looks up a localized string similar to Azure Resource Graph.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.ARGGeneratingQueryProgressMessage">
+            <summary>
+              Looks up a localized string similar to Generating Azure Resource Graph query....
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.ARGHelpTextScoped">
+            <summary>
+              Looks up a localized string similar to {0} queried the {1} associated with this extension&apos;s settings, scoped to your {2}:.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.ARGHelpTextUnscoped">
+            <summary>
+              Looks up a localized string similar to {0} queried the {1} associated with this extension&apos;s settings:.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.ARGRunningQueryProgressMessage">
+            <summary>
+              Looks up a localized string similar to Running Azure Resource Graph query....
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.ARGSelectedSubscriptions">
+            <summary>
+              Looks up a localized string similar to selected subscriptions.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.ARGSummarizingResultsProgressMessage">
+            <summary>
+              Looks up a localized string similar to Summarizing results....
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.ARGTenant">
+            <summary>
+              Looks up a localized string similar to tenant.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.AskCostManagementProgressMessage">
+            <summary>
+              Looks up a localized string similar to Asking Cost Management AI Assistant....
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.AskForAzureAIServicesResourceChoice">
+            <summary>
+              Looks up a localized string similar to There are some resources you can use, select one from the following list \n{0}.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.AskForAzureAIServicesResourceCreation">
+            <summary>
+              Looks up a localized string similar to There is no Azure AI Services resource available, create one first..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.AskForChatCompletionModelToDeploy">
+            <summary>
+              Looks up a localized string similar to The chat completion model to deploy is not specified, can you provide one?.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.AskForModelToDeploy">
+            <summary>
+              Looks up a localized string similar to Cannot identify what model to deploy, can you specify one please?.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.AzdPluginSamplePromptDeployMyApp">
+            <summary>
+              Looks up a localized string similar to Deploy my app to Azure..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.AzdPluginSamplePromptSetUpApp">
+            <summary>
+              Looks up a localized string similar to Help me set up my app for Azure..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.AzdPluginSamplePromptUseAzdToDeploy">
+            <summary>
+              Looks up a localized string similar to Use AZD to deploy my app..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.AzmcpCliDescriptionGeneratingProgressMessage">
+            <summary>
+              Looks up a localized string similar to Generating the description of all the Azure MCP CLI commands....
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.AzmcpCliInvokingProgressMessage">
+            <summary>
+              Looks up a localized string similar to Invoking the Azure MCP CLI command....
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.AzureCliCopilotGeneratingProgressMessage">
+            <summary>
+              Looks up a localized string similar to Generating Azure CLI command....
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.AzureCliCopilotSamplePromptAssignRole">
+            <summary>
+              Looks up a localized string similar to Give me the az CLI command for adding a new role assignment to a resource..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.AzureCliCopilotSamplePromptCreateBotService">
+            <summary>
+              Looks up a localized string similar to What is the az CLI command to create a Azure Bot Service?.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.AzureCliCopilotSamplePromptCreateStorageSAS">
+            <summary>
+              Looks up a localized string similar to How can I use the Azure CLI to create a storage SAS token?.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.BicepAssistantGeneratingResponseMessage">
+            <summary>
+              Looks up a localized string similar to Generating Bicep response....
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.BicepAssistantSamplePromptCreateKeyvault">
+            <summary>
+              Looks up a localized string similar to Give me Bicep template for creating a key vault, a managed identity, and a role assignment for the managed identity to access the key vault..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.BicepAssistantSamplePromptCreateOpenAIService">
+            <summary>
+              Looks up a localized string similar to How to use Bicep to create Azure OpenAI service?.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.BicepAssistantSamplePromptDeployLinuxVm">
+            <summary>
+              Looks up a localized string similar to Show me Bicep template which deploys a Linux VM Ubuntu using the latest patched version. It should use a Standard_B2s size VM and a 20.04-LTS as default value in the resource group location. Define the following output values: the admin username, SSH command, and FQDN.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.CheckingForDeploymentInResource">
+            <summary>
+              Looks up a localized string similar to Checking for any deployment in {0}.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.CheckingForModelDeployment">
+            <summary>
+              Looks up a localized string similar to Running checks before deploying the model....
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.CheckingForUsageInRegion">
+            <summary>
+              Looks up a localized string similar to Checking for usage data in {0} {1}.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.CheckingModelAvailabilityForSubscription">
+            <summary>
+              Looks up a localized string similar to Checking model availability for subscription `{0}`.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.ChekingForAvailableModels">
+            <summary>
+              Looks up a localized string similar to Checking what AI models are available.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.CostManagementPluginSamplePromptCostBreakdownWithoutSubId">
+            <summary>
+              Looks up a localized string similar to Give me a cost breakdown of my resources..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.CostManagementPluginSamplePromptCostBreakdownWithSubId">
+            <summary>
+              Looks up a localized string similar to Give me a cost breakdown for subscription with ID {0}..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.CostManagementPluginSamplePromptLastMonthWithoutSubId">
+            <summary>
+              Looks up a localized string similar to How much did my resources cost me last month?.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.CostManagementPluginSamplePromptLastMonthWithSubId">
+            <summary>
+              Looks up a localized string similar to How much did my resources in subscription with ID {0} cost me last month?.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.CostManagementPluginSamplePromptMostExpensiveTypeWithoutSubId">
+            <summary>
+              Looks up a localized string similar to What resource type is costing me the most money?.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.CostManagementPluginSamplePromptMostExpensiveTypeWithSubId">
+            <summary>
+              Looks up a localized string similar to What resource type is costing me the most money in subscription with ID {0}?.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.CostManagementPluginSubscriptionScopeMessage">
+            <summary>
+              Looks up a localized string similar to Query was scoped to subscription **{0} (ID: {1})**. Not the right subscription to scope to? {2}.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.CostManagementSelectSubscriptionLabel">
+            <summary>
+              Looks up a localized string similar to Select subscription.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.CreateAppDeploymentFollowup">
+            <summary>
+              Looks up a localized string similar to I would like to deploy this app to Azure..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.CreateAppSamplePromptCrmApp">
+            <summary>
+              Looks up a localized string similar to Find a template for a CRM app that runs on Azure..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.CreateAppSamplePromptGetStartedTemplate">
+            <summary>
+              Looks up a localized string similar to What kind of templates exist for getting started with Azure development?.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.CreateAppSamplePromptPythonRagApp">
+            <summary>
+              Looks up a localized string similar to I&apos;d like to create a RAG app that uses Python..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.CreatingAzureAIServicesResource">
+            <summary>
+              Looks up a localized string similar to Creating Azure AI Services Resource {0} in Resource Group {1} in region {2}.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.CreatingResourceGroup">
+            <summary>
+              Looks up a localized string similar to Creating Resource Group {0} in subscription {1} in region {2}.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.DeployingModelToAzureAIServicesResource">
+            <summary>
+              Looks up a localized string similar to Deploying {0} to Azure AI Services Resource {1} in region {2}..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.IssuesCheckingForModelDeployment">
+            <summary>
+              Looks up a localized string similar to Issues while checking for any deployment in {0}.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.LearnAboutResourcesPluginSamplePromptListMyResourceGroupsThatHaveKeyVaults">
+            <summary>
+              Looks up a localized string similar to List my resource groups that have a key vault..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.LearnAboutResourcesPluginSamplePromptResourcesInWestUS">
+            <summary>
+              Looks up a localized string similar to What types of resources do I have in the West US region?.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.LearnAboutResourcesPluginSamplePromptRunningVirtualMachines">
+             <summary>
+               Looks up a localized string similar to How many of my virtual machines are currently running?
+            .
+             </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.LookingForAzureAIServicesResources">
+            <summary>
+              Looks up a localized string similar to Looking in your subscription for Azure AI Services resources.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.LookingForExistingAzureAIServicesResources">
+            <summary>
+              Looks up a localized string similar to Looking for existing Azure AI Services resources.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.LookingForExistingAzureResourceGroups">
+            <summary>
+              Looks up a localized string similar to Looking for existing Azure Resource Groups.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.LookingForProblems">
+            <summary>
+              Looks up a localized string similar to Looking for problems....
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.OnlineExperimentationPrivatePreviewSignupMessage">
+            <summary>
+              Looks up a localized string similar to This plugin is only available in private preview and not broadly available. If you are interested in learning more and trying out the plugin please sign up for the Online Experimentation private preview at https://aka.ms/genAI-CI-CD-private-preview. For support if you already have private preview access please reach out to exp-preview-fb@microsoft.com..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.OnlineExperimentationSamplePromptExperimentation">
+            <summary>
+              Looks up a localized string similar to What is online experimentation?.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.OnlineExperimentationSamplePromptMetricDesign">
+            <summary>
+              Looks up a localized string similar to What kind of online experiment metric should I create for measuring by App performance?.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.OnlineExperimentationSamplePromptScorecardMetricsCount">
+            <summary>
+              Looks up a localized string similar to How many online experiment metrics are there in {0} scorecard?.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.OnlineExperimentationSamplePromptSRM">
+            <summary>
+              Looks up a localized string similar to Any sample ratio mismatch for scorecard {0}?.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.OnlineExperimentationSamplePromptSummarizeScorecard">
+            <summary>
+              Looks up a localized string similar to Summarize result for scorecard {0}.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.SearchingTemplatesProgressMessage">
+            <summary>
+              Looks up a localized string similar to Searching for templates....
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.TerraformAssistantGeneratingResponseMessage">
+            <summary>
+              Looks up a localized string similar to Generating Terraform response....
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.TerraformAssistantSamplePromptCreateKeyvault">
+            <summary>
+              Looks up a localized string similar to Create a key vault using Terraform template..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.TerraformAssistantSamplePromptCreateVmWithPublicIp">
+            <summary>
+              Looks up a localized string similar to Give me a terraform template to create a VM with a public IP address..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.TerraformAssistantSamplePromptCreateWebApp">
+            <summary>
+              Looks up a localized string similar to Show me a terraform configuration that creates a web app named &quot;mywebapp&quot;..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.ValidatingAzureAIServicesResourceCreation">
+            <summary>
+              Looks up a localized string similar to Validating Azure AI Services Resource {0} in Resource Group {1} in region {2} is successfully created.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.ValidatingResourceGroupCreation">
+            <summary>
+              Looks up a localized string similar to Validating Resource Group {0} in subscription {1} in region {2} is successfully created.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.VSCodeDevLearnSamplePromptContainerizedAppServices">
+            <summary>
+              Looks up a localized string similar to What Azure services allow me to run containerized apps?.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.VSCodeDevLearnSamplePromptDataStorageResources">
+            <summary>
+              Looks up a localized string similar to What solutions does Azure have for storing large amounts of data?.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Resources.VSCodeDevLearnSamplePromptFunctionsLanguages">
+            <summary>
+              Looks up a localized string similar to What programming languages are supported by Azure Functions?.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.ServiceCollectionExtensions.AddLearnAboutResourcesPlugin(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds a singleton instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.LearnAboutResourcesPlugin"/> as an <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.IAIServicePlugin"/>
+            and its dependency for <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.IArgClient"/>.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns><paramref name="services"/> for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.ServiceCollectionExtensions.AddVSCodeDevLearnPlugin(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds a singleton instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.VSCodeDevLearn.VSCodeDevLearnPlugin"/> as <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.IAIServicePlugin"/>.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns><paramref name="services"/> for chaining.</returns>
+            <remarks>
+            Caller is expected to inject an implementation of <see cref="!:IMSLearnTokenProvider"/> into
+            <paramref name="services"/> during DI building.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.ServiceCollectionExtensions.AddCostManagementPlugin(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds a singleton instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CostManagement.CostManagementPlugin"/> as <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.IAIServicePlugin"/>.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns><paramref name="services"/> for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.ServiceCollectionExtensions.AddOnlineExperimentationPlugin(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds a singleton instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.OnlineExperimentation.OnlineExperimentationPlugin"/> as <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.IAIServicePlugin"/>.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns><paramref name="services"/> for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.ServiceCollectionExtensions.AddCreateAppPlugin(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds a singleton instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.CreateApp.CreateAppPlugin"/> as <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.IAIServicePlugin"/>.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns><paramref name="services"/> for chaining.</returns>
+            <remarks>
+            Caller is expected to inject an implementation of <see cref="!:ICreateAppTokenProvider"/> into
+            <paramref name="services"/> during DI building.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.ServiceCollectionExtensions.AddAzdPlugin(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds a singleton instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Azd.AzdPlugin"/> as <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.IAIServicePlugin"/>.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns><paramref name="services"/> for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.ServiceCollectionExtensions.AddAzureBestPracticesPlugin(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds a singleton instance of <see cref="N:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureBestPractices"/>
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns><paramref name="services"/> for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.ServiceCollectionExtensions.AddAzureSdkVersionPlugin(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds a singleton instance of <see cref="N:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureBestPractices"/>
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns><paramref name="services"/> for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.ServiceCollectionExtensions.AddAppLensPlugin(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds a singleton instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AppLens.AppLensPlugin"/> to the service collection. 
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns><paramref name="services"/> for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.ServiceCollectionExtensions.AddArgClient(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds a singleton instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.AzureResourceGraph.IArgClient"/> to the service collection. 
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns><paramref name="services"/> for chaining.</returns>
+            <remarks>
+            Caller is expected to inject an implementation of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureOnBehalfOfCredential"/> into 287Minus
+            <paramref name="services"/> during DI building.
+            </remarks>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.SubscriptionIdService">
+            <summary>
+            An implementation of the <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.ISubscriptionIdService"/> interface that uses the Azure Resource
+            Graph to look up subscription IDs.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.SubscriptionIdService.Subscription">
+            <summary>
+            The result of using ARG to query for the list of subscriptions available to the user.
+            </summary>
+            <param name="name">The subscription name</param>
+            <param name="subscriptionId">The subscription ID</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.SubscriptionIdService.Subscription.#ctor(System.String,System.String)">
+            <summary>
+            The result of using ARG to query for the list of subscriptions available to the user.
+            </summary>
+            <param name="name">The subscription name</param>
+            <param name="subscriptionId">The subscription ID</param>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.SubscriptionIdService.Subscription.name">
+            <summary>The subscription name</summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.SubscriptionIdService.Subscription.subscriptionId">
+            <summary>The subscription ID</summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Telemetry.PluginActivityTelemetry">
+            <summary>
+            Collects telemetry for a plugin by attaching it to the <see cref="T:System.Diagnostics.Activity"/> created by Semantic
+            Kernel for the current function invocation.
+            </summary>
+            <remarks>
+            This serves three purposes:
+            <list type="number">
+            <item>
+            Ensures consistent naming of telemetry events and properties across plugins. The event name will
+            always end with "aiservice/span/{functionName}" (where "functionName" is the name used by Semantic
+            Kernel for the function) and properties will be prefixed with the plugin name, e.g. "applens.rootcausefound".
+            This reduces the chance of naming conflicts with the standard properties added to all events.
+            </item>
+            <item>
+            Provides a single event for each invocation of the a plugin, allowing us to accurately count
+            how often it is used.
+            </item>
+            <item>
+            By tying telemetry data to a particular invocation of the plugin we can summarize how often a
+            particular situation occurs. E.g.: "The root cause was found in <em>x</em> percent of AppLens
+            invocations."
+            </item>
+            </list>
+            Note that this type implicitly depends on the VSTelemetryExporter to convert the logged data into
+            the actual telemetry events.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Telemetry.PluginActivityTelemetry.#ctor(System.String)">
+            <summary>
+            Creates a new instance of the <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Telemetry.PluginActivityTelemetry"/> class.
+            </summary>
+            <param name="pluginName">The name of the plug-in associated with this telemetry. Do not include leading or trailing slashes.</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Plugins.Telemetry.PluginActivityTelemetry.SetTag(System.Object,System.String)">
+            <summary>
+            Stores the given value as a tag in the current <see cref="T:System.Diagnostics.Activity"/>. The tag key will be the name
+            of the caller, prefixed with the plugin name.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Azure.CopilotForAzure.AIService.Plugins.VisualStudioTelemetry.ExtensionPrefix">
+            <summary>
+            The prefix for all telemetry events sent by the AI Service extension, including the trailing slash.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.VSCodeDevLearn.IVSCodeDevLearnTelemetry">
+            <summary>
+            <para>
+            Defines the set of data that we want to collect for every invocation of a VSCodeDevLearnPlugin
+            kernel function.
+            </para>
+            <para>
+            To obtain an instance of this type include it as a parameter to the kernel function, and tag it with
+            a <see cref="T:Microsoft.SemanticKernel.FromKernelServicesAttribute"/>.
+            </para>
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.VSCodeDevLearn.IVSCodeDevLearnTelemetry.QueryType">
+            <summary>
+            The query type used to search MS Learn.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.VSCodeDevLearn.IVSCodeDevLearnTelemetry.ResultCount">
+            <summary>
+            The number of results returned by the MS Learn search.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.VSCodeDevLearn.IVSCodeDevLearnTelemetry.HighScore">
+            <summary>
+            The highest relevance score of the results returned. Will not be set if no results were returned.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.VSCodeDevLearn.IVSCodeDevLearnTelemetry.LowScore">
+            <summary>
+            The lowest relevance score of the results returned. Will not be set if no results were returned.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Plugins.VSCodeDevLearn.IVSCodeDevLearnTelemetry.MedianScore">
+            <summary>
+            The median relevance score of the results returned. Will not be set if no results were returned.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.VSCodeDevLearn.VSCodeDevLearnTelemetry">
+            <summary>
+            An implementation of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Plugins.VSCodeDevLearn.IVSCodeDevLearnTelemetry"/> that attaches the data to the <see cref="T:System.Diagnostics.Activity"/>
+            created by Semantic Kernel for the current function invocation.
+            </summary>
+        </member>
+    </members>
+</doc>

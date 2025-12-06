@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/harehare/git/mq/crates/mq-dap/src/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

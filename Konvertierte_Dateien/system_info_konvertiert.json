@@ -1,0 +1,20 @@
+{
+    "description": "A comprehensive system diagnostic tool that gathers detailed information about hardware, operating system, and resource utilization. Can focus on specific subsystems (CPU, memory, disk, network) and format output as needed. Valuable for system monitoring, troubleshooting, and resource management.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "info_type": {
+                "type": "string",
+                "description": "Type of information to retrieve",
+                "enum": ["all", "cpu", "memory", "disk", "os", "network"],
+                "default": "all"
+            },
+            "format": {
+                "type": "string",
+                "description": "Output format",
+                "enum": ["text", "json"],
+                "default": "text"
+            }
+        }
+    }
+}

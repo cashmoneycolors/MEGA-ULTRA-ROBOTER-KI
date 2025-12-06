@@ -6,7 +6,7 @@ namespace MegaUltraAISystem
     /// <summary>
     /// MEGA ULTRA AI INTEGRATOR - Kern-System für vernetzte KI-Infrastruktur
     /// </summary>
-    public class MegaUltraAIIntegratorClean
+    public class MegaUltraAIIntegratorCleanApp
     {
         private bool _isRunning = false;
         private readonly string _systemName = "MEGA ULTRA AI INTEGRATOR";

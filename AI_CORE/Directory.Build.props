@@ -1,0 +1,7 @@
+<Project>
+  <!-- Globale Entfernung aller generierten Build-Ausgabe-Quellen aus Kompilierungslisten zur Vermeidung von CS0579 -->
+  <ItemGroup>
+    <Compile Remove="**/obj/**/*.cs" />
+    <Compile Remove="**/bin/**/*.cs" />
+  </ItemGroup>
+</Project>

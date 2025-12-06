@@ -1,0 +1,31 @@
+{
+    "description": "A web content retrieval tool that can download and process web pages. Supports metadata extraction, content summarization, and different output formats. Handles content length limits and can focus on specific content types. Useful for web scraping, content analysis, and information gathering.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "url": {
+                "type": "string",
+                "description": "The URL to fetch content from"
+            },
+            "output_type": {
+                "type": "string",
+                "description": "Type of output to return",
+                "enum": ["text", "html", "summary"],
+                "default": "text"
+            },
+            "max_length": {
+                "type": "integer",
+                "description": "Maximum length of content to return (in characters)",
+                "minimum": 1000,
+                "maximum": 100000,
+                "default": 10000
+            },
+            "include_metadata": {
+                "type": "boolean",
+                "description": "Include metadata about the page (title, description, etc.)",
+                "default": true
+            }
+        },
+        "required": ["url"]
+    }
+}

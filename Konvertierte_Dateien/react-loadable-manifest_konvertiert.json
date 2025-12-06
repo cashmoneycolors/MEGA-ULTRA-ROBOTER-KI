@@ -1,0 +1,24 @@
+{
+  "app\\components\\chat\\chunks\\files-relation-graph.tsx -> react-force-graph-2d": {
+    "id": 32785,
+    "files": [
+      "static/chunks/2785.417e90fd6b6cf915.js"
+    ]
+  },
+  "node_modules\\next\\dist\\client\\index.js -> ../pages/_app": {
+    "id": 41966,
+    "files": [
+      "static/chunks/1966.7a4d47461bdbe46c.js"
+    ]
+  },
+  "node_modules\\next\\dist\\client\\index.js -> ../pages/_error": {
+    "id": 3899,
+    "files": [
+      "static/chunks/3899.33927a1b3e0959f6.js"
+    ]
+  },
+  "tools\\index.ts -> ./prompts": {
+    "id": 76647,
+    "files": []
+  }
+}

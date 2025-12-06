@@ -2,99 +2,72 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <!-- Maximale Kompatibilität und Leistung -->
+  <!-- Upgrade: Entferne EOL net6.0, ersetze durch net8.0 für Langzeit-Support -->
+  <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <OutputType>Library</OutputType>
-    <LangVersion>12.0</LangVersion>
+    <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyTitle>MEGA ULTRA AI INTEGRATOR - MAXIMAL AUTONOMER KI-ARM</AssemblyTitle>
-    <AssemblyDescription>🔥 Hyper-autonomes AI Management System mit Ollama Integration</AssemblyDescription>
-    <AssemblyCompany>MEGA ULTRA SYSTEM GmbH</AssemblyCompany>
-    <AssemblyProduct>OpenGazAI Autonomous System</AssemblyProduct>
-    <AssemblyCopyright>Copyright © 2025 MEGA ULTRA SYSTEM</AssemblyCopyright>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
-    <FileVersion>2.0.0.0</FileVersion>
+  <!-- Verhindert doppelte Assembly-Attribute -->
   <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    
-    <!-- Performance Optimierungen -->
+  <!-- Falls doppelte TargetFrameworkAttribute entstehen, auch dieses deaktivieren -->
+  <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <!-- Nur explizit aufgeführte Quellcodes kompilieren -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+
+    <!-- Build & Performance Optimierungen -->
     <Optimize>true</Optimize>
     <DebugType>portable</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningLevel>5</WarningLevel>
-    
-    <!-- Windows Service Support -->
-    <UseWindowsForms>false</UseWindowsForms>
-    <UseWPF>false</UseWPF>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <SelfContained>false</SelfContained>
-    
+    <TieredCompilation>true</TieredCompilation>
+    <PublishReadyToRun>true</PublishReadyToRun>
+
     <!-- Security Hardening -->
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <AnalysisLevel>latest</AnalysisLevel>
-    
-    <!-- MEGA ULTRA Branding -->
-    <ApplicationIcon>mega_ultra_icon.ico</ApplicationIcon>
+    <AnalysisLevel>latest-All</AnalysisLevel>
+    <AnalysisMode>All</AnalysisMode>
+
   </PropertyGroup>
 
+  <!-- Quellcodeauswahl für die Kernbibliothek -->
   <ItemGroup>
+    <Compile Include="MegaUltraAIIntegrator.cs" />
+    <Compile Include="MegaUltraAIIntegratorV2.cs" />
+    <Compile Include="MegaUltraAutonomousLauncher.cs" />
+    <Compile Include="MegaUltraNetworkDeployment.cs" />
+    <Compile Include="MegaUltraNetworkOrchestrator.cs" />
+    <Compile Include="NetworkComponents.cs" />
+    <Compile Include="NetworkSyncAuth.cs" />
+    <Compile Include="AdvancedNetworkComponents.cs" />
+    <Compile Include="GazOpenAIIntegrator.cs" />
+    <Compile Include="GeminiImageEditor.cs" />
+    <Compile Include="GeminiTextGenerator.cs" />
+    <Compile Include="ImagenGenerator.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="ProgramV2.cs" />
+  </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
-    <PackageReference Include="System.Management" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <Compile Remove="MegaUltraAIIntegratorEnhanced.cs" />
+  </ItemGroup>
+  <!-- Paketversionen pro TFM, um Downgrades zu vermeiden -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="System.Management" Version="8.0.0" />
   </ItemGroup>
-  <!-- Core Framework -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="9.0.0" />
-  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.10" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
-    
-    <!-- HTTP & Network -->
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="System.Net.NetworkInformation" Version="4.3.0" />
-    
-    <!-- System Management -->
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
     <PackageReference Include="System.Management" Version="9.0.0" />
-    <PackageReference Include="System.Diagnostics.Process" Version="4.3.0" />
-    
-    <!-- Security & Crypto -->
-    <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.1.1" />
-    
-    <!-- Data & Serialization -->
-    <PackageReference Include="System.Text.Json" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.0" />
-    
-    <!-- Performance & Monitoring -->
-    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.0" />
-    
-    <!-- Advanced Features -->
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
   </ItemGroup>
 
-
-  <ItemGroup>
-    <!-- Embedded Resources -->
-    <EmbeddedResource Include="Resources\**\*" />
-    <None Include="README.md" Pack="true" PackagePath="\" />
-    <None Include="LICENSE" Pack="true" PackagePath="\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- Compile-time Constants -->
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-      <_Parameter1>MegaUltraAIIntegrator.Tests</_Parameter1>
-    </AssemblyAttribute>
-  </ItemGroup>
-
+  <!-- Post-Build-Ereignis zur Bestätigung -->
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="echo 🔥 MEGA ULTRA AI INTEGRATOR COMPILED SUCCESSFULLY! 🔥" />
+    <Exec Command="echo 🔥 MEGA ULTRA AI INTEGRATOR (LIBRARY) COMPILED SUCCESSFULLY! 🔥" />
   </Target>
 
 </Project>

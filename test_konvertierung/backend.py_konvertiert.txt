@@ -1,0 +1,173 @@
+"""
+###############################################################
+# SICHERHEITSHINWEIS & SECRET-HANDLING (AUTOMATISCH)
+# -----------------------------------------------------------
+# Niemals Secrets (API-Keys, JWT, etc.) hardcodieren!
+# Secrets IMMER über Umgebungsvariablen setzen (z.B. GEMINI_API_KEY, JWT_SECRET).
+# Falls ein Secret zur Laufzeit generiert oder leer ist, wird eine GELBE WARNUNG ausgegeben.
+# Für Produktion: Secrets sicher im Deployment/Cloud setzen (z.B. .env, Azure Key Vault, Firebase Functions).
+# Siehe auch: SECURITY_DOC_AND_TESTS.md
+###############################################################
+"""
+import sys
+try:
+    import colorama
+    colorama.init()
+except ImportError:
+    colorama = None
+
+def warn_secret_missing(secret_name, generated=False):
+    msg = f"[WARNUNG] Kritisches Secret '{secret_name}' fehlt oder wurde generiert! Niemals hardcoden. Setze es als Umgebungsvariable für Produktion."
+    if generated:
+        msg += " (Secret wurde zur Laufzeit generiert!)"
+    if colorama:
+        print(colorama.Fore.YELLOW + msg + colorama.Style.RESET_ALL, file=sys.stderr)
+    else:
+        print(msg, file=sys.stderr)
+
+import os
+import json
+import uuid
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+
+# --- Konfiguration ---
+# NOTE: In einer echten Anwendung würden Sie hier keine Schlüssel speichern, 
+# sondern einen sicheren Dienst nutzen, der Ihre Gemini API-Schlüssel verwaltet.
+# Für dieses Beispiel simulieren wir die Schlüsselgenerierung.
+
+app = Flask(__name__)
+# Erlaubt dem Frontend, Anfragen an dieses Backend zu senden
+CORS(app) 
+
+# --- API KEY Verwaltung ---
+
+@app.route('/api/manage_key', methods=['POST'])
+def manage_key():
+    """
+    Simuliert die Generierung eines neuen, einzigartigen API-Schlüssels.
+    
+    Dieser Endpunkt wird vom Frontend aufgerufen, wenn der Benutzer auf 
+    'Neuen API Key generieren' klickt, um den 404-Fehler zu beheben.
+    """
+    try:
+        data = request.get_json()
+        user_id = data.get('userId')
+        
+        if not user_id:
+            return jsonify({"error": "Fehlende userId in der Anfrage."}), 400
+
+        # Erzeuge einen neuen, zufälligen Schlüssel (Simulierte Generierung)
+        new_api_key = str(uuid.uuid4())
+        
+        # In einem realen Szenario würden Sie diesen Schlüssel sicher hashen und speichern
+        print(f"Neuer API Key generiert für {user_id}: {new_api_key}")
+        
+        # Sende den Schlüssel an das Frontend zurück, damit er in Firestore gespeichert werden kann
+        return jsonify({"key": new_api_key}), 200
+
+    except Exception as e:
+        print(f"Fehler bei der Schlüsselverwaltung: {e}")
+        return jsonify({"error": "Interner Serverfehler bei der Schlüsselgenerierung."}), 500
+
+# --- KI-Dienst Endpunkte (Müssen mit Gemini API Logic gefüllt werden) ---
+
+def verify_api_key():
+    """Überprüft den X-API-Key Header für die KI-Dienste."""
+    api_key = request.headers.get('X-API-Key')
+    if not api_key:
+        return None, jsonify({"error": "Authentifizierung erforderlich: X-API-Key Header fehlt."}), 401
+    
+    # HINWEIS: Hier müssten Sie eine Datenbankabfrage durchführen, um zu prüfen, 
+    # ob der bereitgestellte api_key in Firestore (oder Ihrer Datenbank) gültig ist.
+    # Da wir dies hier nicht prüfen können, erlauben wir temporär alle Anfragen 
+    # mit einem vorhandenen Key.
+    return api_key, None, None
+
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    """Behandelt Text-zu-Text-Anfragen (Chat)."""
+    # 1. Schlüsselvalidierung
+    api_key, error_response, status_code = verify_api_key()
+    if error_response:
+        return error_response, status_code
+    
+    try:
+        data = request.get_json()
+        prompt = data.get('prompt')
+        history = data.get('history', [])
+
+        if not prompt:
+            return jsonify({"error": "Prompt fehlt."}), 400
+
+        # TODO: Hier die tatsächliche Gemini API-Aufruflogik implementieren.
+        # Beispiel: 
+        # response_text = call_gemini_api(prompt, history, api_key)
+
+        # Simulierte Antwort:
+        response_text = f"Die KI antwortet auf Ihren Prompt: '{prompt}'. (Ihr API Key: {api_key[:8]}...)"
+        
+        return jsonify({"text": response_text}), 200
+
+    except Exception as e:
+        print(f"Chat Fehler: {e}")
+        return jsonify({"error": f"Interner Chat-Fehler: {e}"}), 500
+
+
+@app.route('/api/tts', methods=['POST'])
+def tts():
+    """Behandelt Text-zu-Sprache-Anfragen (TTS)."""
+    api_key, error_response, status_code = verify_api_key()
+    if error_response:
+        return error_response, status_code
+    
+    try:
+        data = request.get_json()
+        text_to_speak = data.get('text')
+        
+        # TODO: Hier die tatsächliche TTS-API-Aufruflogik implementieren (z.B. Google Cloud TTS oder Gemini).
+        # Die Antwort muss rohe PCM-Audiodaten in einem WAV-Container zurückgeben.
+        
+        # Simulierte Antwort (Fehler, da keine Audio-Daten bereitgestellt werden können):
+        return jsonify({"error": "TTS-Dienst ist noch nicht implementiert."}), 501
+        
+        # In einem realen Szenario:
+        # pcm_audio_data = call_tts_api(text_to_speak, api_key)
+        # return Response(pcm_audio_data, mimetype='audio/wav')
+
+    except Exception as e:
+        print(f"TTS Fehler: {e}")
+        return jsonify({"error": f"Interner TTS-Fehler: {e}"}), 500
+
+@app.route('/api/stt', methods=['POST'])
+def stt():
+    """Behandelt Sprache-zu-Text-Anfragen (STT)."""
+    api_key, error_response, status_code = verify_api_key()
+    if error_response:
+        return error_response, status_code
+
+    try:
+        # Die Audio-Datei kommt als FormData
+        if 'audio' not in request.files:
+            return jsonify({"error": "Keine Audio-Datei gefunden."}), 400
+
+        audio_file = request.files['audio']
+        
+        # TODO: Hier die tatsächliche STT-API-Aufruflogik implementieren.
+        # Beispiel:
+        # transcript = call_stt_api(audio_file.read(), api_key)
+
+        # Simulierte Antwort:
+        transcript = "Dies ist die simulierte Transkription Ihrer Sprachnachricht. Die STT-Implementierung fehlt noch."
+
+        return jsonify({"transcript": transcript}), 200
+
+    except Exception as e:
+        print(f"STT Fehler: {e}")
+        return jsonify({"error": f"Interner STT-Fehler: {e}"}), 500
+
+
+if __name__ == '__main__':
+    # Flask-App starten. In einer Produktionsumgebung würden Sie Gunicorn o.ä. verwenden.
+    print("Starte Flask-Server...")
+    app.run(debug=True, port=8080) # Verwenden Sie den benötigten Port

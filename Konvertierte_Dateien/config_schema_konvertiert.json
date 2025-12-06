@@ -1,0 +1,554 @@
+{
+  "title": "config.json",
+  "$ref": "#/definitions/SerializedConfig",
+  "definitions": {
+    "BaseCompletionOptions": {
+      "title": "BaseCompletionOptions",
+      "type": "object",
+      "properties": {
+        "temperature": {
+          "title": "Temperature",
+          "description": "The temperature of the completion.",
+          "type": ["number", "null"]
+        },
+        "topP": {
+          "title": "Top P",
+          "description": "The topP of the completion.",
+          "type": ["number", "null"]
+        },
+        "topK": {
+          "title": "Top K",
+          "description": "The topK of the completion.",
+          "type": ["number", "null"]
+        },
+        "presencePenalty": {
+          "title": "Presence Penalty",
+          "description": "The presence penalty Aof the completion.",
+          "type": ["number", "null"]
+        },
+        "frequencyPenalty": {
+          "title": "Frequency Penalty",
+          "description": "The frequency penalty of the completion.",
+          "type": ["number", "null"]
+        },
+        "stop": {
+          "title": "Stop",
+          "description": "The stop tokens of the completion.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "maxTokens": {
+          "title": "Max Tokens",
+          "description": "The maximum number of tokens to generate.",
+          "default": 600,
+          "type": "integer"
+        }
+      }
+    },
+    "ModelDescription": {
+      "title": "ModelDescription",
+      "type": "object",
+      "properties": {
+        "title": {
+          "title": "Title",
+          "description": "The title you wish to give your model.",
+          "type": "string"
+        },
+        "model": {
+          "title": "Model",
+          "description": "The model used for chat/edit.",
+          "enum": ["gpt-4o", "claude-3-5-sonnet-20240620", "claude-3-5-sonnet-20241022", "claude-3-5-sonnet", "claude-3-7-sonnet-latest", "claude-3-7-sonnet-latest-thinking"],
+          "type": "string"
+        },
+        "completionOptions": {
+          "title": "Completion Options",
+          "description": "Options for the completion endpoint. Read more about the completion options in the documentation.",
+          "default": {
+            "temperature": null,
+            "topP": null,
+            "topK": null,
+            "presencePenalty": null,
+            "frequencyPenalty": null,
+            "stop": [],
+            "maxTokens": 600
+          },
+          "allOf": [
+            {
+              "$ref": "#/definitions/BaseCompletionOptions"
+            }
+          ]
+        },
+        "systemMessage": {
+          "title": "System Message",
+          "description": "A system message that will always be followed by the LLM",
+          "default": "Custom system message. If a default system message exists, this custom message will be appended to it unless 'overrideDefaultSystemMessage' is set to true.",
+          "type": "string"
+        },
+        "overrideDefaultSystemMessage": {
+          "title": "Override Default System Message",
+          "description": "Monica has built-in system messages for file editing functionality. Overriding this may disable related features.\nBuilt in prompt:\n````\nWhen you need to edit or create new files, use the format ```lang:path at the start of a code block. For example:\n\n- To edit an existing file: ```ts:path/to/edit.ts\n- To create a new file: ```py:path/to/new/file.py\n\nThe path can be either:\n- Absolute (e.g., /Users/name/project/file.js)\n- Relative (e.g., src/components/Button.tsx, starting WITHOUT '/')\n\nThe path must be complete and clear. When providing edits instead of the complete file, include clear comments explaining the changes.\n````\n",
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": ["title", "model"]
+    },
+    "SlashCommand": {
+      "title": "SlashCommand",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "anyOf": [
+            {
+              "enum": ["share", "cmd", "edit", "comment", "commit", "review"],
+              "type": "string",
+              "markdownEnumDescriptions": [
+                "Export the current chat session to markdown",
+                "Generate a terminal command and paste it into the terminal",
+                "Edit the highlighted code with given instructions",
+                "Add comments to the highlighted code",
+                "Generate a commit message for the current changes",
+                "Review code and give feedback"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "params": {
+          "title": "Params",
+          "default": {},
+          "type": "object"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "name": {
+                "enum": ["edit"]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "properties": {
+                  "tokenLimit": {
+                    "type": "integer",
+                    "markdownDescription": "By default, Monica doesn't let you edit extremely large ranges (beyond 1,200 tokens), because the LLM is unlikely to succeed. But if you would like to override this limit with the understanding of possible failure you may do so here."
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "name": {
+                "enum": ["share"]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "properties": {
+                  "outputDir": {
+                    "type": "string",
+                    "markdownDescription": "If outputDir is set to `.` or begins with `./` or `.\\`, file will be saved to the current workspace or a subdirectory thereof, respectively. `~` can similarly be used to specify the user's home directory."
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "required": ["name", "description"]
+    },
+    "CustomCommand": {
+      "title": "CustomCommand",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "prompt": {
+          "title": "Prompt",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": ["name", "prompt", "description"]
+    },
+    "ContextProviderWithParams": {
+      "title": "ContextProviderWithParams",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "anyOf": [
+            {
+              "enum": [
+                "diff",
+                "terminal",
+                "open",
+                "codebase",
+                "problems",
+                "folder",
+                "currentFile",
+                "url"
+              ],
+              "markdownEnumDescriptions": [
+                "Reference the contents of the current changes as given by `git diff`",
+                "Reference the contents of the terminal",
+                "Reference the contents of all open or pinned files.",
+                "Use embeddings to automatically find relevant files from throughout the codebase",
+                "Reference all linting errors and warnings in the currently open file",
+                "Include important files from a folder in the prompt, as determined by similarity search",
+                "Reference the contents of the currently active file",
+                "Reference the contents of a page at a URL"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "params": {
+          "title": "Params",
+          "default": {},
+          "type": "object"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "name": {
+                "enum": ["open"]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "properties": {
+                  "onlyPinned": {
+                    "type": "boolean",
+                    "description": "If set to true, only 'pinned' files will be included.",
+                    "default": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "name": {
+                "enum": ["codebase", "folder"]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "properties": {
+                  "nRetrieve": {
+                    "title": "N Retrieve",
+                    "description": "Number of results to initially retrieve from vector database",
+                    "default": 50,
+                    "type": "integer"
+                  },
+                  "nFinal": {
+                    "title": "N Final",
+                    "description": "Final number of results to use after re-ranking",
+                    "default": 10,
+                    "type": "integer"
+                  },
+                  "useReranking": {
+                    "title": "Use Reranking",
+                    "description": "Whether to use re-ranking, which will allow initial selection of nRetrieve results, then will use an LLM to select the top nFinal results. Disabling re-ranking will give faster, but less accurate, results.",
+                    "default": true,
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "required": ["name"]
+    },
+    "ClientCertificateOptions": {
+      "title": "ClientCertificateOptions",
+      "type": "object",
+      "properties": {
+        "cert": {
+          "title": "Cert Path",
+          "description": "Path to the client certificate file",
+          "type": "string"
+        },
+        "key": {
+          "title": "Key Path",
+          "description": "Path to the client certificate key file",
+          "type": "string"
+        },
+        "passphrase": {
+          "title": "Passphrase",
+          "description": "Passphrase for the client certificate key file",
+          "type": "string"
+        }
+      },
+      "required": ["cert", "key"]
+    },
+    "RequestOptions": {
+      "title": "RequestOptions",
+      "type": "object"
+    },
+    "SerializedConfig": {
+      "title": "config.json",
+      "type": "object",
+      "properties": {
+        "models": {
+          "title": "Models",
+          "default": [
+            {
+              "title": "Claude 3.7 Sonnet",
+              "model": "claude-3-7-sonnet-latest",
+              "overrideDefaultSystemMessage": true,
+              "systemMessage": "Custom system message. If a default system message exists, this custom message will be appended to it unless 'overrideDefaultSystemMessage' is set to true."
+            }
+          ],
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ModelDescription"
+          }
+        },
+        "completionOptions": {
+          "title": "Completion Options",
+          "description": "Default options for completion. These will be overridden by any options set for a specific model.",
+          "default": {
+            "temperature": null,
+            "topP": null,
+            "topK": null,
+            "presencePenalty": null,
+            "frequencyPenalty": null,
+            "stop": [],
+            "maxTokens": 600
+          },
+          "allOf": [
+            {
+              "$ref": "#/definitions/BaseCompletionOptions"
+            }
+          ]
+        },
+        "requestOptions": {
+          "title": "Request Options",
+          "description": "Proxy configuration for all network requests. Usually, the proxy parameter alone is sufficient. In VS Code, extensions typically use the proxy settings from the VS Code application itself. If those settings work correctly, you may not need to configure this option separately.",
+          "type": "object",
+          "properties": {
+            "verifySsl": {
+              "title": "Verify Ssl",
+              "description": "Whether to verify SSL certificates for requests.",
+              "type": "boolean"
+            },
+            "caBundlePath": {
+              "title": "Ca Bundle Path",
+              "description": "Path to a custom CA bundle to use when making the HTTP request",
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "proxy": {
+              "title": "Proxy",
+              "description": "Proxy URL to use when making the HTTP request",
+              "type": "string"
+            },
+            "clientCertificate": {
+              "title": "Client Certificate",
+              "description": "Client certificate to use when making the HTTP request",
+              "$ref": "#/definitions/ClientCertificateOptions"
+            }
+          },
+          "required": []
+        },
+        "slashCommands": {
+          "title": "Slash Commands",
+          "markdownDescription": "An array of slash commands that let you take custom actions from the sidebar.",
+          "default": [],
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SlashCommand"
+          }
+        },
+        "customCommands": {
+          "title": "Custom Commands",
+          "markdownDescription": "An array of custom commands that allow you to reuse prompts. Each has name, description, and prompt properties. When you enter /<name> in the text input, it will act as a shortcut to the prompt.",
+          "default": [
+            {
+              "name": "test",
+              "prompt": "{{{ input }}}\n\nWrite a comprehensive set of unit tests for the selected code. It should setup, run tests that check for correctness including important edge cases, and teardown. Ensure that the tests are complete and sophisticated. Give the tests just as chat output, don't edit any file.",
+              "description": "This is an example custom command. Open config.json to edit it and create more"
+            }
+          ],
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CustomCommand"
+          }
+        },
+        "contextProviders": {
+          "title": "Context Providers",
+          "markdownDescription": "A list of ContextProvider objects that can be used to provide context to the LLM by typing '@'.",
+          "default": [],
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ContextProviderWithParams"
+          }
+        },
+        "disableIndexing": {
+          "title": "Disable Indexing",
+          "markdownDescription": "If set to `true`, Monica will not index the codebase. This is mainly used for debugging purposes.",
+          "default": false,
+          "type": "boolean"
+        },
+        "enableDefaultContext": {
+          "title": "Enable Default Context",
+          "markdownDescription": "If set to `false`, Monica will not include default context in conversations. Currently, the default context includes the currently opened file and the current selection within the opened file. This feature is enabled by default.",
+          "default": true,
+          "type": "boolean"
+        },
+        "allowAnonymousTelemetry": {
+          "title": "Allow Anonymous Telemetry",
+          "markdownDescription": "If this field is set to True, we will collect anonymous telemetry. If set to `false`, we will not collect any data.",
+          "default": true,
+          "type": "boolean"
+        },
+        "gitCommitPrompt": {
+          "title": "Prompt template for generating git commit messages in Source Control panel.",
+          "markdownDescription": "",
+          "default": "Please write a concise and descriptive git commit message based on the following diff. The message should follow conventional commit format and be clear and informative. Here is the diff:\\n\"\"\"\\n{{diff}}\\n\"\"\"\\nCommit(Do NOT wrap with extra quotes): ",
+          "type": "string"
+        },
+        "tabAutocompleteOptions": {
+          "title": "TabAutocompleteOptions",
+          "type": "object",
+          "markdownDescription": "These options let you customize your tab-autocomplete experience.",
+          "properties": {
+            "useCopyBuffer": {
+              "type": "boolean",
+              "description": "Determines whether the copy buffer will be considered when constructing the prompt."
+            },
+            "useFileSuffix": {
+              "type": "boolean",
+              "description": "Determines whether to use the file suffix in the prompt."
+            },
+            "disableInFiles": {
+              "description": "A list of files / glob patterns in which to disable tab autocomplete. For example, *.csv if you'd like to disable autocomplete in .csv files.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": []
+        },
+        "experimental": {
+          "type": "object",
+          "title": "Experimental",
+          "description": "Experimental properties are subject to change.",
+          "properties": {
+            "modelContextProtocolServer": {
+              "type": "object",
+              "properties": {
+                "transport": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": ["stdio"]
+                        },
+                        "command": {
+                          "type": "string"
+                        },
+                        "args": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "env": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "description": "Environment variables to pass to the command"
+                        }
+                      },
+                      "required": ["type", "command", "args"]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": ["websocket"]
+                        },
+                        "url": {
+                          "type": "string",
+                          "format": "uri"
+                        }
+                      },
+                      "required": ["type", "url"]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": ["sse"]
+                        },
+                        "url": {
+                          "type": "string",
+                          "format": "uri"
+                        }
+                      },
+                      "required": ["type", "url"]
+                    }
+                  ]
+                }
+              },
+              "required": ["transport"]
+            }
+          }
+        }
+      }
+    }
+  }
+}

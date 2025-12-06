@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using MegaUltra.Networking;
 using System.Threading.Tasks;
 
@@ -9,10 +10,16 @@ namespace MegaUltraAISystem
     /// </summary>
     public class MegaUltraAIIntegratorClean : INetworkComponent
     {
+        public string ComponentId => "MegaUltraAI_Clean_" + Environment.MachineName;
+        public string ComponentType => "CleanAI";
+        public ComponentStatus Status { get; private set; } = ComponentStatus.Stopped;
+
+        public event EventHandler<ComponentEventArgs> OnComponentEvent;
+
         private bool _isRunning = false;
         private readonly string _systemName = "MEGA ULTRA AI INTEGRATOR";
         
-        public async Task<bool> Initialize()
+        public async Task Initialize()
         {
             try
             {
@@ -22,12 +29,13 @@ namespace MegaUltraAISystem
                 _isRunning = true;
                 
                 Console.WriteLine("[OK] AI Integrator erfolgreich initialisiert");
-                return true;
+                Status = ComponentStatus.Running;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[ERROR] Initialisierung fehlgeschlagen: {ex.Message}");
-                return false;
+                Status = ComponentStatus.Error;
+                throw; // Wirft die Ausnahme weiter, da der Rückgabetyp Task ist
             }
         }
         
@@ -61,6 +69,35 @@ namespace MegaUltraAISystem
             _isRunning = false;
             await Task.Delay(500);
             Console.WriteLine("[OK] System erfolgreich gestoppt");
+        }
+
+        public Dictionary<string, object> GetStatus()
+        {
+            return new Dictionary<string, object>
+            {
+                { "ComponentId", ComponentId },
+                { "ComponentType", ComponentType },
+                { "Status", Status.ToString() },
+                { "IsRunning", _isRunning },
+                { "SystemName", _systemName }
+            };
+        }
+
+        public Task<bool> ProcessMessage(NetworkMessage message)
+        {
+            Console.WriteLine($"[CleanAI] Nachricht empfangen: {message.MessageType}");
+            // Hier würde die Nachrichtenverarbeitung implementiert
+            return Task.FromResult(true);
+        }
+
+        public Task<NetworkMessage> CreateStatusMessage()
+        {
+            return Task.FromResult(new NetworkMessage
+            {
+                ComponentType = ComponentType,
+                MessageType = "ComponentStatus",
+                Data = GetStatus()
+            });
         }
     }
     

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wealth System Mobile</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 10px; }
+        .container { max-width: 100%; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 20px; color: #00ff00; font-size: 20px; }
+        .card { background: #1a1a1a; padding: 15px; border-radius: 8px; border-left: 3px solid #00ff00; margin-bottom: 10px; }
+        .card h3 { color: #00ff00; margin-bottom: 8px; font-size: 14px; }
+        .card .value { font-size: 20px; font-weight: bold; }
+        .card .unit { color: #888; font-size: 10px; }
+        .progress-bar { width: 100%; height: 15px; background: #333; border-radius: 8px; overflow: hidden; margin-top: 8px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #00ff00, #00aa00); }
+        .btn { background: #00ff00; color: #000; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        .btn:active { background: #00aa00; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #333; }
+        th { background: #0a0a0a; color: #00ff00; }
+        tr:active { background: #222; }
+        .stat-row { display: flex; justify-content: space-between; margin: 5px 0; }
+        .stat-label { color: #888; }
+        .stat-value { color: #00ff00; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Wealth System</h1>
+        
+        <div class="card">
+            <h3>Capital</h3>
+            <div class="value" id="capital">0.00</div>
+            <div class="unit">CHF</div>
+        </div>
+
+        <div class="card">
+            <h3>Progress</h3>
+            <div class="value" id="progress">0%</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="stat-row">
+                <span class="stat-label">Cycles:</span>
+                <span class="stat-value" id="cycles">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Clones:</span>
+                <span class="stat-value" id="clones">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Art:</span>
+                <span class="stat-value" id="art">0</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Profit Sources</h3>
+            <div class="stat-row">
+                <span class="stat-label">Art:</span>
+                <span class="stat-value" id="art-profit">0.00</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Trading:</span>
+                <span class="stat-value" id="trading-profit">0.00</span>
+            </div>
+        </div>
+
+        <button class="btn" onclick="executeCycle()">Execute Cycle</button>
+        <button class="btn" onclick="refreshData()">Refresh</button>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+
+        async function updateDashboard() {
+            try {
+                const status = await fetch(`${API_URL}/status`).then(r => r.json());
+                document.getElementById('capital').textContent = status.capital.toFixed(2);
+                document.getElementById('progress').textContent = status.progress.toFixed(1) + '%';
+                document.getElementById('progress-fill').style.width = Math.min(status.progress, 100) + '%';
+                document.getElementById('cycles').textContent = status.cycles;
+                document.getElementById('art').textContent = status.art_assets;
+                document.getElementById('clones').textContent = status.active_clones;
+
+                const analytics = await fetch(`${API_URL}/analytics`).then(r => r.json());
+                document.getElementById('art-profit').textContent = analytics.art_profit.toFixed(2);
+                document.getElementById('trading-profit').textContent = analytics.trading_profit.toFixed(2);
+            } catch (e) {
+                console.error('Error:', e);
+            }
+        }
+
+        async function executeCycle() {
+            try {
+                const result = await fetch(`${API_URL}/cycle`, { method: 'POST' }).then(r => r.json());
+                alert(`Profit: ${result.profit.toFixed(2)} CHF`);
+                updateDashboard();
+            } catch (e) {
+                alert('Error: ' + e);
+            }
+        }
+
+        function refreshData() {
+            updateDashboard();
+        }
+
+        updateDashboard();
+        setInterval(updateDashboard, 5000);
+    </script>
+</body>
+</html>

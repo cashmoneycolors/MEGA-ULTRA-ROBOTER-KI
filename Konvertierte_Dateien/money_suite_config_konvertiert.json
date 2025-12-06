@@ -1,0 +1,18 @@
+{
+    "created": "2025-09-29T01:55:59.527895",
+    "instructions": "Füllen Sie die API Keys aus und speichern Sie die Datei",
+    "api_keys": {
+        "openai_api_key": "sk-your-openai-api-key-here",
+        "alpha_vantage_key": "your-alpha-vantage-key-here",
+        "cryptocompare_key": "your-cryptocompare-key-here",
+        "news_api_key": "your-news-api-key-here",
+        "twitter_bearer_token": "your-twitter-bearer-token-here",
+        "smtp_email": "ihre-email@gmail.com",
+        "smtp_password": "ihr-app-passwort-hier"
+    },
+    "status": {
+        "setup_complete": false,
+        "apis_configured": 0,
+        "total_apis": 5
+    }
+}

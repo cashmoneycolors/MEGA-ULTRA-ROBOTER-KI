@@ -1,0 +1,51 @@
+{
+  "initial_capital": 100,
+  "target_capital": 10000,
+  "cycle_interval": 2,
+  "art_allocation": 0.40,
+  "trading_allocation": 0.35,
+  "vector_allocation": 0.25,
+  "art_production_cost": 8.50,
+  "art_min_price": 45,
+  "art_max_price": 199,
+  "vector_service_cost": 35,
+  "vector_service_price": 85,
+  "clone_creation_cost": 85,
+  "max_clones": 25,
+  "clone_profit_multiplier": 0.03,
+  "max_clone_multiplier": 2.0,
+  "max_trading_risk": 0.70,
+  "max_consecutive_errors": 5,
+  "paypal": {
+    "client_id": "",
+    "client_secret": "",
+    "sandbox_mode": true,
+    "currency": "USD",
+    "webhook_url": "https://yourdomain.com/api/paypal/webhook",
+    "return_url": "https://yourdomain.com/payment/success",
+    "cancel_url": "https://yourdomain.com/payment/cancel",
+    "enable_payments": true,
+    "services": {
+      "ai_art": {
+        "enabled": true,
+        "price_usd": 45.0,
+        "description": "AI Generated Art Asset"
+      },
+      "asset_trading": {
+        "enabled": true,
+        "price_usd": 25.0,
+        "description": "Professional Asset Trading Service"
+      },
+      "vector_services": {
+        "enabled": true,
+        "price_usd": 85.0,
+        "description": "Professional Vector Design Services"
+      },
+      "clone_creation": {
+        "enabled": true,
+        "price_usd": 85.0,
+        "description": "Autonomous System Clone Creation"
+      }
+    }
+  }
+}

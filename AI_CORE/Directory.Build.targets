@@ -1,0 +1,15 @@
+<Project>
+  <!-- Verhindert doppelte Assembly-Attribute durch explizite Entfernung generierter Dateien VOR dem Compile -->
+  <Target Name="RemoveGeneratedAssemblyAttributeFiles" BeforeTargets="CoreCompile">
+    <ItemGroup>
+      <!-- Entferne ALLE generierten Assembly-Attribute-Dateien aus obj/bin, bevor sie kompiliert werden -->
+      <Compile Remove="**/obj/**/.NETCoreApp*.AssemblyAttributes.cs" />
+      <Compile Remove="**/bin/**/.NETCoreApp*.AssemblyAttributes.cs" />
+      <Compile Remove="**/obj/**/.NETFramework*.AssemblyAttributes.cs" />
+      <Compile Remove="**/bin/**/.NETFramework*.AssemblyAttributes.cs" />
+      <!-- Verhindere auch globale Wildcard-Includes, die diese Dateien wieder reinziehen könnten -->
+      <Compile Remove="**/obj/**/*.cs" />
+      <Compile Remove="**/bin/**/*.cs" />
+    </ItemGroup>
+  </Target>
+</Project>

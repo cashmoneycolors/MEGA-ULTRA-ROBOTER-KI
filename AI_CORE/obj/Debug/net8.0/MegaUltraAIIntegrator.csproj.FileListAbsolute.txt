@@ -1,0 +1,4 @@
+c:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\AI_CORE\obj\Debug\net8.0\MegaUltraAIIntegrator.csproj.AssemblyReference.cache
+c:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\AI_CORE\obj\Debug\net8.0\MegaUltraAIIntegrator.GeneratedMSBuildEditorConfig.editorconfig
+c:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\AI_CORE\obj\Debug\net8.0\MegaUltraAIIntegrator.csproj.CoreCompileInputs.cache
+c:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\AI_CORE\obj\Debug\net8.0\MegaUltraAIIntegrator.sourcelink.json

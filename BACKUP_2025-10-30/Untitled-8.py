@@ -1,0 +1,1 @@
+elif wahl == "6": check_critical_keys()

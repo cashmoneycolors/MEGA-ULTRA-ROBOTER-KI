@@ -1,0 +1,1 @@
+sudo ./post_install_max.sh --applysudo ./post_install_max.sh --apply --continuous --interval 3600sudo ./post_install_max.sh --apply

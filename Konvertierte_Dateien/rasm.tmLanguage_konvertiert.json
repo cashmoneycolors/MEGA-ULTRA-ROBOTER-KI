@@ -1,0 +1,48 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "RASM",
+    "patterns": [
+        {
+            "name": "constant.character.escape.rasm",
+            "match": "(x[0-9a-fA-F]{2})"
+        }, {
+            "name": "keyword.control.rasm",
+            "match": "\\b(set|clear|to|with|goto|unless)\\b"
+        }, {
+            "name": "entity.name.function",
+            "match": "\\b(add|xor|or|and|compare|not|shift)\\b"
+        }, {
+            "name": "entity.name.class.rasm",
+            "match": "\\$|\\b([ABC])\\b"
+        }, {
+            "name": "constant.character.rasm",
+            "match": "\\b(ram|device|input)\\b"
+        }, {
+            "match": "(\\[[a-zA-Z._*0-9]+\\])",
+            "name": "markup.heading.rasm"
+        }, {
+            "match": "(::[a-zA-Z._*0-9]+)",
+            "name": "variable.rasm"
+        }, {
+            "match": ":: (x[0-9a-fA-F]{2}) ([a-zA-Z._*0-9]+)\\n",
+            "captures": {
+                "1": {
+                    "name": "constant.character.escape.rasm"
+                },
+                "2": {
+                    "name": "variable.rasm"
+                }
+            }
+        }, {
+            "begin": "//|#",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.definition.comment.rasm"
+                }
+            },
+            "end": "\\n",
+            "name": "comment.line.number-sign.rasm"
+        }
+    ],
+    "scopeName": "source.rasm"
+}

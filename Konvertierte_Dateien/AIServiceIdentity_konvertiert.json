@@ -1,0 +1,462 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AIServiceIdentity</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.AuthorizationChallengeParser">
+            <summary>
+            A helper class for parsing Authorization challenge headers.
+            Implementation adapted from https://github.com/Azure/azure-sdk-for-net/blob/e649b243838a7a29c6f7a30234a1a6a475beb43f/sdk/core/Azure.Core/src/Shared/AuthorizationChallengeParser.cs
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.AuthorizationChallengeParser.IsCaeClaimsChallenge(System.Net.Http.HttpResponseMessage)">
+            <summary>
+            Determines if the specified <see cref="T:System.Net.Http.HttpResponseMessage"/> is a CAE claims challenge.
+            </summary>
+            <param name="response">The response containing a WWW-Authenticate header.</param>
+            <returns>True</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.AuthorizationChallengeParser.GetChallengeParameterFromResponse(System.Net.Http.HttpResponseMessage,System.String,System.String)">
+            <summary>
+            Parses the specified parameter from a challenge hearder found in the specified <see cref="T:System.Net.Http.HttpResponseMessage"/>.
+            </summary>
+            <param name="response">The <see cref="T:System.Net.Http.HttpResponseMessage"/> to parse.</param>
+            <param name="challengeScheme">The challenge scheme containing the <paramref name="challengeParameter"/>. For example: "Bearer"</param>
+            <param name="challengeParameter">The parameter key name containing the value to return.</param>
+            <returns>The value of the parameter name specified in <paramref name="challengeParameter"/> if it is found in the specified <paramref name="challengeScheme"/>.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.AuthorizationChallengeParser.DecodeClaims(System.String)">
+            <summary>
+            Decode a base64-encoded claims JSON string.
+            </summary>
+            <param name="encodedClaims"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.AuthorizationChallengeParser.TryGetNextChallenge(System.ReadOnlySpan{System.Char}@,System.ReadOnlySpan{System.Char}@)">
+            <summary>
+            Iterates through the challenge schemes present in a challenge header.
+            </summary>
+            <param name="headerValue">
+            The header value which will be sliced to remove the first parsed <paramref name="challengeKey"/>.
+            </param>
+            <param name="challengeKey">The parsed challenge scheme.</param>
+            <returns>
+            <c>true</c> if a challenge scheme was successfully parsed.
+            The value of <paramref name="headerValue"/> should be passed to <see cref="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.AuthorizationChallengeParser.TryGetNextParameter(System.ReadOnlySpan{System.Char}@,System.ReadOnlySpan{System.Char}@,System.ReadOnlySpan{System.Char}@,System.Char)"/> to parse the challenge parameters if <c>true</c>.
+            </returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.AuthorizationChallengeParser.TryGetNextParameter(System.ReadOnlySpan{System.Char}@,System.ReadOnlySpan{System.Char}@,System.ReadOnlySpan{System.Char}@,System.Char)">
+            <summary>
+            Iterates through a challenge header value after being parsed by <see cref="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.AuthorizationChallengeParser.TryGetNextChallenge(System.ReadOnlySpan{System.Char}@,System.ReadOnlySpan{System.Char}@)"/>.
+            </summary>
+            <param name="headerValue">The header value after being parsed by <see cref="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.AuthorizationChallengeParser.TryGetNextChallenge(System.ReadOnlySpan{System.Char}@,System.ReadOnlySpan{System.Char}@)"/>.</param>
+            <param name="paramKey">The parsed challenge parameter key.</param>
+            <param name="paramValue">The parsed challenge parameter value.</param>
+            <param name="separator">The challenge parameter key / value pair separator. The default is '='.</param>
+            <returns>
+            <c>true</c> if the next available challenge parameter was successfully parsed.
+            <c>false</c> if there are no more parameters for the current challenge scheme or an additional challenge scheme was encountered in the <paramref name="headerValue"/>.
+            The value of <paramref name="headerValue"/> should be passed again to <see cref="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.AuthorizationChallengeParser.TryGetNextChallenge(System.ReadOnlySpan{System.Char}@,System.ReadOnlySpan{System.Char}@)"/> to attempt to parse any additional challenge schemes if <c>false</c>.
+            </returns>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureAppOnlyCredential">
+            <summary>
+            A <see cref="T:Azure.Core.TokenCredential"/> that uses <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureAuthOptions"/> to
+            generate tokens that can be used for service-to-service calls that require only an
+            identity of a client ID of ours. Injected with <see cref="F:Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton"/>
+            into dependency injection containers.
+            </summary>
+            <remarks>
+                <para>
+                For making service-to-service calls that require providing a user's identity, use
+                the <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureOnBehalfOfCredential"/>.
+                </para>
+                <para>
+                For making calls to our own Azure resource infrastructure, use
+                <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureTalkToOurResourcesCredential"/>.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureAppOnlyCredential.#ctor(Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureAuthOptions,System.Collections.Generic.IReadOnlyDictionary{System.String,Microsoft.Azure.CopilotForAzure.AIService.Identity.PerAudienceRules},Microsoft.Extensions.Hosting.IHostEnvironment,Azure.Core.TokenCredential,System.Collections.Generic.IReadOnlyDictionary{System.String,Azure.Identity.ManagedIdentityCredential},Microsoft.Extensions.Logging.ILogger{Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureAppOnlyCredential})">
+            <summary>
+            Initializes a new instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureOnBehalfOfCredential"/>.
+            </summary>
+            <param name="appRegistrationOptions"></param>
+            <param name="audienceRules"></param>
+            <param name="environment"></param>
+            <param name="talkToAzureResourcesCredential"></param>
+            <param name="assignedManagedIdentities"></param>
+            <param name="logger"></param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureAppOnlyCredential.GetToken(Azure.Core.TokenRequestContext,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureAppOnlyCredential.GetTokenAsync(Azure.Core.TokenRequestContext,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureAuthOptions">
+            <summary>
+            The options used for the identity that will be used for calling downstream APIs.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureAuthOptions.ReplaceWithColonInAudienceName">
+            <summary>
+            A character replacement for the <c>:</c> character when defining URI keys in
+            <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureAuthOptions.PerAudienceTokenSettings"/>.
+            </summary>
+            <remarks>
+            .NET parsing of configurations, JSON files in particular, treat the <c>:</c> character as
+            JSON hierarchy delimiters when in key names. See https://github.com/dotnet/runtime/issues/67616.
+            </remarks>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureAuthOptions.FederatedCredAudience">
+            <summary>
+            Gets or sets the audience used to retrieve FIC tokens.
+            </summary>
+            <remarks>
+            This is the singular value for the Azure Public cloud.
+            </remarks>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureAuthOptions.Identities">
+            <summary>
+            Gets or sets all known user-assigned managed identities and app registrations used in this environment.
+            The keys are the Entra client IDs for their respective value. 
+            </summary>
+            <remarks>
+            This does not include system-assigned managed identities.
+            </remarks>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureAuthOptions.PerAudienceTokenSettings">
+            <summary>
+            Gets or sets mapping of Entra OAuth audience to scope and token settings for calling that audience. Any
+            <see cref="F:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureAuthOptions.ReplaceWithColonInAudienceName"/> will be replaced with a <c>:</c> character because
+            <c>:</c> characters cannot be in key names.
+            </summary>
+            <remarks>
+            The key of each entry must exactly match the downstream API's app ID or app URL which depends on
+            how the API's Entra application is configured. Most of the time, the audience will be a GUID. Sometimes
+            it might be "api://GUID" or "https://somefakeurl.com". In JSON files, you must use
+            <see cref="F:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureAuthOptions.ReplaceWithColonInAudienceName"/> due to the .NET's parser's handling of <c>:</c> characters.
+            </remarks>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.IdentityDetails.DisplayNameForReadability">
+            <summary>
+            Gets or sets the name of the identity. This is only used for logging and JSON file readability
+            because ain't no one got time to memorize GUIDs.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.IdentityDetails.IdentityKind">
+            <summary>
+            Gets or sets the kind of identity this is and how to authenticate as that identity.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.IdentityDetails.FederatedIdentityCredentialClientId">
+            <summary>
+            Gets or sets the client ID that is used for MI+FIC authentication as this identity.
+            </summary>
+            <remarks>
+            <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.IdentityDetails.IdentityKind"/> must be <see cref="F:Microsoft.Azure.CopilotForAzure.AIService.Identity.IdentityKind.ManagedIdentityNotAssigned"/>
+            or <see cref="F:Microsoft.Azure.CopilotForAzure.AIService.Identity.IdentityKind.ConfidentialClientApplication"/>.
+            </remarks>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.IdentityDetails.ClientSecret">
+            <summary>
+            Gets or sets the client secret to authenticate as this identity. This should never be used
+            because it generates an S360 violation.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Azure.CopilotForAzure.AIService.Identity.IdentityKind.NotSet">
+            <summary>
+            Configuration is missing. This value means there's a bug.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Azure.CopilotForAzure.AIService.Identity.IdentityKind.ManagedIdentityAssigned">
+            <summary>
+            The identity is expected to be user-assigned to the current compute host.
+            </summary>
+            <remarks>
+            For local debugging, this can only happen if you're developing on a VM or the like
+            where you can assign a managed identity to the resource your developing on.
+            </remarks>
+        </member>
+        <member name="F:Microsoft.Azure.CopilotForAzure.AIService.Identity.IdentityKind.ManagedIdentityNotAssigned">
+            <summary>
+            The identity is not directly assigned to the current compute host, and it must be
+            authenticated as using an FIC.
+            </summary>
+            <remarks>
+            For local debugging, MI+FIC can only happen if you're developing on a VM or the like
+            where you can assign the managed identity used as an FIC to the resource your
+            developing on.
+            </remarks>
+        </member>
+        <member name="F:Microsoft.Azure.CopilotForAzure.AIService.Identity.IdentityKind.ConfidentialClientApplication">
+            <summary>
+            The identity is an Entra app registration, and it must be authenticated as using
+            an FIC to be used as an <see cref="T:Microsoft.Identity.Client.IConfidentialClientApplication"/>.
+            </summary>
+            <remarks>
+            For local debugging, MI+FIC can only happen if you're developing on a VM or the like
+            where you can assign the managed identity used as an FIC to the resource your
+            developing on.</remarks>
+        </member>
+        <member name="F:Microsoft.Azure.CopilotForAzure.AIService.Identity.IdentityKind.PublicClientApplication">
+            <summary>
+            The identity is an Entra app registration, and it does not require any
+            authentication to be used as a <see cref="T:Microsoft.Identity.Client.IPublicClientApplication"/>.
+            </summary>
+            <remarks>
+            This is only used in local debugging for being able to make requests to the
+            Staging environment's endpoints.
+            </remarks>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.TokenCreationSettings.PerAudienceTokenSettings">
+            <summary>
+            Gets or sets mapping of Entra OAuth audience to scope and token settings for calling that audience.
+            </summary>
+            <remarks>
+            The key of each entry must exactly match the downstream API's app ID or app URL which depends on
+            how the API's Entra application is configured. Most of the time, the audience will be a GUID. If you
+            need a URI, like "api://GUID" or "https://somefakeurl.com", then use the .
+            </remarks>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.AudienceTokenCreationSettings.DisplayNameForReadability">
+            <summary>
+            Gets or sets the name of the identity. This is only used for logging and JSON file readability
+            because ain't no one got time to memorize GUIDs.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.AudienceTokenCreationSettings.AppOnly">
+            <summary>
+            Gets or sets the strategy used for app-only service-to-service authentication, i.e., an identity of ours
+            is both the client and the object of an authenticated call.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.AudienceTokenCreationSettings.OnBehalfOf">
+            <summary>
+            Gets or sets the strategy used for downstream calls that use a combination of a client ID
+            and the current user's object ID.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.AppOnlyStrategy.AsClientId">
+            <summary>
+            Gets or sets the client ID of the identity whose service principal is provisioned
+            in <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.AppOnlyStrategy.DownstreamTenantId"/>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.AppOnlyStrategy.DownstreamTenantId">
+            <summary>
+            Gets or sets the Entra tenant ID where the audience/resource lives.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.OnBehalfOfStrategy.AsClientId">
+            <summary>
+            Gets or sets the client ID of the identity to use to get a token with the
+            object ID as the user of our system.
+            </summary>
+            <remarks>
+            This must be used on any non-sidecar scenario.
+            </remarks>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.OnBehalfOfStrategy.FromHeader">
+            <summary>
+            Gets or sets an incoming HTTP header that can be used to as an on-behalf-of
+            token for this scope.
+            </summary>
+            <remarks>
+            This must only ever be used for the sidecar scenario. <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.OnBehalfOfStrategy.AsClientId"/> will
+            be ignored.
+            </remarks>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.OnBehalfOfStrategy.AsDefaultAzureCredential">
+            <summary>
+            Gets or sets whether <see cref="T:Azure.Identity.DefaultAzureCredential"/> should be used for
+            generating a token for this scope.
+            </summary>
+            <remarks>
+            This is only valid in local debugging scenarios. <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.OnBehalfOfStrategy.AsClientId"/> and
+            <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.OnBehalfOfStrategy.FromHeader"/> will be ignored.
+            </remarks>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.OnBehalfOfStrategy.FromSignalRClient">
+            <summary>
+            Gets or sets the unique identifier for a token to get from a SignalR client connection.
+            </summary>
+            <remarks>
+            This must only ever be used for the sidecar scenario. <see cref="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.OnBehalfOfStrategy.AsClientId"/> will
+            be ignored.
+            </remarks>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureCredentialFactory">
+            <summary>
+            A <see cref="F:Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton"/> service that creates credentials to use for various scenarios.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureCredentialFactory.#ctor(Microsoft.Extensions.Options.IOptions{Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureAuthOptions},Microsoft.Extensions.Hosting.IHostEnvironment,Microsoft.Azure.CopilotForAzure.AIService.Identity.IUserContextProviderFactory,Microsoft.Extensions.Logging.ILoggerFactory)">
+            <summary>
+            Initializes a new instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureCredentialFactory"/>.
+            </summary>
+            <param name="appRegistrationOptions">Options used for configuring known identities and Entra OAuth audiences.</param>
+            <param name="environment">The current environment to enable and disable features as appropriate.</param>
+            <param name="userContextProviderFactory">
+            A factory for isolating user-context and state for creating instances of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureOnBehalfOfCredential"/>
+            </param>
+            <param name="loggerFactory">A logger factory to create loggers for the various credentials.</param>
+            <exception cref="T:System.InvalidOperationException">A misconfiguration is detected that prevents initialization.</exception>
+            <exception cref="T:System.NotSupportedException">A scenario is not yet implemented. Someone should get on that.</exception>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureCredentialFactory.CreateScopedOboCredential">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureCredentialFactory.CreateSingletonAppOnlyCredential">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureCredentialFactory.CreateSingletonOurResourcesCredential">
+            <inheritdoc/>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Identity.PerAudienceRules.Audience">
+            <summary>
+            Gets the audience for this rule.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureOnBehalfOfCredential">
+            <summary>
+            A <see cref="T:Azure.Core.TokenCredential"/> that uses <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureAuthOptions"/> to
+            generate tokens that can be used for service-to-service calls that require one of our
+            client IDs and a user as the token's subject. Injected with
+            <see cref="F:Microsoft.Extensions.DependencyInjection.ServiceLifetime.Scoped"/> into dependency injection containers.
+            </summary>
+            <remarks>
+                <para>
+                For making service-to-service calls that only require our client ID and no user identity,
+                use the <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureAppOnlyCredential"/>.
+                </para>
+                <para>
+                For making calls to our own Azure resource infrastructure, use
+                <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureTalkToOurResourcesCredential"/>.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureOnBehalfOfCredential.#ctor(Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureAuthOptions,System.Collections.Generic.IReadOnlyDictionary{System.String,Microsoft.Azure.CopilotForAzure.AIService.Identity.PerAudienceRules},Microsoft.Extensions.Hosting.IHostEnvironment,Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureTalkToOurResourcesCredential,Microsoft.Azure.CopilotForAzure.AIService.Identity.IUserContextProvider,System.Collections.Generic.IReadOnlyDictionary{System.String,Azure.Identity.ManagedIdentityCredential},Microsoft.Extensions.Logging.ILogger{Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureOnBehalfOfCredential})">
+            <summary>
+            Initializes a new instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureOnBehalfOfCredential"/>.
+            </summary>
+            <param name="appRegistrationOptions"></param>
+            <param name="audienceRules"></param>
+            <param name="environment"></param>
+            <param name="talkToOurAzureResourcesCredential"></param>
+            <param name="userContextProvider"></param>
+            <param name="assignedManagedIdentities"></param>
+            <param name="logger"></param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureOnBehalfOfCredential.GetToken(Azure.Core.TokenRequestContext,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureOnBehalfOfCredential.GetTokenAsync(Azure.Core.TokenRequestContext,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureTalkToOurResourcesCredential">
+            <summary>
+            A <see cref="T:Azure.Core.TokenCredential"/> to generate tokens that can be used for interacting
+            with our own Azure resource infrastructure supporting the application. Injected with
+            <see cref="F:Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton"/> into dependency injection containers.
+            </summary>
+            <remarks>
+                <para>
+                For making service-to-service calls that only require our client ID and no user identity,
+                use the <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureAppOnlyCredential"/>.
+                </para>
+                <para>
+                For making service-to-service calls that require providing a user's identity, use
+                the <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureOnBehalfOfCredential"/>.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureTalkToOurResourcesCredential.GetToken(Azure.Core.TokenRequestContext,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureTalkToOurResourcesCredential.GetTokenAsync(Azure.Core.TokenRequestContext,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.ICopilotForAzureCredentialFactory">
+            <summary>
+            A <see cref="F:Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton"/> service that creates credentials to use for various scenarios.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.ICopilotForAzureCredentialFactory.CreateSingletonAppOnlyCredential">
+            <summary>
+            Creates a (or returns the existing) <see cref="F:Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton"/> instance of
+            <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureAppOnlyCredential"/>.
+            </summary>
+            <returns>
+            An instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureAppOnlyCredential"/>.
+            </returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.ICopilotForAzureCredentialFactory.CreateScopedOboCredential">
+            <summary>
+            Creates a <see cref="F:Microsoft.Extensions.DependencyInjection.ServiceLifetime.Scoped"/> instance of
+            <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureOnBehalfOfCredential"/> based on the current user context.
+            </summary>
+            <returns>
+            An instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureOnBehalfOfCredential"/>.
+            </returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.ICopilotForAzureCredentialFactory.CreateSingletonOurResourcesCredential">
+            <summary>
+            Creates a (or returns the existing) <see cref="F:Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton"/> instance of
+            <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureTalkToOurResourcesCredential"/>.
+            </summary>
+            <returns>
+            An instance of <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.CopilotForAzureTalkToOurResourcesCredential"/>.
+            </returns>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.IUserContextProvider">
+            <summary>
+            Gets context for the current user.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.IUserContextProvider.GetAuthTokenFromClientAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Gets an auth token for a downstream service from the client.
+            </summary>
+            <param name="tokenName">
+            A unique name for the token for the client to generate. This is _not_ an OAuth scope, and the key
+            should be hardcoded in both the client and server.
+            </param>
+            <param name="cancellationToken"></param>
+            <returns>The auth token to use.</returns>
+            <exception cref="T:System.NotImplementedException">
+            The current server/client model does not support this style of auth, and the server should create
+            its own tokens instead.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">
+            There is no current user or there is an issue with the current user context preventing this operation.
+            </exception>
+            <remarks>
+            The <paramref name="tokenName"/> parameter is _not_ an OAuth scope as (1) a way to avoid unintentional
+            over-privileging and (2) a way to support non-OAuth cases, like CAPI PAT tokens.
+            The challenge parameter is presented when the service requires the client to perform some actions to a new access token. For example, ARM may request the Client to perform MFA to get a new access token for create/update/delete operations.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.IUserContextProvider.GetFirstHeaderValue(System.String)">
+            <summary>
+            Gets the first incoming request header by the given name.
+            </summary>
+            <param name="headerName">Header name to retrieve.</param>
+            <returns>A header value.</returns>
+            <exception cref="T:System.NotImplementedException">The current client does not support incoming HTTP headers.</exception>
+            <exception cref="T:System.InvalidOperationException">
+            There is no current user or there is an issue with the current user context preventing this operation.
+            </exception>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Identity.ServiceCollectionExtensions.AddCopilotForAzureTokenCredentials(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds relevant instances for creating tokens and identities for the application. The host is expected
+            to add <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Identity.IUserContextProviderFactory"/> to complete dependency injection resolution.
+            </summary>
+            <param name="services"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

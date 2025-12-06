@@ -1,0 +1,8 @@
+# Logs directory for Mega Ultra AI System
+# Contains all system logs and monitoring data
+
+# Log files will be created here automatically:
+# - mega_ultra_ai.log (main log)
+# - performance.log (performance metrics)
+# - network.log (network activity)
+# - backup.log (backup operations)

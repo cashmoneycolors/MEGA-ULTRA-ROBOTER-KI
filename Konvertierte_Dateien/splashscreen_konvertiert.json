@@ -1,0 +1,63 @@
+{
+    "welcomeContent": {
+        "header": "Let's get started, together",
+        "body": "At Bito, our mission is to help developers ship faster, better code with accessible and accurate AI tools."
+    },
+    "splashContentAbove": [
+        {
+            "header": "AI Code Review Agent ",
+            "body": "Performs automated line-by-line reviews with codebase context and outputs actionable analysis directly in your pull requests.",
+            "links": [
+                {
+                    "linkTitle": "Get started",
+                    "linkURL": "home/welcome",
+                    "linkType": "URL",
+                    "shouldAutoLogin": true
+                }
+            ]
+        }
+    ],
+    "sampleQuestions": {
+        "header": "AI Chat",
+        "body": "Context aware coding assistant embedded here, in your IDE or CLI. Click below to try it out.",
+        "questions": [
+            {
+                "id": 1,
+                "questionText": "Generate code in java to convert a number from one base to another"
+            },
+            {
+                "id": 3,
+                "questionText": "How to set global variables for git"
+            }
+        ]
+    },
+    "splashContent":   [
+        {
+            "header": "AI Code Completion",
+            "body": "Supports 35+ languages and pro quality code as you write.",
+            "links": [
+                {
+                    "linkTitle": "Enable or disable autocompletions",
+                    "linkURL": "codecomplete-settings",
+                    "linkType": "method"
+                },
+                {
+                    "linkTitle": "Learn more about it",
+                    "linkURL": "https://docs.bito.ai/feature-guides/ai-code-completions/how-it-works",
+                    "linkType": "URL"
+                }
+            ]
+        },
+        {
+            "header": "Bito Slack Community",
+            "body": "Get support, share projects, and join other developers pushing the edges of AI-powered tooling.",
+            "links": [
+                {
+                    "linkTitle": "Join us on Slack",
+                    "linkURL": "https://bit.ly/BitoSlack",
+                    "linkType": "URL"
+                }
+            ]
+        }
+    ]
+}

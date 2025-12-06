@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>GAZI System Control</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; }
+        .status { margin-bottom: 2em; }
+        button { padding: 0.5em 1em; }
+    </style>
+</head>
+<body>
+    <h1>GAZI System Control Center</h1>
+    <div class="status" id="status"></div>
+    <button onclick="optimize()">System Optimieren</button>
+    <div class="links">
+    <h3>Direktlinks zu den APIs:</h3>
+    <a href="http://127.0.0.1:3000" target="_blank">Web-Frontend (Flask)</a>
+    <a href="http://127.0.0.1:8000/status" target="_blank">Python REST-API</a>
+    <a href="http://127.0.0.1:5000/ZenithApi/ram-threshold" target="_blank">C# Zenith RAM-Threshold</a>
+    <a href="http://127.0.0.1:5000/ZenithApi/local/list" target="_blank">C# Zenith Dateiliste</a>
+    </div>
+    <script>
+        async function fetchStatus() {
+            const res = await fetch('/status');
+            const data = await res.json();
+            document.getElementById('status').innerText = JSON.stringify(data, null, 2);
+        }
+        async function optimize() {
+            const res = await fetch('/optimize', {method: 'POST'});
+            const data = await res.json();
+            alert('Optimierung ausgeführt!\n' + JSON.stringify(data, null, 2));
+            fetchStatus();
+        }
+        fetchStatus();
+        setInterval(fetchStatus, 5000);
+    </script>
+
+        // --- Lokale Dateiverwaltung (C:) ---
+        const zenithApiBase = "http://127.0.0.1:5000"; // Passe ggf. Port an
+
+        function listFiles() {
+            fetch(zenithApiBase + "/local/list")
+                .then(r => r.json())
+                .then(data => {
+                    const ul = document.getElementById('fileList');
+                    ul.innerHTML = '';
+                    (data.files || []).forEach(f => {
+                        const li = document.createElement('li');
+                        li.textContent = f;
+                        ul.appendChild(li);
+                    });
+                });
+        }
+
+        function readFile() {
+            const filename = document.getElementById('readFilename').value;
+            fetch(zenithApiBase + "/local/read", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(filename)
+            })
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('fileContent').textContent = data.content || (data.error || '');
+            });
+        }
+
+        function writeFile() {
+            const filename = document.getElementById('writeFilename').value;
+            const content = document.getElementById('writeContent').value;
+            fetch(zenithApiBase + "/local/write", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Filename: filename, Content: content })
+            })
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('writeStatus').textContent = data.status === 'ok' ? 'Gespeichert!' : (data.error || 'Fehler');
+                listFiles();
+            });
+        }
+    </script>
+<h2>Lokale Dateiverwaltung (C:\AethelosGAZI\data)</h2>
+<button onclick="listFiles()">Dateien anzeigen</button>
+<ul id="fileList"></ul>
+
+<h3>Datei lesen</h3>
+<input type="text" id="readFilename" placeholder="Dateiname">
+<button onclick="readFile()">Lesen</button>
+<pre id="fileContent"></pre>
+
+<h3>Datei schreiben</h3>
+<input type="text" id="writeFilename" placeholder="Dateiname">
+<br>
+<textarea id="writeContent" rows="4" cols="40" placeholder="Inhalt"></textarea>
+<br>
+<button onclick="writeFile()">Speichern</button>
+<div id="writeStatus"></div>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "dUofLEnq5tE=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Laptop\\Documents\\GitHub\\desktop-tutorial\\AethelosGAZI\\zenithapi\\zenithapi.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Laptop\\.nuget\\packages\\microsoft.aspnetcore.openapi\\8.0.0\\microsoft.aspnetcore.openapi.8.0.0.nupkg.sha512",
+    "C:\\Users\\Laptop\\.nuget\\packages\\microsoft.openapi\\1.4.3\\microsoft.openapi.1.4.3.nupkg.sha512"
+  ],
+  "logs": []
+}

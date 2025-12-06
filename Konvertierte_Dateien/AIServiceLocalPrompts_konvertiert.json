@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AIServiceLocalPrompts</name>
+    </assembly>
+    <members>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Prompts.IPromptService.GetSystemPromptConfigurationAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Get the system prompt configuration for the given prompt ID.
+            </summary>
+            <param name="promptId">The prompt id to resolve</param>
+            <param name="cancellationToken"></param>
+            <returns>The system prompt configuration</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Prompts.PromptServiceBase`1.ConvertToStringAsync(System.BinaryData)">
+            <summary>
+            Converts a <see cref="T:System.BinaryData"/> to a string, removing any UTF-8 BOM in the process.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Prompts.PromptServiceBase`1.GetBinaryDataAsync(System.String,`0,System.Threading.CancellationToken)">
+            <summary>
+            Performs a read of the underlying storage.
+            </summary>
+            <param name="key">The file path to use; convention is this is a forward-slash separated file path.</param>
+            <param name="versionToken">The existing known version token; if the underlying storage knows the value hasn't changed, then the data returned is null. If TVersionToken is a struct,
+            the expectation is that 'default' will never match the existing version and will always return something new.</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Prompts.PromptServiceBase`1.GetKeysUnderKeyAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Enumerates storage (i.e. blobs, files, etc.) under a given key prefix.
+            </summary>
+            <param name="keyPrefix">The file path to use; convention is this is a forward-slash separated file path.</param>
+            <returns>
+            The full paths to keys under that prefix.
+            </returns>
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Prompts.SystemPrompt">
+            <summary>
+            Represents a system prompt.
+            </summary>
+            <param name="PromptTemplate">The prompt template.</param>
+            <param name="PromptTemplateConfig">The optional prompt configuration</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Prompts.SystemPrompt.#ctor(System.String,Microsoft.SemanticKernel.PromptTemplateConfig)">
+            <summary>
+            Represents a system prompt.
+            </summary>
+            <param name="PromptTemplate">The prompt template.</param>
+            <param name="PromptTemplateConfig">The optional prompt configuration</param>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Prompts.SystemPrompt.PromptTemplate">
+            <summary>The prompt template.</summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Prompts.SystemPrompt.PromptTemplateConfig">
+            <summary>The optional prompt configuration</summary>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Prompts.SystemPromptConfiguration.PromptTemplateFactory">
+            <summary>
+            The prompt template factory to use for rendering prompt templates.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Prompts.SystemPromptConfiguration.ToSystemPromptAsync(Microsoft.SemanticKernel.Kernel,System.Threading.CancellationToken)">
+            <summary>
+            Converts a <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Prompts.SystemPromptConfiguration"/> to a <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Prompts.SystemPrompt"/>.
+            </summary>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> instance.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>The converted <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Prompts.SystemPrompt"/>.</returns>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Prompts.SystemPromptConfiguration.ToSystemPromptAsync(Microsoft.SemanticKernel.Kernel,Microsoft.SemanticKernel.KernelArguments,System.Threading.CancellationToken)">
+            <summary>
+            Converts a <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Prompts.SystemPromptConfiguration"/> to a <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Prompts.SystemPrompt"/>.
+            </summary>
+            <param name="kernel">The <see cref="T:Microsoft.SemanticKernel.Kernel"/> instance.</param>
+            <param name="arguments">The kernel arguments to use during prompt template rendering.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>The converted <see cref="T:Microsoft.Azure.CopilotForAzure.AIService.Prompts.SystemPrompt"/>.</returns>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Prompts.SystemPromptConfigurationPrompty.Yaml">
+            <summary>
+            The YAML representation of the system prompt configuration.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Prompts.SystemPromptConfigurationPrompty.ToSystemPromptAsync(Microsoft.SemanticKernel.Kernel,Microsoft.SemanticKernel.KernelArguments,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Prompts.SystemPromptConfigurationSemanticKernel.ToSystemPromptAsync(Microsoft.SemanticKernel.Kernel,Microsoft.SemanticKernel.KernelArguments,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.Azure.CopilotForAzure.AIService.Prompts.SystemPromptServiceConfiguration">
+            <summary>
+            This class represents the configuration for the system prompt service.
+            </summary>
+            <param name="PromptIdToConfigurationName">Contains the map from prompt ID to blob name</param>
+        </member>
+        <member name="M:Microsoft.Azure.CopilotForAzure.AIService.Prompts.SystemPromptServiceConfiguration.#ctor(System.Collections.Generic.IDictionary{System.String,System.String})">
+            <summary>
+            This class represents the configuration for the system prompt service.
+            </summary>
+            <param name="PromptIdToConfigurationName">Contains the map from prompt ID to blob name</param>
+        </member>
+        <member name="P:Microsoft.Azure.CopilotForAzure.AIService.Prompts.SystemPromptServiceConfiguration.PromptIdToConfigurationName">
+            <summary>Contains the map from prompt ID to blob name</summary>
+        </member>
+    </members>
+</doc>

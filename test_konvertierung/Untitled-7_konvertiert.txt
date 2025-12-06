@@ -1,0 +1,5 @@
+cd "C:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\ZENITH_FRONTEND"
+
+test_requirements.py
+& "C:/Users/Laptop/Desktop/Projekte/MEGA ULTRA ROBOTER KI/.venv/Scripts/python.exe" "C:/Users/Laptop/Desktop/Projekte/MEGA ULTRA ROBOTER KI/import_test.py"
+New-Item -ItemType Directory -Path "C:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\BACKUP_2025-10-26"

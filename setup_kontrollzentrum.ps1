@@ -1,3 +1,4 @@
+
 # MEGA ULTRA ROBOTER KI – Setup & Aufgaben für Team-Support
 
 ## 1. requirements.txt anlegen und Premium-Pakete installieren

@@ -1,0 +1,40 @@
+{
+    "name": "symbol_search",
+    "version": "1.0.0",
+    "description": "A general-purpose pattern-based search utility for finding text patterns that aren't specific code symbols. Similar to grep, it excels at finding string literals, comments, documentation, regular expressions, and other text patterns that aren't formal programming language symbols. Features include: recursive directory searching, file type filtering, case sensitivity options, and detailed match reporting. Use this tool when searching for text patterns that aren't specific named code elements, when code_symbol_search doesn't yield results, or when searching for regular expressions and complex patterns.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "pattern": {
+                "type": "string",
+                "description": "The symbol pattern to search for"
+            },
+            "path": {
+                "type": "string",
+                "description": "Path to file or directory to search in (default: current directory)",
+                "default": "."
+            },
+            "file_patterns": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "description": "List of file patterns to include in search",
+                "default": []
+            },
+            "case_sensitive": {
+                "type": "boolean",
+                "description": "Whether to perform case-sensitive search",
+                "default": false
+            },
+            "max_results": {
+                "type": "integer",
+                "description": "Maximum number of results to return",
+                "default": 100,
+                "minimum": 1,
+                "maximum": 1000
+            }
+        },
+        "required": ["pattern"]
+    }
+}

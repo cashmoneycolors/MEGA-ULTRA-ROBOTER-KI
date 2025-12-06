@@ -1,0 +1,20 @@
+{
+    "description": "A DuckDuckGo-powered web search tool that provides privacy-focused internet search results. Can return multiple results with configurable result count. Useful for information gathering, research, and automated web queries while maintaining user privacy.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "query": {
+                "type": "string",
+                "description": "The search query to look up"
+            },
+            "num_results": {
+                "type": "integer",
+                "description": "Number of results to return (max 10)",
+                "minimum": 1,
+                "maximum": 10,
+                "default": 5
+            }
+        },
+        "required": ["query"]
+    }
+}

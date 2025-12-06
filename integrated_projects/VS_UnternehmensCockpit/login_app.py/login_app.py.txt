@@ -1,0 +1,89 @@
+import tkinter as tk
+from tkinter import messagebox
+import time
+
+class LoginApp:
+    """
+    Eine einfache Login-Anwendung mit Tkinter (Python GUI).
+    """
+    def __init__(self, master):
+        self.master = master
+        master.title("Unternehmens-Login")
+        master.geometry("400x250")
+        
+        # Zentriere das Fenster
+        screen_width = master.winfo_screenwidth()
+        screen_height = master.winfo_screenheight()
+        x_cordinate = int((screen_width/2) - (400/2))
+        y_cordinate = int((screen_height/2) - (250/2))
+        master.geometry(f"400x250+{x_cordinate}+{y_cordinate}")
+
+        # --- Variablen ---
+        self.username_var = tk.StringVar()
+        self.password_var = tk.StringVar()
+
+        # --- UI-Elemente ---
+        
+        # Überschrift
+        self.label_title = tk.Label(master, text="Willkommen beim Unternehmens-Cockpit", font=('Arial', 14, 'bold'))
+        self.label_title.pack(pady=10)
+
+        # Benutzername
+        self.label_user = tk.Label(master, text="Benutzername:")
+        self.label_user.pack()
+        self.entry_user = tk.Entry(master, textvariable=self.username_var)
+        self.entry_user.pack(pady=5)
+        
+        # Passwort
+        self.label_pass = tk.Label(master, text="Passwort:")
+        self.label_pass.pack()
+        self.entry_pass = tk.Entry(master, textvariable=self.password_var, show="*")
+        self.entry_pass.pack(pady=5)
+        
+        # Login Button
+        self.login_button = tk.Button(master, text="ANMELDEN", command=self.attempt_login, bg='#2196F3', fg='white')
+        self.login_button.pack(pady=20)
+        
+        # Hinweis für den Benutzer
+        self.label_hint = tk.Label(master, text="Test: mitarbeiter / pass123", font=('Arial', 8))
+        self.label_hint.pack()
+
+    def attempt_login(self):
+        """
+        Versucht den Login mit den eingegebenen Daten.
+        """
+        username = self.username_var.get()
+        password = self.password_var.get()
+
+        if username == "mitarbeiter" and password == "pass123":
+            messagebox.showinfo("Erfolg", "Anmeldung erfolgreich! Das Dashboard wird geladen.")
+            self.master.destroy() # Schließt das Login-Fenster
+            self.open_dashboard() # Öffnet das Dashboard-Fenster
+        else:
+            messagebox.showerror("Fehler", "Benutzername oder Passwort falsch.")
+
+    def open_dashboard(self):
+        """
+        Öffnet das Hauptfenster der Anwendung (Dashboard-Simulation).
+        """
+        dashboard_root = tk.Tk()
+        dashboard_root.title("Dashboard - Unternehmens-Cockpit")
+        dashboard_root.geometry("600x400")
+        
+        # Haupt-Dashboard-Inhalt
+        tk.Label(dashboard_root, text="Dashboard-Übersicht", font=('Arial', 18, 'bold')).pack(pady=20)
+        tk.Label(dashboard_root, text="Umsatz: € 129.870 (Simuliert)", font=('Arial', 12)).pack(pady=5)
+        tk.Label(dashboard_root, text="Neue Kunden: 51", font=('Arial', 12)).pack(pady=5)
+        
+        tk.Button(dashboard_root, text="Abmelden", command=dashboard_root.destroy).pack(pady=30)
+        
+        dashboard_root.mainloop()
+
+
+if __name__ == "__main__":
+    # Erstellt das Hauptfenster (Root)
+    root = tk.Tk()
+    # Erstellt und startet die App
+    app = LoginApp(root)
+    # Startet die Tkinter-Event-Loop (hält das Fenster offen)
+    root.mainloop()

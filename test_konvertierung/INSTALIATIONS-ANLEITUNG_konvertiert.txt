@@ -1,0 +1,26 @@
+🧪 Nächste Schritte: Testen des Gesamtsystems
+Ich empfehle, als Nächstes den vollen Kreislauf auf Ihrem Windows-Laptop zu testen:
+
+Starte die App über python app.py.
+
+Generiere den API Key im linken Panel (Der Key wird in Firestore gespeichert).
+
+Drücke den roten Mikrofon-Button und sprich eine Frage.
+
+Die App sollte:
+
+Ihre Stimme aufnehmen.
+
+Sie an den gesicherten /api/stt Endpunkt senden.
+
+Gemini transkribiert (STT).
+
+Die transkribierte Frage wird an den gesicherten /api/chat Endpunkt gesendet.
+
+Gemini antwortet.
+
+Die Antwort wird an den gesicherten /api/tts Endpunkt gesendet.
+
+Die App spielt die Antwort automatisch per Lautsprecher ab (TTS).
+
+Möchten Sie jetzt, da das System fertig ist, spezifische Anwendungsfälle für Ihren Unternehmensassistenten programmieren, z.B. eine Datenbankabfrage hinzufügen

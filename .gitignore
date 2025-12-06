@@ -1,0 +1,18 @@
+# Große Dateien ausschließen (>100MB)
+*.modules
+integrated_projects/AI_CORE/oracleJdk-25/
+integrated_projects/AI_CORE/data/export_*.json
+Konvertierte_Dateien/*.csv
+.tools/node-v20.17.0-win-x64/
+*.exe
+*.zip
+*.dll
+*.pdb
+*.cache
+*.log
+__pycache__/
+*.pyc
+.git/
+bin/
+obj/
+publish/

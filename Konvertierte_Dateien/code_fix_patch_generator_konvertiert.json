@@ -1,0 +1,45 @@
+{
+    "name": "code_fix_patch_generator",
+    "version": "1.0.0",
+    "description": "This tool generates code-fix patches in GitHub/GitLab suggestion format by analysing PR diffs, literal code context, issues and proposed fixes using LLM analysis. It produces precise patches that follow the strict format requirements for code-review suggestions.\n\nKey Features:\n1. Analyses PR diffs with line-by-line changes (added/deleted/unchanged lines)\n2. Consumes **verbatim code context snippets** (actual source lines, not summaries)\n3. Generates patches in strict GitHub/GitLab format with @@ headers\n4. Ensures all deletions precede additions in patch format\n5. Validates patch-format compliance before returning results\n6. Provides analysis and reasoning for generated fixes",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "pr_diff": {
+          "type": "string",
+          "description": "The PR diff showing changes to files with line numbers and indicators for additions (+), deletions (-), or unchanged lines (no prefix). Format:\n\n--- filepath ---\nline_number: content (unchanged lines)\nline_number: +content (added lines)\nline_number: -content (deleted lines)\n\nExample:\n--- src/index.ts ---\n61: import { Logger } from './logger';\n62: +// Initialize SSO dependencies\n63: +const metadataHandler = new MetadataHandler(certProcessor);\n64: +const samlValidator = new SAMLTokenValidator(metadataHandler, logger);\n65: +const ssoRateLimiter = new SSOAuthRateLimiter();\n66: \n67: export function initializeApp() {\n68: -    setupLegacyAuth();\n69: +    setupSSOAuth(samlValidator, ssoRateLimiter);\n70:      logger.info('App initialized');\n71: }"
+        },
+        "code_context": {
+          "type": "string",
+          "description": "Literal snippets of surrounding code provided as plain text with file paths and line numbers. Format:\n\n--- filepath (lines range) ---\nline_number: code content\nline_number: +code content (for lines that were added in the diff)\nline_number: code content\n\nExample:\n--- src/index.ts (lines 38-91) ---\n38: // Initialize services\n39: const emailAuthService = new EmailAuthService(\n40:   userRepository,\n41:   emailUtils,\n42:   cryptoUtils,\n43:   rateLimitManager,\n44:   errorHandler,\n45:   logger\n46: );\n62: +// Initialize SSO dependencies\n63: +const metadataHandler = new MetadataHandler(certProcessor);\n\nMultiple code sections may be provided for different files or different parts of the same file."
+        },
+        "issue": {
+          "type": "string",
+          "description": "Clear description of the issue or bug to fix."
+        },
+        "fix": {
+          "type": "string",
+          "description": "Description of the proposed fix or solution approach."
+        }
+      },
+      "required": ["pr_diff", "code_context", "issue", "fix"]
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "success": { "type": "boolean" },
+        "patch": {
+          "type": "object",
+          "properties": {
+            "file_path": { "type": "string" },
+            "patch": { "type": "string" }
+          },
+          "required": ["file_path", "patch"]
+        },
+        "analysis": { "type": "string" },
+        "additional_info": { "type": "string" },
+        "error": { "type": "string" }
+      },
+      "required": ["success", "analysis"]
+    }
+}

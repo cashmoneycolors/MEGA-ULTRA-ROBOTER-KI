@@ -1,0 +1,126 @@
+{
+    "name": "confluence",
+    "description": "Read-only Confluence integration for retrieving and searching content (pages and spaces). Supports fetching page content, running CQL searches, and listing/inspecting spaces. No write operations.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "type": "string",
+          "description": "Read-only Confluence operation to perform",
+          "enum": [
+            "get_page",
+            "search",
+            "get_space_content",
+            "get_space_info",
+            "get_all_spaces"
+          ]
+        },
+        "confluence_url": {
+          "type": "string",
+          "description": "The base URL of the Confluence instance"
+        },
+        "args": {
+          "type": "object",
+          "description": "Arguments for the selected operation",
+          "properties": {
+            "page_id": {
+              "type": "string",
+              "description": "The ID of the Confluence page to retrieve"
+            },
+            "expand": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Properties to expand in the response (e.g., body.storage, version)"
+            },
+            "space_key": {
+              "type": "string",
+              "description": "The key of the Confluence space (e.g., TEAM). This differs from the space ID."
+            },
+            "space_id": {
+              "type": "string",
+              "description": "The ID of the Confluence space (often numeric). This is not the same as the space key."
+            },
+            "cql": {
+              "type": "string",
+              "description": "Confluence Query Language (CQL) search query"
+            },
+            "title": {
+              "type": "string",
+              "description": "Filter for page title (used by search)"
+            },
+            "content_type": {
+              "type": "string",
+              "description": "Type of content to retrieve when listing space content",
+              "enum": [
+                "page",
+                "blogpost"
+              ],
+              "default": "page"
+            },
+            "limit": {
+              "type": "integer",
+              "description": "Maximum number of results to return",
+              "default": 25
+            }
+          }
+        }
+      },
+      "required": [
+        "operation"
+      ]
+    },
+    "output_schema": {
+      "type": "string",
+      "description": "Human-readable formatted output of the Confluence operation"
+    },
+    "examples": [
+      {
+        "description": "Get page content",
+        "input": {
+          "operation": "get_page",
+          "args": {
+            "page_id": "123456",
+            "expand": [
+              "body.storage",
+              "version"
+            ]
+          }
+        },
+        "expected_output": "Title: Sample Page\nVersion: 5\nSpace: TEAM\nLast Modified: 2023-11-15\nContent:\n<p>This is the page content...</p>\nURL: https://your-domain.atlassian.net/wiki/spaces/TEAM/pages/123456"
+      },
+      {
+        "description": "Search content",
+        "input": {
+          "operation": "search",
+          "args": {
+            "space_key": "TEAM",
+            "title": "Project Documentation",
+            "limit": 10
+          }
+        },
+        "expected_output": "Found 2 results:\n\n1. Title: Project Documentation\nType: page\nSpace: TEAM\nLast Updated: 2023-11-15\nURL: https://your-domain.atlassian.net/wiki/spaces/TEAM/pages/123456\n\n2. Title: Project Documentation Guide\nType: page\nSpace: TEAM\nLast Updated: 2023-11-14\nURL: https://your-domain.atlassian.net/wiki/spaces/TEAM/pages/123457"
+      },
+      {
+        "description": "Get space content",
+        "input": {
+          "operation": "get_space_content",
+          "args": {
+            "space_id": "123456",
+            "content_type": "page",
+            "limit": 5
+          }
+        },
+        "expected_output": "Space: TEAM\nContent Type: page\nFound 5 items:\n\n1. Title: Home\nType: page\nLast Updated: 2023-11-15\n\n2. Title: Project Overview\nType: page\nLast Updated: 2023-11-14\n\n[...]"
+      },
+      {
+        "description": "Get Spaces of user",
+        "input": {
+          "operation": "get_all_spaces",
+          "args": {}
+        },
+        "expected_output": "MySpace\nContent Type: collaboration\nFound 1 item:\n\n1. Title: MySpace\nType: collaboration\nStatus: current\nCreated At: 2025-01-17T07:10:52.954Z[...]"
+      }
+    ]
+  }

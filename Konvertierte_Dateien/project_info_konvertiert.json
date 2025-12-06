@@ -1,0 +1,106 @@
+{
+  "name": "project_info",
+  "description": "A comprehensive project information CLI tool designed for LLM agents to assist with code review and architecture design. This tool provides access to organizational repository data, dependency analysis, clustering information, and natural language search capabilities.\n\nKey capabilities for code review and architecture assistance:\n1. Repository Discovery: List all repositories in the organization with optional summaries\n2. Dependency Analysis: Understand incoming and outgoing dependencies between repositories\n3. Architecture Understanding: Access repository clustering data to understand system organization\n4. Natural Language Search: Find relevant repositories using semantic search based on TF-IDF analysis\n5. Detailed Repository Information: Get comprehensive project data including frameworks, runtime context, and dependencies\n\nUse cases:\n- Code Review Context: Before reviewing code changes, use get_repository_info to understand the repository structure and dependencies\n- Architecture Questions: Use list_clusters and get_cluster_info to understand how repositories are organized and related\n- Impact Analysis: Use dependency information to understand how changes might affect other repositories\n- Repository Discovery: Use search_repositories with natural language queries like 'authentication services', 'payment processing', or 'user management'\n- Cross-service Understanding: Analyze dependencies to provide guidance on inter-service communication and architectural patterns\n\nThe tool requires PROJECT_INFO_DATA_DIR environment variable pointing to the data directory containing repository information and TF-IDF search indices.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "command": {
+        "type": "string",
+        "description": "The command to execute",
+        "enum": [
+          "list_repositories",
+          "list_clusters", 
+          "get_repository_info",
+          "get_cluster_info",
+          "search_repositories"
+        ]
+      },
+      "page": {
+        "type": "integer",
+        "description": "Page number for pagination (default: 1). Used with list_repositories and list_clusters commands.",
+        "minimum": 1,
+        "default": 1
+      },
+      "page_size": {
+        "type": "integer", 
+        "description": "Number of items per page (default: 20). Used with list_repositories and list_clusters commands.",
+        "minimum": 1,
+        "maximum": 100,
+        "default": 20
+      },
+      "include_summary": {
+        "type": "boolean",
+        "description": "Include project_overview in the response. Used with list_repositories, get_cluster_info, and search_repositories commands.",
+        "default": false
+      },
+      "repository_name": {
+        "type": "string",
+        "description": "Name of the repository to get detailed information about. Required for get_repository_info command."
+      },
+      "include_incoming_dependencies": {
+        "type": "boolean", 
+        "description": "Include incoming dependencies (other repos that depend on this one). Used with get_repository_info command.",
+        "default": false
+      },
+      "include_outgoing_dependencies": {
+        "type": "boolean",
+        "description": "Include outgoing dependencies (repos that this one depends on). Used with get_repository_info command.", 
+        "default": false
+      },
+      "cluster_id": {
+        "type": "string",
+        "description": "ID of the cluster to get information about. Can be in format 'cluster_0' or just '0'. Required for get_cluster_info command."
+      },
+      "query": {
+        "type": "string",
+        "description": "Natural language search query to find relevant repositories. Examples: 'authentication and user management', 'payment processing and billing', 'data storage and databases'. Required for search_repositories command."
+      },
+      "limit": {
+        "type": "integer",
+        "description": "Maximum number of search results to return (default: 5). Used with search_repositories command.",
+        "minimum": 1,
+        "maximum": 20,
+        "default": 5
+      }
+    },
+    "required": ["command"],
+    "allOf": [
+      {
+        "if": {
+          "properties": {
+            "command": {
+              "const": "get_repository_info"
+            }
+          }
+        },
+        "then": {
+          "required": ["repository_name"]
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "command": {
+              "const": "get_cluster_info"
+            }
+          }
+        },
+        "then": {
+          "required": ["cluster_id"]
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "command": {
+              "const": "search_repositories"
+            }
+          }
+        },
+        "then": {
+          "required": ["query"]
+        }
+      }
+    ]
+  }
+}

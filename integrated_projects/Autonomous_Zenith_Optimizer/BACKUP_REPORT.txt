@@ -1,0 +1,6 @@
+Backup erstellt: ..\AZO_BACKUP_20251120_020935.zip
+Dateien im Archiv: 293
+Git HEAD Commit:
+701daa59ae073d647051fac2d770beb91770aa0c
+Python Version:
+Python 3.12.10

@@ -1,0 +1,991 @@
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, doc, setDoc, getDoc, collection, query, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { Clipboard, User, Database, Settings, Zap, Edit, Aperture, MessageSquare, Mic, Download, Upload, Cpu, Shield, Lock, Eye, CheckCircle, AlertTriangle, XCircle, DollarSign, Send, Search } from 'lucide-react';
+
+// Tailwind CSS ist in der Umgebung verfügbar
+
+// --- Globale Variablen (MANDATORY: Werden von der Umgebung injiziert) ---
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+const API_KEY_PLACEHOLDER = ""; // Wird zur Laufzeit von der Canvas-Umgebung ersetzt
+
+// --- Firebase und Auth Initialisierung ---
+let app, dbInstance, authInstance;
+if (Object.keys(firebaseConfig).length > 0) {
+  try {
+    app = initializeApp(firebaseConfig);
+    dbInstance = getFirestore(app);
+    authInstance = getAuth(app);
+    // setLogLevel('debug'); // Optional: Firestore Logging aktivieren
+  } catch (error) {
+    console.error("Firebase Initialization Error:", error);
+  }
+}
+
+// --- Komponente: API Key Management (Zenith Key Controller - SCSC Core) ---
+const ZenithKeyController = ({ userId, db }) => {
+  const [activeModel, setActiveModel] = useState('Gemini (Google DeepMind)');
+  const [apiKey, setApiKey] = useState('');
+  const [notes, setNotes] = useState('');
+  const [keyStatus, setKeyStatus] = useState('Nicht gespeichert');
+  const [irisHashInput, setIrisHashInput] = useState('');
+  const [isVaultAccessGranted, setIsVaultAccessGranted] = useState(false);
+  const [auditResult, setAuditResult] = useState(null);
+
+  const vaultHash = "f5f5c8c5c8c8c5c5f5f5c8c5c8c8c5c5f5f5c8c5c8c8c5c5f5f5c8c5c8c8c5c5"; // Simulierter registrierter Iris-Hash
+
+  // Lade Key-Konfiguration beim Start
+  useEffect(() => {
+    if (db && userId) {
+      const docRef = doc(db, `artifacts/${appId}/users/${userId}/key_configurations`, 'zenith_master_key_config');
+      getDoc(docRef).then(docSnap => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setApiKey(data.apiKey || '');
+          setNotes(data.notes || '');
+          setActiveModel(data.activeModel || 'Gemini (Google DeepMind)');
+          setKeyStatus('Erfolgreich aus Datenordner geladen');
+        } else {
+          setKeyStatus('Keine Konfiguration gefunden. Bitte Key eingeben.');
+        }
+      }).catch(err => {
+        console.error("Fehler beim Laden des Keys:", err);
+        setKeyStatus('Fehler beim Laden der Keys.');
+      });
+    }
+  }, [db, userId]);
+
+  // BLOCK 2: Smart Contract – Biometrischer Tresor (Iris-Scan) Simulation
+  const handleIrisVerification = () => {
+    // Simuliert eine biometrische Überprüfung
+    if (irisHashInput === vaultHash) {
+      setIsVaultAccessGranted(true);
+      setAuditResult(null); // Audit-Ergebnis zurücksetzen
+    } else {
+      setIsVaultAccessGranted(false);
+      setAuditResult({ success: false, message: "Iris-Hash-Fehler. Tresorzugriff verweigert." });
+    }
+  };
+
+  // BLOCK 1: NFT-Telemetrie + GovernanceTrigger Simulation
+  const generateGovernanceTrigger = (cpu, latency) => {
+    // CPU- und Latenz-Werte simulieren die Telemetrie des Key-Knotens
+    const score = cpu * 0.7 + latency * 0.3;
+    if (score > 80) return "FullSync (Miete/Abo bereit)";
+    if (score > 50) return "PartialSync (Training bereit)";
+    return "Quarantine (Nutzung unterbrochen)";
+  };
+
+  const saveKeyToFirestore = async () => {
+    if (!db || !userId || !apiKey || !isVaultAccessGranted) {
+      setKeyStatus("Fehler: Tresorzugriff notwendig und Key-Feld darf nicht leer sein.");
+      return;
+    }
+
+    const docRef = doc(db, `artifacts/${appId}/users/${userId}/key_configurations`, 'zenith_master_key_config');
+    
+    // --- Telemetrie simulieren ---
+    const simulatedCPU = Math.random() * 50 + 50; // 50% - 100%
+    const simulatedLatency = Math.random() * 100 + 10; // 10ms - 110ms
+    const trigger = generateGovernanceTrigger(simulatedCPU, simulatedLatency);
+
+    const dataToSave = {
+      apiKey: apiKey,
+      activeModel: activeModel,
+      notes: notes,
+      telemetry: {
+        cpu: simulatedCPU.toFixed(2),
+        latency: simulatedLatency.toFixed(2),
+        governanceTrigger: trigger,
+        updatedAt: serverTimestamp(),
+      },
+    };
+
+    try {
+      await setDoc(docRef, dataToSave);
+      setKeyStatus(`✅ Key gesichert (Firestore/Datenordner). Governance Trigger: ${trigger}`);
+      setAuditResult({
+        success: true,
+        message: `Audit-Erfolg! Key ist bereit für ${trigger}.`,
+        telemetry: dataToSave.telemetry,
+      });
+    } catch (e) {
+      console.error("Fehler beim Speichern in Firestore: ", e);
+      setKeyStatus("❌ Fehler beim Speichern im Datenordner. Siehe Konsole.");
+      setAuditResult({ success: false, message: "Kritischer Fehler bei der Datensicherung." });
+    }
+  };
+
+  // Lokales Backup (Ihr GAZI-FIRESTORE)
+  const handleDownloadBackup = () => {
+    const data = {
+      model: activeModel,
+      apiKey: apiKey,
+      notes: notes,
+      backupTime: new Date().toISOString()
+    };
+    const jsonString = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    // Ihr gewünschter Dateiname
+    link.download = `zenith_key_backup_GAZI_FIRESTORE_${new Date().toISOString().substring(0, 10)}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setKeyStatus('Lokales Backup erstellt auf Ihrem Datenträger (GAZI-FIRESTORE)');
+  };
+
+  const modelProviders = [
+    { name: 'Gemini (Google DeepMind)', icon: 'gemini' },
+    { name: 'GEMY KI (Zenith Core)', icon: 'zap' },
+    { name: 'ChatGPT (OpenAI)', icon: 'message-square' },
+    { name: 'Claude (Anthropic)', icon: 'aperture' },
+    { name: 'Grok (xAI)', icon: 'message-square' },
+    { name: 'Llama Chat (Meta AI)', icon: 'database' },
+    { name: 'GitHub Copilot (MS)', icon: 'settings' },
+    { name: 'Mistral AI', icon: 'zap' },
+    { name: 'Perplexity AI', icon: 'search' },
+  ];
+
+  // SVG Komponenten für BLOCK 4: Visuelle Architektur
+  const SvgBankArchitecture = () => (
+    <svg viewBox="0 0 1200 400" className="w-full h-auto mt-4" style={{ backgroundColor: '#0f172a', borderRadius: '12px' }}>
+      {/* Zentraler Governance-Knoten */}
+      <circle cx="950" cy="200" r="40" fill="#00ffcc" stroke="#333" strokeWidth="3" />
+      <text x="950" y="205" fill="#000" fontSize="14" textAnchor="middle">GOV</text>
+
+      {/* Die Bank (Key-Zentrale) */}
+      <rect x="50" y="100" width="250" height="200" fill="#004466" rx="15" />
+      <text x="175" y="140" fill="white" fontSize="24" textAnchor="middle">ZENITH BANK</text>
+      
+      {/* Tresor (Biometrischer Schutz) */}
+      <rect x="100" y="200" width="150" height="80" fill={isVaultAccessGranted ? "#34d399" : "#dc2626"} rx="8" />
+      <text x="175" y="235" fill="#fff" fontSize="16" textAnchor="middle">TRESOR</text>
+      <text x="175" y="260" fill="#fff" fontSize="12" textAnchor="middle">{isVaultAccessGranted ? 'Zugriff ERTEILT' : 'Zugriff GESPERRT'}</text>
+      
+      {/* Shops/Services für Miete/Abo (simulierte NFT-Assets) */}
+      <rect x="350" y="50" width="150" height="80" fill="#66cc66" rx="10" />
+      <text x="425" y="80" fill="black" fontSize="16" textAnchor="middle">Shop A (Miete)</text>
+      <rect x="350" y="150" width="150" height="80" fill="#ffcc66" rx="10" />
+      <text x="425" y="180" fill="black" fontSize="16" textAnchor="middle">Shop B (Abo)</text>
+      <rect x="350" y="250" width="150" height="80" fill="#cc66cc" rx="10" />
+      <text x="425" y="280" fill="white" fontSize="16" textAnchor="middle">Shop C (Training)</text>
+      
+      {/* Verbindungen (Key-Flow) */}
+      <line x1="250" y1="240" x2="350" y2="190" stroke="#999" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrow)" />
+      <line x1="500" y1="190" x2="910" y2="200" stroke="#999" strokeWidth="3" markerEnd="url(#arrow)" />
+
+      {/* Pfeil-Definition */}
+      <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto" markerUnits="strokeWidth">
+          <polygon points="0 0, 10 3, 0 6" fill="#999" />
+        </marker>
+      </defs>
+    </svg>
+  );
+
+
+  return (
+    <div className="p-6 bg-gray-50 min-h-screen rounded-b-xl">
+      <h2 className="text-3xl font-extrabold text-blue-800 mb-6 flex items-center">
+        <Shield className="w-8 h-8 mr-3" /> Zenith Key Controller (SCSC-Kern)
+      </h2>
+
+      {/* Wichtige Klarstellung */}
+      <div className="mb-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-lg">
+        <p className="font-bold text-lg">EXTREME KLARSTELLUNG ZUM DATENTRÄGER:</p>
+        <p className="mt-2">
+          1. Der Button **"Key sicher speichern (Firestore/Datenordner)"** speichert Keys **privat** in der Cloud-Datenbank (Firestore). Dies dient der **Zuverlässigkeit** und dem **Nicht-Verlust**.
+        </p>
+        <p className="mt-1">
+          2. Der Button **"Lokales Backup erstellen (JSON-Datei)"** lädt die Daten auf **Ihren lokalen Datenträger (Ihr GAZI-FIRESTORE)**, um Ihnen die volle Kontrolle über eine lokale Sicherungskopie zu geben.
+        </p>
+      </div>
+
+      <SvgBankArchitecture />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+        {/* Spalte 1: Modell-Auswahl (NFT-Assets) */}
+        <div className="lg:col-span-1 bg-white p-6 shadow-xl rounded-xl border border-gray-200">
+          <h3 className="text-xl font-semibold mb-4 text-gray-700">1. KI-Modell-Katalog (für Abo/Miete)</h3>
+          <div className="space-y-2 max-h-96 overflow-y-auto">
+            {modelProviders.map((model) => (
+              <button
+                key={model.name}
+                onClick={() => setActiveModel(model.name)}
+                className={`w-full text-left p-3 rounded-lg transition duration-200 flex items-center text-sm ${
+                  activeModel === model.name
+                    ? 'bg-blue-600 text-white shadow-md font-bold'
+                    : 'bg-gray-100 text-gray-700 hover:bg-blue-100'
+                }`}
+              >
+                {model.icon === 'gemini' && <Aperture className="w-4 h-4 mr-2" />}
+                {model.icon === 'zap' && <Zap className="w-4 h-4 mr-2" />}
+                {model.icon === 'message-square' && <MessageSquare className="w-4 h-4 mr-2" />}
+                {model.icon === 'aperture' && <Aperture className="w-4 h-4 mr-2" />}
+                {model.icon === 'database' && <Database className="w-4 h-4 mr-2" />}
+                {model.icon === 'settings' && <Settings className="w-4 h-4 mr-2" />}
+                {model.icon === 'search' && <Search className="w-4 h-4 mr-2" />}
+                {model.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Spalte 2: Biometrischer Tresor (Iris-Scan) & Key-Eintrag */}
+        <div className="lg:col-span-2 bg-white p-6 shadow-xl rounded-xl border border-gray-200">
+          <h3 className="text-xl font-semibold mb-4 text-gray-700">2. Biometrischer Tresor & Key-Eintrag</h3>
+          
+          {/* Tresor-Zugriff (BLOCK 2) */}
+          <div className={`p-4 rounded-lg mb-4 ${isVaultAccessGranted ? 'bg-green-100 border-l-4 border-green-500' : 'bg-red-100 border-l-4 border-red-500'}`}>
+            <h4 className="font-bold flex items-center text-lg mb-2">
+              <Lock className="w-5 h-5 mr-2" /> Tresor-Zugriff (SCSC Core Protection)
+            </h4>
+            <input
+              type="text"
+              value={irisHashInput}
+              onChange={(e) => setIrisHashInput(e.target.value)}
+              placeholder={`Iris-Hash zur Verifizierung (Testwert: ${vaultHash.substring(0, 10)}...)`}
+              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm"
+            />
+            <button
+              onClick={handleIrisVerification}
+              className="mt-2 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 shadow-md flex items-center justify-center"
+            >
+              <Eye className="w-4 h-4 mr-2" /> Tresor-Zugriff verifizieren
+            </button>
+          </div>
+
+          {/* Key-Eingabe (nur bei Zugriff) */}
+          {isVaultAccessGranted ? (
+            <div className="space-y-4">
+              <p className="text-sm text-green-600 font-semibold flex items-center"><CheckCircle className="w-4 h-4 mr-2"/> Tresorzugriff gewährt. Sie können Ihren Key eintragen.</p>
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  API Key für: <span className="text-blue-600">{activeModel}</span>
+                </label>
+                <textarea
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  placeholder="Ihren API Key hier einfügen (wird verschlüsselt in Ihrem Datenordner gesichert)"
+                  rows="3"
+                  className="w-full p-3 border border-gray-300 rounded-lg shadow-inner focus:ring-blue-500 focus:border-blue-500 text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Notizen / Lizenz-Typ (Unbegrenztes Textfeld)
+                </label>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Verwendungszweck, Lizenztyp (Miete, Training, Privat), Abrechnungshinweise..."
+                  rows="3"
+                  className="w-full p-3 border border-gray-300 rounded-lg shadow-inner focus:ring-blue-500 focus:border-blue-500 text-sm"
+                />
+              </div>
+
+              <button
+                onClick={saveKeyToFirestore}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold py-3 px-4 rounded-lg transition duration-200 shadow-xl flex items-center justify-center text-lg"
+              >
+                <Database className="w-5 h-5 mr-3" /> Key sicher speichern (Firestore/Datenordner)
+              </button>
+            </div>
+          ) : (
+            <p className="text-sm text-red-600 font-semibold flex items-center">
+              <XCircle className="w-4 h-4 mr-2"/> Tresor ist gesperrt. Bitte verifizieren Sie Ihren Iris-Hash, um Keys einzutragen und zu speichern.
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Spalte 3: Audit & Export/Import */}
+      <div className="mt-6 bg-white p-6 shadow-xl rounded-xl border border-gray-200">
+        <h3 className="text-xl font-semibold mb-4 text-gray-700">3. Governance Audit & Lokale Sicherung</h3>
+        
+        {/* Audit-Ergebnis (BLOCK 1) */}
+        {auditResult && (
+          <div className={`p-4 rounded-lg mb-4 ${auditResult.success ? 'bg-indigo-100 border-l-4 border-indigo-500' : 'bg-red-100 border-l-4 border-red-500'}`}>
+            <h4 className="font-bold flex items-center text-indigo-800 text-lg mb-2">
+              <Cpu className="w-5 h-5 mr-2" /> NFT-Telemetrie & Audit-Ergebnis
+            </h4>
+            <p className="text-sm">{auditResult.message}</p>
+            {auditResult.telemetry && (
+              <div className="mt-2 text-xs space-y-1">
+                <p>CPU-Nutzung: **{auditResult.telemetry.cpu}%**</p>
+                <p>Latenz: **{auditResult.telemetry.latency}ms**</p>
+                <p>Governance Trigger: **{auditResult.telemetry.governanceTrigger}** (Bestimmt Miete/Training)</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="flex space-x-4">
+          <button
+            onClick={handleDownloadBackup}
+            className="flex-1 bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-lg flex items-center justify-center"
+          >
+            <Download className="w-5 h-5 mr-2" /> Lokales Backup erstellen (JSON-Datei)
+          </button>
+          
+          <button
+            disabled
+            className="flex-1 bg-gray-400 text-gray-700 font-bold py-3 px-4 rounded-lg cursor-not-allowed flex items-center justify-center"
+          >
+            <Upload className="w-5 h-5 mr-2" /> Key-Backup importieren (Deaktiviert in Demo)
+          </button>
+        </div>
+      </div>
+      
+      <p className="text-sm text-center text-gray-500 mt-6">Aktueller Status: {keyStatus} | User ID: {userId}</p>
+    </div>
+  );
+};
+
+// --- Komponente: KI Master Tool (Text/Chat/Vision) ---
+const AIMasterTool = ({ userId }) => {
+  const [prompt, setPrompt] = useState('Beschreibe die Prinzipien der SCSC-Architektur in einem Marketing-Absatz.');
+  const [response, setResponse] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [usageContext, setUsageContext] = useState('Allgemeine Anfrage');
+  const [micStatus, setMicStatus] = useState(false);
+  const recognitionRef = useRef(null);
+
+  const contextOptions = ['Allgemeine Anfrage', 'Für Kundenprojekt', 'Interne Dokumentation', 'KI-Trainingsdaten'];
+
+  const getFullPrompt = (p) => {
+    return `Kontext: ${usageContext}. User-Anfrage: ${p}`;
+  }
+
+  // --- Gemini API Call mit Google Search Grounding ---
+  const callGeminiAPI = async (userQuery) => {
+    setIsLoading(true);
+    setResponse('');
+    const fullQuery = getFullPrompt(userQuery);
+
+    const systemPrompt = "Sie sind der Zenith SCSC (Secure Central Storage and Control) KI-Assistent. Ihre Antworten müssen präzise, professionell und auf den angegebenen Verwendungszweck zugeschnitten sein.";
+    const apiKey = API_KEY_PLACEHOLDER;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+    
+    // Exponential Backoff für API-Aufrufe
+    const maxRetries = 3;
+    let attempt = 0;
+    while (attempt < maxRetries) {
+      try {
+        const payload = {
+          contents: [{ parts: [{ text: fullQuery }] }],
+          tools: [{ "google_search": {} }], // Google Search Grounding
+          systemInstruction: {
+            parts: [{ text: systemPrompt }]
+          },
+        };
+
+        const fetchResponse = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!fetchResponse.ok) {
+          throw new Error(`HTTP error! status: ${fetchResponse.status}`);
+        }
+
+        const result = await fetchResponse.json();
+        const candidate = result.candidates?.[0];
+
+        if (candidate && candidate.content?.parts?.[0]?.text) {
+          const text = candidate.content.parts[0].text;
+          
+          let sources = [];
+          const groundingMetadata = candidate.groundingMetadata;
+          if (groundingMetadata && groundingMetadata.groundingAttributions) {
+              sources = groundingMetadata.groundingAttributions
+                  .map(attribution => ({
+                      uri: attribution.web?.uri,
+                      title: attribution.web?.title,
+                  }))
+                  .filter(source => source.uri && source.title);
+          }
+
+          setResponse(text);
+          // Fügen Sie Quellen-Metadaten zur Antwort hinzu (simuliert)
+          if (sources.length > 0) {
+            setResponse(prev => prev + "\n\n---\n\n**Quellen (Grounded Search):**\n" + sources.map(s => `- [${s.title}](${s.uri})`).join('\n'));
+          }
+
+        } else {
+          setResponse("Fehler bei der KI-Generierung. Keine Textantwort erhalten.");
+        }
+        break; // Erfolg, Schleife verlassen
+      } catch (error) {
+        attempt++;
+        if (attempt >= maxRetries) {
+          setResponse(`API-Fehler nach ${maxRetries} Versuchen: ${error.message}`);
+        } else {
+          // Exponential Backoff: warten (1s, 2s, 4s...)
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+        }
+      }
+    }
+    setIsLoading(false);
+  };
+  
+  // --- Mikrofon/Spracheingabe-Funktion ---
+  const toggleSpeechRecognition = () => {
+    if (micStatus) {
+      if (recognitionRef.current) recognitionRef.current.stop();
+      setMicStatus(false);
+      return;
+    }
+
+    if (!('webkitSpeechRecognition' in window)) {
+      setResponse("❌ Fehler: Ihr Browser unterstützt die webkitSpeechRecognition API nicht. Bitte manuell eingeben.");
+      return;
+    }
+
+    const recognition = new window.webkitSpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'de-DE';
+
+    recognition.onstart = () => {
+      setMicStatus(true);
+      setResponse("🎙️ Zuhören... Bitte sprechen Sie jetzt.");
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setPrompt(transcript);
+      setResponse(`Eingabe erfasst: "${transcript}"`);
+    };
+
+    recognition.onerror = (event) => {
+      setMicStatus(false);
+      setResponse(`❌ Spracheingabefehler: ${event.error}. Dies tritt in iFrame-Umgebungen (wie dieser) häufig auf.`);
+      console.error("Speech Recognition Error:", event.error);
+    };
+
+    recognition.onend = () => {
+      setMicStatus(false);
+      if (prompt.includes("Zuhören")) setResponse("Spracheingabe beendet. Bitte auf 'Generieren' klicken.");
+    };
+
+    recognition.start();
+    recognitionRef.current = recognition;
+  };
+
+  return (
+    <div className="p-6 bg-gray-50 min-h-screen rounded-b-xl">
+      <h2 className="text-3xl font-extrabold text-green-700 mb-6 flex items-center">
+        <MessageSquare className="w-8 h-8 mr-3" /> KI Master Tool (Text & Vision)
+      </h2>
+
+      {/* Verwendungszweck Dropdown */}
+      <div className="mb-4">
+        <label className="block text-gray-700 text-sm font-bold mb-2">Verwendungszweck (STEURN)</label>
+        <select
+          value={usageContext}
+          onChange={(e) => setUsageContext(e.target.value)}
+          className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 bg-white"
+        >
+          {contextOptions.map(option => (
+            <option key={option} value={option}>{option}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="mb-4">
+        <label className="block text-gray-700 text-sm font-bold mb-2">
+          Ihre Prompt / Anweisung (Unbegrenztes Textfeld)
+        </label>
+        <textarea
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          placeholder="Ihre detaillierte Anweisung für die KI..."
+          rows="5"
+          className="w-full p-3 border border-gray-300 rounded-lg shadow-inner resize-none focus:ring-green-500 focus:border-green-500"
+        />
+      </div>
+
+      <div className="flex space-x-4 mb-6">
+        <button
+          onClick={() => callGeminiAPI(prompt)}
+          disabled={isLoading}
+          className="flex-1 bg-green-600 hover:bg-green-700 text-white font-extrabold py-3 px-4 rounded-lg transition duration-200 shadow-xl disabled:opacity-50 flex items-center justify-center text-lg"
+        >
+          {isLoading ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Generiere...
+            </>
+          ) : (
+            <>
+              <Zap className="w-5 h-5 mr-3" /> Generieren & Suchen (Grounding)
+            </>
+          )}
+        </button>
+
+        <button
+          onClick={toggleSpeechRecognition}
+          className={`px-6 py-3 rounded-lg transition duration-200 shadow-xl flex items-center justify-center ${
+            micStatus
+              ? 'bg-red-500 hover:bg-red-600 text-white'
+              : 'bg-blue-500 hover:bg-blue-600 text-white'
+          }`}
+        >
+          <Mic className="w-5 h-5" />
+        </button>
+      </div>
+
+      <div className="mt-6">
+        <h3 className="text-xl font-semibold mb-3 text-gray-700">KI-Antwort (Verwendungszweck: {usageContext})</h3>
+        <div className="bg-white p-4 border border-gray-300 rounded-lg shadow-inner whitespace-pre-wrap min-h-[200px] text-gray-800">
+          {response || 'Die KI-Antwort erscheint hier.'}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- Komponente: Bildgenerator (T2I) ---
+const ImageGenerator = ({ userId }) => {
+  const [prompt, setPrompt] = useState('Ein futuristischer Weltraum-Shop im Orbit, minimalistischer Stil, 8k, digitale Kunst.');
+  const [imageURL, setImageURL] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [usageContext, setUsageContext] = useState('Für Kundenprojekt');
+
+  const contextOptions = ['Für Kundenprojekt', 'Marketing-Material', 'Konzept-Design', 'Allgemeine Anfrage'];
+
+  const getFullPrompt = (p) => {
+    return `Kontext: ${usageContext}. Generiere ein Bild basierend auf dieser User-Anfrage: ${p}`;
+  }
+
+  // --- Imagen API Call (T2I) ---
+  const generateImage = async () => {
+    setIsLoading(true);
+    setImageURL('');
+    setError('');
+    const fullQuery = getFullPrompt(prompt);
+
+    try {
+      const payload = { 
+        instances: [{ prompt: fullQuery }], 
+        parameters: { "sampleCount": 1 } 
+      };
+      const apiKey = API_KEY_PLACEHOLDER;
+      // Verwenden Sie imagen-3.0-generate-002 für Text-zu-Bild
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      const result = await response.json();
+
+      if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
+        const imageUrl = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+        setImageURL(imageUrl);
+      } else {
+        setError('❌ Fehler bei der Bilderzeugung. Ungültige Antwortstruktur von der Imagen API.');
+        console.error("API Response Error:", result);
+      }
+
+    } catch (err) {
+      setError(`❌ Ein Fehler ist aufgetreten: ${err.message}`);
+      console.error("Fetch Error:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="p-6 bg-gray-50 min-h-screen rounded-b-xl">
+      <h2 className="text-3xl font-extrabold text-purple-700 mb-6 flex items-center">
+        <Aperture className="w-8 h-8 mr-3" /> Bildgenerator (Text-zu-Bild / T2I)
+      </h2>
+
+      {/* Verwendungszweck Dropdown */}
+      <div className="mb-4">
+        <label className="block text-gray-700 text-sm font-bold mb-2">Verwendungszweck (STEURN)</label>
+        <select
+          value={usageContext}
+          onChange={(e) => setUsageContext(e.target.value)}
+          className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-purple-500 focus:border-purple-500 bg-white"
+        >
+          {contextOptions.map(option => (
+            <option key={option} value={option}>{option}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="mb-4">
+        <label className="block text-gray-700 text-sm font-bold mb-2">
+          Prompt für das Bild (Unbegrenztes Textfeld)
+        </label>
+        <textarea
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          placeholder="Beschreiben Sie Ihr gewünschtes Bild im Detail..."
+          rows="4"
+          className="w-full p-3 border border-gray-300 rounded-lg shadow-inner resize-none focus:ring-purple-500 focus:border-purple-500"
+        />
+      </div>
+
+      <button
+        onClick={generateImage}
+        disabled={isLoading}
+        className="w-full bg-purple-600 hover:bg-purple-700 text-white font-extrabold py-3 px-4 rounded-lg transition duration-200 shadow-xl disabled:opacity-50 flex items-center justify-center text-lg mb-6"
+      >
+        {isLoading ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Bild wird generiert...
+            </>
+          ) : (
+            <>
+              <Aperture className="w-5 h-5 mr-3" /> Bild generieren
+            </>
+          )}
+      </button>
+      
+      {error && <div className="p-3 bg-red-100 text-red-700 border border-red-300 rounded-lg mb-4">{error}</div>}
+
+      <div className="mt-6">
+        <h3 className="text-xl font-semibold mb-3 text-gray-700">Ergebnis (Kontext: {usageContext})</h3>
+        <div className="bg-white p-4 border border-gray-300 rounded-lg shadow-inner flex justify-center items-center min-h-[300px]">
+          {isLoading && !imageURL && (
+            <div className="text-gray-500">Warte auf das generierte Bild...</div>
+          )}
+          {imageURL && (
+            <img src={imageURL} alt="Generiertes Bild" className="max-w-full h-auto rounded-lg shadow-lg" />
+          )}
+          {!isLoading && !imageURL && !error && (
+            <div className="text-gray-500">Generiertes Bild erscheint hier.</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- Komponente: Bildbearbeitung (I2I) ---
+const ImageEditor = ({ userId }) => {
+  const [editPrompt, setEditPrompt] = useState('Füge dem Hauptobjekt einen Cyberpunk-Helm hinzu.');
+  const [file, setFile] = useState(null);
+  const [editedImageURL, setEditedImageURL] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [previewURL, setPreviewURL] = useState('');
+  const [usageContext, setUsageContext] = useState('Für Kundenprojekt');
+
+  const contextOptions = ['Für Kundenprojekt', 'Retusche/Korrektur', 'Stil-Transfer', 'Allgemeine Anfrage'];
+  
+  const getFullPrompt = (p) => {
+    return `Kontext: ${usageContext}. Bearbeite das Bild basierend auf dieser User-Anfrage: ${p}`;
+  }
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setPreviewURL(URL.createObjectURL(selectedFile));
+      setEditedImageURL('');
+      setError('');
+    }
+  };
+  
+  // Konvertiert File-Objekt in Base64-String
+  const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]); // Nur der Base64-Teil
+      reader.onerror = error => reject(error);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // --- Gemini API Call (I2I - Bildbearbeitung) ---
+  const editImage = async () => {
+    if (!file) {
+      setError('❌ Bitte zuerst ein Bild hochladen.');
+      return;
+    }
+    setIsLoading(true);
+    setEditedImageURL('');
+    setError('');
+    const fullQuery = getFullPrompt(editPrompt);
+
+    try {
+      const base64ImageData = await fileToBase64(file);
+      const payload = {
+          contents: [
+              {
+                  role: "user",
+                  parts: [
+                      { text: fullQuery }, // Der Text-Prompt zur Bearbeitung
+                      {
+                          inlineData: {
+                              mimeType: file.type, 
+                              data: base64ImageData // Das hochgeladene Bild
+                          }
+                      }
+                  ]
+              }
+          ],
+          generationConfig: {
+              responseModalities: ['IMAGE'] // Signalisiert die I2I-Generierung
+          },
+      };
+        
+      const apiKey = API_KEY_PLACEHOLDER;
+      // Verwenden Sie gemini-2.5-flash-image-preview für Bildbearbeitung (I2I)
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`;
+
+      const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+      const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+
+      if (base64Data) {
+          const imageUrl = `data:${file.type};base64,${base64Data}`;
+          setEditedImageURL(imageUrl);
+      } else {
+          setError('❌ Fehler bei der Bildbearbeitung. Ungültige Antwortstruktur von der Gemini API.');
+          console.error("API Response Error:", result);
+      }
+
+    } catch (err) {
+        setError(`❌ Ein Fehler ist aufgetreten: ${err.message}`);
+        console.error("Fetch Error:", err);
+    } finally {
+        setIsLoading(false);
+    }
+  };
+  
+  return (
+    <div className="p-6 bg-gray-50 min-h-screen rounded-b-xl">
+      <h2 className="text-3xl font-extrabold text-red-700 mb-6 flex items-center">
+        <Edit className="w-8 h-8 mr-3" /> Bildbearbeitung (Bild-zu-Bild / I2I)
+      </h2>
+
+      {/* Verwendungszweck Dropdown */}
+      <div className="mb-4">
+        <label className="block text-gray-700 text-sm font-bold mb-2">Verwendungszweck (STEURN)</label>
+        <select
+          value={usageContext}
+          onChange={(e) => setUsageContext(e.target.value)}
+          className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500 bg-white"
+        >
+          {contextOptions.map(option => (
+            <option key={option} value={option}>{option}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        {/* Upload / Originalbild */}
+        <div className="flex flex-col">
+          <label className="block text-gray-700 text-sm font-bold mb-2 flex items-center">
+            <Upload className="w-4 h-4 mr-1"/> 1. Originalbild hochladen
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm bg-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
+          />
+          <div className="mt-4 bg-white p-4 border border-gray-300 rounded-lg shadow-inner flex justify-center items-center min-h-[150px]">
+            {previewURL ? (
+              <img src={previewURL} alt="Vorschau Original" className="max-w-full max-h-[250px] h-auto rounded-lg shadow-md" />
+            ) : (
+              <div className="text-gray-500 text-center">Bildvorschau (Original)</div>
+            )}
+          </div>
+        </div>
+
+        {/* Bearbeitungsprompt */}
+        <div className="flex flex-col">
+          <label className="block text-gray-700 text-sm font-bold mb-2 flex items-center">
+            <Edit className="w-4 h-4 mr-1"/> 2. Bearbeitungs-Prompt
+          </label>
+          <textarea
+            value={editPrompt}
+            onChange={(e) => setEditPrompt(e.target.value)}
+            placeholder="Beschreiben Sie, wie das Bild bearbeitet werden soll..."
+            rows="8"
+            className="w-full p-3 border border-gray-300 rounded-lg shadow-inner resize-none focus:ring-red-500 focus:border-red-500"
+          />
+        </div>
+      </div>
+      
+      {error && <div className="p-3 bg-red-100 text-red-700 border border-red-300 rounded-lg mb-4">{error}</div>}
+
+      <button
+        onClick={editImage}
+        disabled={isLoading || !file}
+        className="w-full bg-red-600 hover:bg-red-700 text-white font-extrabold py-3 px-4 rounded-lg transition duration-200 shadow-xl disabled:opacity-50 flex items-center justify-center text-lg mb-6"
+      >
+        {isLoading ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Bild wird bearbeitet...
+            </>
+          ) : (
+            <>
+              <Edit className="w-5 h-5 mr-3" /> Bild bearbeiten (I2I)
+            </>
+          )}
+      </button>
+      
+      <div className="mt-6">
+        <h3 className="text-xl font-semibold mb-3 text-gray-700">3. Ergebnis (Kontext: {usageContext})</h3>
+        <div className="bg-white p-4 border border-gray-300 rounded-lg shadow-inner flex justify-center items-center min-h-[300px]">
+          {isLoading && !editedImageURL && (
+            <div className="text-gray-500">Warte auf das bearbeitete Bild...</div>
+          )}
+          {editedImageURL && (
+            <img src={editedImageURL} alt="Bearbeitetes Bild" className="max-w-full h-auto rounded-lg shadow-lg" />
+          )}
+          {!isLoading && !editedImageURL && !error && (
+            <div className="text-gray-500">Das bearbeitete Bild erscheint hier.</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+// --- Hauptkomponente: App mit Tab-Navigation ---
+const App = () => {
+  const [db, setDb] = useState(null);
+  const [auth, setAuth] = useState(null);
+  const [userId, setUserId] = useState('Anonyme Sitzung');
+  const [activeTab, setActiveTab] = useState('Keys');
+
+  // 1. Firebase Initialisierung und Authentifizierung
+  useEffect(() => {
+    if (dbInstance && authInstance) {
+      setDb(dbInstance);
+      setAuth(authInstance);
+
+      const initializeAuth = async () => {
+        try {
+          if (initialAuthToken) {
+            await signInWithCustomToken(authInstance, initialAuthToken);
+          } else {
+            await signInAnonymously(authInstance);
+          }
+        } catch (error) {
+          console.error("Firebase Auth Error:", error);
+          // Fallback: Nutzung einer zufälligen ID, falls Auth fehlschlägt
+          setUserId(`fallback-${crypto.randomUUID()}`);
+        }
+      };
+
+      initializeAuth();
+
+      // Auth State Listener
+      const unsubscribe = onAuthStateChanged(authInstance, (user) => {
+        if (user) {
+          setUserId(user.uid);
+        } else {
+          // Dies wird bei erfolgreicher anonymer Anmeldung nur ausgeführt, wenn der Token fehlt
+          setUserId('Anonyme Sitzung');
+        }
+      });
+      return () => unsubscribe();
+    }
+  }, []); // Nur einmal ausführen
+
+  const TabButton = ({ tabName, icon: Icon, colorClass }) => (
+    <button
+      onClick={() => setActiveTab(tabName)}
+      className={`
+        flex-1 flex flex-col items-center justify-center p-3 rounded-t-xl transition duration-300 ease-in-out font-bold text-sm md:text-base
+        ${activeTab === tabName
+          ? `bg-white ${colorClass} border-t-4 border-b-0 shadow-lg`
+          : `bg-gray-100 text-gray-600 hover:bg-gray-200 border-t-2 border-gray-300`
+        }
+      `}
+    >
+      <Icon className={`w-6 h-6 mb-1 ${activeTab !== tabName && 'text-gray-500'}`} />
+      <span className="hidden md:inline">{tabName}</span>
+    </button>
+  );
+
+  const renderContent = () => {
+    if (!db || !userId || !auth) {
+      return (
+        <div className="p-10 text-center bg-white rounded-lg shadow-xl mt-4">
+          <AlertTriangle className="w-10 h-10 text-yellow-500 mx-auto mb-4"/>
+          <h3 className="text-xl font-bold text-gray-700">Initialisiere Zenith Core Services...</h3>
+          <p className="text-gray-500">Warte auf Firebase/Auth-Verbindung. (User ID: {userId})</p>
+        </div>
+      );
+    }
+
+    switch (activeTab) {
+      case 'Keys':
+        return <ZenithKeyController userId={userId} db={db} />;
+      case 'KI Text/Vision':
+        return <AIMasterTool userId={userId} />;
+      case 'Bildgenerator (T2I)':
+        return <ImageGenerator userId={userId} />;
+      case 'Bildbearbeitung (I2I)':
+        return <ImageEditor userId={userId} />;
+      default:
+        return <p className="p-6">Wählen Sie einen Service.</p>;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 p-0 sm:p-4 font-sans antialiased">
+      <div className="max-w-7xl mx-auto bg-gray-50 rounded-xl shadow-2xl overflow-hidden">
+        {/* Header und Tabs */}
+        <header className="bg-white p-4 shadow-lg sticky top-0 z-10">
+          <div className="text-4xl font-extrabold text-gray-900 mb-4 flex items-center">
+            <Shield className="w-10 h-10 text-blue-800 mr-3" />
+            ZENITH SCSC: Master Control
+          </div>
+          <div className="flex justify-between space-x-1 border-b-4 border-gray-300">
+            <TabButton tabName="Keys" icon={Lock} colorClass="text-blue-700 border-blue-600" />
+            <TabButton tabName="KI Text/Vision" icon={MessageSquare} colorClass="text-green-700 border-green-600" />
+            <TabButton tabName="Bildgenerator (T2I)" icon={Aperture} colorClass="text-purple-700 border-purple-600" />
+            <TabButton tabName="Bildbearbeitung (I2I)" icon={Edit} colorClass="text-red-700 border-red-600" />
+          </div>
+        </header>
+        
+        {/* Inhaltsbereich */}
+        <main className="pb-8">
+          {renderContent()}
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default App;

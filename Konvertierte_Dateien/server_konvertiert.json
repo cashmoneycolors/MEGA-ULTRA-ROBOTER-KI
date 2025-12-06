@@ -1,0 +1,17 @@
+{
+    "name": "NuGet.Mcp.Server",
+    "description": "A Model Context Protocol (MCP) server for NuGet.",
+    "version_detail": {
+      "version": "0.1.0-preview"
+    },
+    "packages": [
+      {
+        "registry_name": "nuget",
+        "name": "NuGet.Mcp.Server",
+        "version": "0.1.0-preview",
+        "runtime_hint": "dnx",
+        "package_arguments": [],
+        "environment_variables": []
+    }
+  ]
+}

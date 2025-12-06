@@ -1,0 +1,146 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\TUNG\\ef-core-tool\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\TUNG\\ef-core-tool\\src\\resource\\createProjectWebView\\ScaffoldingCsharpModel.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\resource\\createProjectWebView\\ScaffoldingCsharpModel.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\TUNG\\ef-core-tool\\src\\resource\\createProjectWebView\\PanelXPODevexpress.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\resource\\createProjectWebView\\PanelXPODevexpress.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\TUNG\\ef-core-tool\\src\\CommandRegister.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\CommandRegister.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\TUNG\\ef-core-tool\\src\\extension.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\extension.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\TUNG\\ef-core-tool\\media\\scaffoldXPODevexpress.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:media\\scaffoldXPODevexpress.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\TUNG\\ef-core-tool\\media\\xpo.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:media\\xpo.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ScaffoldingCsharpModel.ts",
+              "DocumentMoniker": "D:\\TUNG\\ef-core-tool\\src\\resource\\createProjectWebView\\ScaffoldingCsharpModel.ts",
+              "RelativeDocumentMoniker": "src\\resource\\createProjectWebView\\ScaffoldingCsharpModel.ts",
+              "ToolTip": "D:\\TUNG\\ef-core-tool\\src\\resource\\createProjectWebView\\ScaffoldingCsharpModel.ts",
+              "RelativeToolTip": "src\\resource\\createProjectWebView\\ScaffoldingCsharpModel.ts",
+              "ViewState": "AgIAAFkAAAAAAAAAAAAuwHMAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-10-18T02:03:39.532Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:130:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:131:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:133:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:132:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "CommandRegister.ts",
+              "DocumentMoniker": "D:\\TUNG\\ef-core-tool\\src\\CommandRegister.ts",
+              "RelativeDocumentMoniker": "src\\CommandRegister.ts",
+              "ToolTip": "D:\\TUNG\\ef-core-tool\\src\\CommandRegister.ts",
+              "RelativeToolTip": "src\\CommandRegister.ts",
+              "ViewState": "AgIAADEAAAAAAAAAAAAcwEgAAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-10-18T02:03:20.322Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "extension.ts",
+              "DocumentMoniker": "D:\\TUNG\\ef-core-tool\\src\\extension.ts",
+              "RelativeDocumentMoniker": "src\\extension.ts",
+              "ToolTip": "D:\\TUNG\\ef-core-tool\\src\\extension.ts",
+              "RelativeToolTip": "src\\extension.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-10-18T02:03:15.857Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "xpo.html",
+              "DocumentMoniker": "D:\\TUNG\\ef-core-tool\\media\\xpo.html",
+              "RelativeDocumentMoniker": "media\\xpo.html",
+              "ToolTip": "D:\\TUNG\\ef-core-tool\\media\\xpo.html",
+              "RelativeToolTip": "media\\xpo.html",
+              "ViewState": "AgIAACEAAAAAAAAAAAAAACsAAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
+              "WhenOpened": "2025-10-17T09:46:38.298Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "scaffoldXPODevexpress.js",
+              "DocumentMoniker": "D:\\TUNG\\ef-core-tool\\media\\scaffoldXPODevexpress.js",
+              "RelativeDocumentMoniker": "media\\scaffoldXPODevexpress.js",
+              "ToolTip": "D:\\TUNG\\ef-core-tool\\media\\scaffoldXPODevexpress.js",
+              "RelativeToolTip": "media\\scaffoldXPODevexpress.js",
+              "ViewState": "AgIAABcAAAAAAAAAAAAcwDoAAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-10-17T09:41:25.345Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "PanelXPODevexpress.ts",
+              "DocumentMoniker": "D:\\TUNG\\ef-core-tool\\src\\resource\\createProjectWebView\\PanelXPODevexpress.ts",
+              "RelativeDocumentMoniker": "src\\resource\\createProjectWebView\\PanelXPODevexpress.ts",
+              "ToolTip": "D:\\TUNG\\ef-core-tool\\src\\resource\\createProjectWebView\\PanelXPODevexpress.ts",
+              "RelativeToolTip": "src\\resource\\createProjectWebView\\PanelXPODevexpress.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-10-17T08:19:28.793Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PromptFile",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "description": "A description of the prompt file"
+    },
+    "name": {
+      "type": "string",
+      "description": "The name of the prompt file"
+    },
+    "prompt": {
+      "type": "string",
+      "description": "The actual prompt text"
+    },
+    "temperature": {
+      "type": "number",
+      "description": "The temperature for the completion"
+    },
+    "topP": {
+      "type": "number",
+      "description": "The top P value for the completion"
+    },
+    "topK": {
+      "type": "number",
+      "description": "The top K value for the completion"
+    },
+    "minP": {
+      "type": "number",
+      "description": "The minimum P value for the completion"
+    },
+    "presencePenalty": {
+      "type": "number",
+      "description": "The presence penalty for the completion"
+    },
+    "frequencyPenalty": {
+      "type": "number",
+      "description": "The frequency penalty for the completion"
+    },
+    "mirostat": {
+      "type": "number",
+      "description": "The mirostat value for the completion"
+    },
+    "stop": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "An array of stop sequences for the completion"
+    },
+    "maxTokens": {
+      "type": "number",
+      "description": "The maximum number of tokens for the completion"
+    },
+    "numThreads": {
+      "type": "number",
+      "description": "The number of threads to use for the completion"
+    },
+    "keepAlive": {
+      "type": "number",
+      "description": "The keep alive value for the completion"
+    },
+    "raw": {
+      "type": "boolean",
+      "description": "Whether to use raw output for the completion"
+    },
+    "stream": {
+      "type": "boolean",
+      "description": "Whether to stream the completion output"
+    }
+  },
+  "required": ["prompt"]
+}

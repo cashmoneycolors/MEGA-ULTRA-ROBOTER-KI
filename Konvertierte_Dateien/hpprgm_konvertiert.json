@@ -1,0 +1,5 @@
+{
+    "name": "HP Prime Program",
+    "description": "Plantilla para archivos hpprgm",
+    "body": "EXPORT example_name()\nBEGIND\n\nEND;"
+}

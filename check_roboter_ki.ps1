@@ -1,0 +1,1 @@
+check_roboter_ki.ps1chmod +x check_roboter_ki.sh

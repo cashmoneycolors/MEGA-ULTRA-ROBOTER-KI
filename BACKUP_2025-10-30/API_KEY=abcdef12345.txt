@@ -1,0 +1,7 @@
+API_KEY=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
+
+
+
+APP_ID=myappid98765
+
+openapi.yaml

@@ -1,0 +1,106 @@
+{
+  "name": "linter",
+  "version": "1.0.0",
+  "description": "A code review linter tool that reports linter issues only on lines changed in a given diff. Supports multiple languages: JavaScript and TypeScript using ESLint, and C/C++ using cppcheck. Accepts a unified diff (as string or file), codebase root, and an optional criticality filter (high, medium, low). Returns only issues on changed lines, with severity filtering. Essential for: automated code review, CI pipelines, and targeted linting of pull requests.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "diff": {
+        "type": "string",
+        "description": "Unified diff as a string or path to a diff file"
+      },
+      "root_dir": {
+        "type": "string",
+        "description": "Root directory of the codebase (default: current directory)",
+        "default": "."
+      },
+      "criticality_filter": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": ["high", "medium", "low"]
+        },
+        "description": "List of criticality levels to include (e.g., ['high', 'medium'])",
+        "default": ["high", "medium", "low"]
+      }
+    },
+    "required": ["diff"]
+  },
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "Whether the linting operation was successful"
+      },
+      "issues": {
+        "type": "array",
+        "description": "List of linter issues found on changed lines",
+        "items": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "type": "string",
+              "description": "Relative path to the file with the issue"
+            },
+            "line": {
+              "type": "integer",
+              "description": "Line number of the issue"
+            },
+            "column": {
+              "type": ["integer", "null"],
+              "description": "Column number of the issue (if available)"
+            },
+            "endLine": {
+              "type": ["integer", "null"],
+              "description": "End line number of the issue (if applicable)"
+            },
+            "endColumn": {
+              "type": ["integer", "null"],
+              "description": "End column number of the issue (if applicable)"
+            },
+            "message": {
+              "type": "string",
+              "description": "Linter message"
+            },
+            "ruleId": {
+              "type": ["string", "null"],
+              "description": "Linter rule identifier"
+            },
+            "criticality": {
+              "type": "string",
+              "enum": ["high", "medium", "low"],
+              "description": "Criticality of the issue"
+            },
+            "tool": {
+              "type": "string",
+              "enum": ["eslint", "cppcheck"],
+              "description": "The linting tool that generated this issue"
+            }
+          },
+          "required": ["file", "line", "message", "criticality", "tool"]
+        }
+      },
+      "stats": {
+        "type": "object",
+        "description": "Summary statistics about the linting run",
+        "properties": {
+          "files_linted": {
+            "type": "integer",
+            "description": "Number of files that were linted"
+          },
+          "issues_found": {
+            "type": "integer",
+            "description": "Number of issues found"
+          }
+        },
+        "required": ["files_linted", "issues_found"]
+      },
+      "error": {
+        "type": ["string", "null"],
+        "description": "Error message if the operation failed"
+      }
+    },
+    "required": ["success", "issues", "stats"]
+  }
+}

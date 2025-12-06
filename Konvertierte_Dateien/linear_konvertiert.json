@@ -1,0 +1,230 @@
+{
+    "name": "linear",
+    "description": "Linear integration tool that interfaces with Linear's GraphQL API to provide human-readable output. Features secure credential management, issue tracking, team management, project management and basic issue operations. Supports both stored credentials and per-request API keys.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "api_key": {
+                "type": "string",
+                "description": "Linear API key (optional if credentials are stored)"
+            },
+            "operation": {
+                "type": "string",
+                "description": "The Linear operation to perform",
+                "enum": [
+                    "save_credentials",
+                    "get_viewer",
+                    "list_teams",
+                    "list_projects",
+                    "get_project",
+                    "create_project",
+                    "update_project",
+                    "get_team_issues",
+                    "get_issue",
+                    "create_issue",
+                    "update_issue",
+                    "assign_issue",
+                    "get_status_ids_by_team",
+                    "get_user_ids_by_team"
+                ]
+            },
+            "args": {
+                "type": "object",
+                "description": "Arguments for the Linear operation",
+                "properties": {
+                    "team_id": {
+                        "type": "string",
+                        "description": "Team identifier for team-specific operations"
+                    },
+                    "team_ids":{
+                        "type": "string",
+                        "description": "list of Team identifiers"
+                    },
+                    "project_id": {
+                        "type": "string",
+                        "description": "Project identifier for project-specific operations"
+                    },
+                    "issue_id": {
+                        "type": "string",
+                        "description": "Issue identifier (e.g., 'ABC-123' or full ID)"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Name for project creation or update"
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "Title for issue creation or update"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Description for issue or project creation/update"
+                    },
+                    "status_id": {
+                        "type": "string",
+                        "description": "State/status ID for issue updates for a given team"
+                    },
+                    "user_id":{
+                        "type": "string",
+                        "description": "User ID to assign issues to the corresponding user for a given team"
+                    },
+                    "include_archived": {
+                        "type": "boolean",
+                        "description": "Whether to include archived issues in results",
+                        "default": false
+                    }
+                }
+            }
+        },
+        "required": ["operation"]
+    },
+    "output_schema": {
+        "type": "string",
+        "description": "Human-readable formatted output of the Linear operation"
+    },
+    "examples": [
+        {
+            "description": "Save Linear credentials",
+            "input": {
+                "operation": "save_credentials",
+                "api_key": "lin_api_xxxxxxxxxxxx"
+            },
+            "expected_output": "Credentials saved successfully"
+        },
+        {
+            "description": "Get authenticated user information",
+            "input": {
+                "operation": "get_viewer"
+            },
+            "expected_output": "User: John Doe\nEmail: john@example.com\nID: user_12345"
+        },
+        {
+            "description": "List all teams",
+            "input": {
+                "operation": "list_teams"
+            },
+            "expected_output": "Teams:\n\nName: Engineering\nKey: ENG\nID: team_12345\nDescription: Core engineering team\n--------------------------------------------------\nName: Design\nKey: DES\nID: team_67890\nDescription: Product design team"
+        },
+        {
+            "description": "List all projects",
+            "input": {
+                "operation": "list_projects"
+            },
+            "expected_output": "Projects:\n\nName: Q4 Roadmap\nID: project_12345\nTeam: Engineering\nState: in_progress\nCreated: 2023-11-15\nUpdated: 2023-11-16\nDescription: Q4 development initiatives\n--------------------------------------------------"
+        },
+        {
+            "description": "Get project details",
+            "input": {
+                "operation": "get_project",
+                "args": {
+                    "project_id": "b475341c-ddy3-4ea3-a2ed-40c415d3v0c5"
+                }
+            },
+            "expected_output": "Project: Q4 Roadmap\nID: project_12345\nTeam: Engineering\nLead: Jane Smith\nState: in_progress\nCreated: 2023-11-15\nUpdated: 2023-11-16\n\nDescription:\nQ4 development initiatives\n\nIssues:\n- ENG-123: Implement new feature (In Progress)\n- ENG-124: Fix critical bug (Todo)"
+        },
+        {
+            "description": "Create new project. do not assign team_ids yourself, if user has not given any team name then ask for that. team_ids is list of ids and is required field along with name",
+            "input": {
+                "operation": "create_project",
+                "args": {
+                    "name": "Q1 2024 Planning",
+                    "team_ids": "['2646f548-6dbe-41a4-b071-a54e4c030ac2', '4626v548-6dbe-41a4-b078-a54e9c030ac2' ]",
+                    "description": "Planning and execution of Q1 2024 initiatives",
+                    "content": "Content for the project"
+                }
+            },
+            "expected_output": "Created project: Q1 2024 Planning (Team: Engineering, ID: project_67890)"
+        },
+        {
+            "description": "Update existing project",
+            "input": {
+                "operation": "update_project",
+                "args": {
+                    "project_id": "b475341c-ddy3-4ea3-a2ed-40c415d3v0c5",
+                    "name": "Q4 2023 Roadmap",
+                    "description": "Updated Q4 development initiatives",
+                    "content": "Content for the project"
+                }
+            },
+            "expected_output": "Updated project: Q4 2023 Roadmap (ID: project_12345)"
+        },
+        {
+            "description": "Get team issues",
+            "input": {
+                "operation": "get_team_issues",
+                "args": {
+                    "team_id": "2646f548-6dbe-41a4-b071-a54e4c030ac2",
+                    "include_archived": false
+                }
+            },
+            "expected_output": "Issues for team Engineering:\n\nID: ENG-123\nTitle: Implement new feature\nStatus: In Progress\nAssignee: John Doe\nCreated: 2023-11-15\nUpdated: 2023-11-16\nDescription: New feature implementation details\n--------------------------------------------------"
+        },
+        {
+            "description": "Get specific issue details",
+            "input": {
+                "operation": "get_issue",
+                "args": {
+                    "issue_id": "ENG-123"
+                }
+            },
+            "expected_output": "Title: Implement new feature\nID: ENG-123\nTeam: Engineering\nStatus: In Progress\nAssignee: John Doe\nCreated: 2023-11-15\nUpdated: 2023-11-16\nLabels: feature, high-priority\nDescription: New feature implementation details"
+        },
+        {
+            "description": "Create new issue",
+            "input": {
+                "operation": "create_issue",
+                "args": {
+                    "team_id": "2646f548-6dbe-41a4-b071-a54e4c030ac2",
+                    "title": "New bug report",
+                    "description": "Critical bug needs immediate attention"
+                }
+            },
+            "expected_output": "Created issue ENG-124: New bug report"
+        },
+        {
+            "description": "Update existing issue",
+            "input": {
+                "operation": "update_issue",
+                "args": {
+                    "issue_id": "ENG-123",
+                    "title": "Updated feature implementation",
+                    "description": "Updated implementation details",
+                    "status_id": "e8bde118-42f2-4365-8675-4f48a9506654"
+                }
+            },
+            "expected_output": "Updated issue ENG-123: Updated feature implementation (Status: Done)"
+        },
+        { 
+            "description": "Assign an issue to a given user, it is implied that the user is in the same team as the issue or else the tool will throw an error",
+            "input":{
+                "operation": "assign_issue",
+                "args":{
+                    "issue_id": "ENG-123",
+                    "user_id": "d7529b70-6d5d-4451-9b6a-12ce379d6a14"
+                }
+            },
+            "expected_output": "Assigned issue ENG-123: Updated feature implementation (Assigned to: UserName)"
+        },
+        {
+            "description": "Get status ids for a specific team",
+            "input": {
+                "operation": "get_status_ids_by_team",
+                "args": {
+                    "team_id": "2646f548-6dbe-41a4-b071-a54e4c030ac2"
+                },
+                "expected_output": "Here are the fetched status ids for this team:\n StatusName: StatusID\n"
+            }
+        },
+        {
+            "description": "Get/list user ids for a specific team",
+            "input": {
+                "operation": "get_user_ids_by_team",
+                "args": {
+                    "team_id": "2646f548-6dbe-41a4-b071-a54e4c030ac2"
+                },
+                "expected_output": "Here are the fetched user ids for this team:\n UserName: UserID\n"
+            }
+        }
+
+    ]
+}

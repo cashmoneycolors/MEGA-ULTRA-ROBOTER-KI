@@ -1,0 +1,8 @@
+C:\Users\Laptop\Desktop\Projekte\🤖ROBOTER_KI_APP.exe
+C:\Users\Laptop\Desktop\Projekte\🤖ROBOTER_KI_APP.dll
+C:\Users\Laptop\Desktop\Projekte\🤖ROBOTER_KI_APP.deps.json
+C:\Users\Laptop\Desktop\Projekte\🤖ROBOTER_KI_APP.runtimeconfig.json
+C:\Users\Laptop\Desktop\Projekte\🤖ROBOTER_KI_APP.pdb
+C:\Users\Laptop\Desktop\Projekte\System.CodeDom.dll
+C:\Users\Laptop\Desktop\Projekte\System.Management.dll
+C:\Users\Laptop\Desktop\Projekte\runtimes\win\lib\net8.0\System.Management.dll

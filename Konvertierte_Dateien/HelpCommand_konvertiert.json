@@ -1,0 +1,33 @@
+[
+    {
+        "command": "/review",
+        "description": "Reviews code changes in the opened repository and lists issues with suggested fixes. By default, it compares local changes against the remote branch.",
+        "params": [
+            {
+                "name": "#localchanges",
+                "description": "Reviews local changes vs. remote branch (default). e.g., ",
+                "command": "/review #localchanges"
+            },
+            {
+                "name": "#stagedchanges",
+                "description": "Reviews staged changes vs. remote branch. e.g., ",
+                "command": "/review #stagedchanges"
+            },
+            {
+                "name": "#lastcommit",
+                "description": "Reviews the latest commit in the branch. e.g., ",
+                "command": "/review #lastcommit"
+            },
+            {
+                "name": "#commit",
+                "description": "Reviews a specific commit or commit range. e.g., ",
+                "command": "/review #commit=commithash or /review #commit=commithash1..commithash2 "
+            }
+        ]
+    },
+    {
+        "command": "/createpr",
+        "description": "Create a pull request with an AI-generated title and description. Select the target branch when prompted.",
+        "params": []
+    }
+]

@@ -1,0 +1,100 @@
+{
+    "name": "code_symbol_search",
+    "version": "1.0.0",
+    "description": "A powerful code symbol search tool that precisely locates definitions and usages of programming symbols across a codebase. This tool helps quickly find where functions, methods, variables, classes, and other named symbols are defined and used, making it easier to understand code relationships and dependencies. It uses compiler-accurate reference tracking for precise results and falls back to fuzzy text matching when necessary. Ideal for navigating unfamiliar codebases, understanding symbol relationships, and tracking dependencies between components. This should be your first choice when searching for specific code elements by name.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "keyword": {
+                "type": "string",
+                "description": "Symbol to search for (function name, variable, constant, class name, etc.), case sensitive keyword / identifier"
+            },
+            "file": {
+                "type": "string",
+                "description": "File path to known location of symbol definition or usage occurence, required for precise search. use along with line parameter"
+            },
+            "line": {
+                "type": "integer",
+                "description": "Line number within known file of symbol definition or usage occurence, required for precise search. use along with file parameter"
+            },
+            "search": {
+                "type": "string",
+                "description": "Search mode: 'usage', 'definition', or 'all'. Default: auto (if input line contains a definition, search for usages; if input line contains a usage, search for definition)",
+                "enum": ["usage", "definition", "all", "default"],
+                "default": "default"
+            },
+            "codebase_root": {
+                "type": "string",
+                "description": "Absolute path of root directory of the codebase to search for symbols (default: current directory)."
+            }
+        },
+        "required": [
+            "keyword", "file", "line", "codebase_root"
+        ]
+    },
+    "output_schema": {
+        "type": "object",
+        "properties": {
+            "success": {
+                "type": "boolean",
+                "description": "Indicates whether the search operation was successful"
+            },
+            "elaborate_results": {
+                "type": "array",
+                "description": "Array of elaborate search results (with content)",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "filepath": {
+                            "type": "string",
+                            "description": "Path to the file containing the symbol"
+                        },
+                        "line": {
+                            "type": "integer",
+                            "description": "Line number where the symbol appears (for single line results)"
+                        },
+                        "start_line": {
+                            "type": "integer",
+                            "description": "Starting line number (for block results)"
+                        },
+                        "end_line": {
+                            "type": "integer",
+                            "description": "Ending line number (for block results)"
+                        },
+                        "type": {
+                            "type": "string",
+                            "description": "Type of the symbol (function, variable, class, etc.)"
+                        },
+                        "precision": {
+                            "type": "string",
+                            "description": "Search alogorithm used precise (compiler accurate reference) or fuzzy (text search in code base)"
+                        },
+                        "line_content": {
+                            "type": "string",
+                            "description": "Content of the line (for single line results)"
+                        },
+                        "block_content": {
+                            "type": "array",
+                            "description": "Content of the block (for block results)",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "required": [
+                        "filepath",
+                        "type",
+                        "precision"
+                    ]
+                }
+            },
+            "error": {
+                "type": "string",
+                "description": "Error message if the search operation failed"
+            }
+        },
+        "required": [
+            "success"
+        ]
+    }
+}

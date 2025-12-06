@@ -1,0 +1,10 @@
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\obj\Debug\net6.0\MegaUltraAISystem.csproj.AssemblyReference.cache
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\obj\Debug\net6.0\MegaUltraAISystem.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\obj\Debug\net6.0\MegaUltraAISystem.AssemblyInfoInputs.cache
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\obj\Debug\net6.0\MegaUltraAISystem.AssemblyInfo.cs
+C:\Users\Laptop\Desktop\MEGA_ULTRA_SYSTEM\AI_CORE\obj\Debug\net6.0\MegaUltraAISystem.csproj.CoreCompileInputs.cache
+C:\Users\Laptop\Desktop\AI_CORE\obj\Debug\net6.0\MegaUltraAISystem.csproj.AssemblyReference.cache
+C:\Users\Laptop\Desktop\AI_CORE\obj\Debug\net6.0\MegaUltraAISystem.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Laptop\Desktop\AI_CORE\obj\Debug\net6.0\MegaUltraAISystem.AssemblyInfoInputs.cache
+C:\Users\Laptop\Desktop\AI_CORE\obj\Debug\net6.0\MegaUltraAISystem.AssemblyInfo.cs
+C:\Users\Laptop\Desktop\AI_CORE\obj\Debug\net6.0\MegaUltraAISystem.csproj.CoreCompileInputs.cache

@@ -1,0 +1,34 @@
+{
+    "name": "perplexity_search",
+    "description": "A Perplexity AI-powered web search tool that provides intelligent search results with real-time data and citations. Returns both conversational answers and source links. Useful for research, current information gathering, and getting comprehensive answers with proper citations. Use source links returned to retrieve more information",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "query": {
+                "type": "string",
+                "description": "The search query to look up"
+            },
+            "num_results": {
+                "type": "integer",
+                "description": "Number of results to return (max 10)",
+                "minimum": 1,
+                "maximum": 10,
+                "default": 5
+            },
+            "model": {
+                "type": "string",
+                "description": "Perplexity model to use",
+                "enum": ["sonar-pro", "sonar", "sonar-reasoning", "sonar-reasoning-pro", "r1-1776"],
+                "default": "sonar-pro"
+            },
+            "max_tokens": {
+                "type": "integer",
+                "description": "Maximum tokens in response",
+                "minimum": 100,
+                "maximum": 4000,
+                "default": 2500
+            }
+        },
+        "required": ["query"]
+    }
+}

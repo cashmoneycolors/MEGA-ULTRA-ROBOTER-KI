@@ -18,6 +18,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.IO;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Text.Json;
 using System.Linq;
@@ -188,5 +189,11 @@ public class GazOpenAIIntegrator : INetworkComponent, IDisposable
 		 // basierend auf den MAC-Adressen, wie im Support-Modus (--show-hash) verwendet.
 		 return "GENERATED_MAC_HASH_FOR_LICENSING";
 	}
+
+    public void Dispose()
+    {
+        // Hier würde die Logik zur Ressourcenfreigabe implementiert
+        // z.B. _cts.Cancel(); _serverProcess?.Dispose();
+    }
 }
 

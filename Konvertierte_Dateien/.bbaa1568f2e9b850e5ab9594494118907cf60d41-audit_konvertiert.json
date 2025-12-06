@@ -1,0 +1,55 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 30
+    },
+    "auditLog": "c:\\Users\\Laptop\\.bito\\localcodesearch\\log\\.bbaa1568f2e9b850e5ab9594494118907cf60d41-audit.json",
+    "files": [
+        {
+            "date": 1760427796203,
+            "name": "c:\\Users\\Laptop\\.bito\\localcodesearch\\log\\log.json-2025-10-14-09.log",
+            "hash": "bf6ec8e484741a8b939f2440174b543ace8fec8d816da07167f4600d756e2eec"
+        },
+        {
+            "date": 1760429265243,
+            "name": "c:\\Users\\Laptop\\.bito\\localcodesearch\\log\\log.json-2025-10-14-10.log",
+            "hash": "0f92515977de8ce47c3278a2ffd7001143f69499510d88f2a3c2528ebceae8ff"
+        },
+        {
+            "date": 1760433198191,
+            "name": "c:\\Users\\Laptop\\.bito\\localcodesearch\\log\\log.json-2025-10-14-11.log",
+            "hash": "c26fb102dbca2a30eb6d834441f34c63dcabdedfe1c3177090983b074a359b88"
+        },
+        {
+            "date": 1761550825508,
+            "name": "c:\\Users\\Laptop\\.bito\\localcodesearch\\log\\log.json-2025-10-27-08.log",
+            "hash": "8c8a666e35c1200db81cb54c12066e63058c3883abb9f5b435b690ee0adc4c98"
+        },
+        {
+            "date": 1761869529248,
+            "name": "c:\\Users\\Laptop\\.bito\\localcodesearch\\log\\log.json-2025-10-31-01.log",
+            "hash": "c1e62480ba1bf67a51778af78bde0519f9df3ccc3ddbc77a605f243ce88e63cc"
+        },
+        {
+            "date": 1761876969446,
+            "name": "c:\\Users\\Laptop\\.bito\\localcodesearch\\log\\log.json-2025-10-31-03.log",
+            "hash": "c78665e0dcdbf330eed21abc29533da900a8e41df533a8dd81a80ea58182a22e"
+        },
+        {
+            "date": 1761946826005,
+            "name": "c:\\Users\\Laptop\\.bito\\localcodesearch\\log\\log.json-2025-10-31-22.log",
+            "hash": "31c4764d45bc71f1b6f14600ed299e81bbfd43c6d9e2dffde8a92373609de005"
+        },
+        {
+            "date": 1762094715252,
+            "name": "c:\\Users\\Laptop\\.bito\\localcodesearch\\log\\log.json-2025-11-02-15.log",
+            "hash": "89d00b5cefde4e7ffb593f1c52cea9540f8d1700e8cd3046c62dceb9f50e505d"
+        },
+        {
+            "date": 1762387086350,
+            "name": "c:\\Users\\Laptop\\.bito\\localcodesearch\\log\\log.json-2025-11-06-00.log",
+            "hash": "2b66f749e85cdcd620e130ddbde65c0fff4e91744f110e803425df3b00dbfa36"
+        }
+    ],
+    "hashType": "sha256"
+}
