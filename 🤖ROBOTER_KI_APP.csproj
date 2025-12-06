@@ -6,5 +6,18 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <StartupObject>RoboterKIMaxUltra.RoboterKIMaxUltraApp</StartupObject>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="System.Management" Version="8.0.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <!-- Exclude all backup directories from compilation -->
+    <Compile Remove="BACKUP_*/**/*.cs" />
+    <Compile Remove="AI_CORE/**/*.cs" />
+    <Compile Remove="RoboterKIUltraController.cs" />
+    <None Include="AI_CORE/**/*.cs" />
+  </ItemGroup>
 </Project>

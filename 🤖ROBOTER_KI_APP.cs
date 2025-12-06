@@ -10,9 +10,11 @@ using System.Net.Http;
 using System.Net.Sockets;
 using System.Linq;
 using System.Management;
+using System.Runtime.Versioning;
 
 namespace RoboterKIMaxUltra
 {
+    [SupportedOSPlatform("windows")]
     public class RoboterKIMaxUltraApp
     {
         // --- Ultra-Maxima Kernkonstanten ---
@@ -56,14 +58,14 @@ namespace RoboterKIMaxUltra
              ***********************************************************************/
 
             // --- Secret-Handling: Niemals hardcodieren! ---
-            string jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
+            string? jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
             if (string.IsNullOrEmpty(jwtSecret)) {
                 jwtSecret = Guid.NewGuid().ToString("N");
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("[WARNUNG] JWT_SECRET ist NICHT gesetzt! Es wurde ein temporäres Secret generiert. Bitte Secret als Umgebungsvariable setzen (z.B. $env:JWT_SECRET=...) – Niemals im Code speichern!");
                 Console.ResetColor();
             }
-            string adminPasswordHash = Environment.GetEnvironmentVariable("ADMIN_PASSWORD_HASH");
+            string? adminPasswordHash = Environment.GetEnvironmentVariable("ADMIN_PASSWORD_HASH");
             if (string.IsNullOrEmpty(adminPasswordHash)) {
                 adminPasswordHash = "admin";
                 Console.ForegroundColor = ConsoleColor.Yellow;
@@ -142,7 +144,7 @@ namespace RoboterKIMaxUltra
                 }
             }
             _cts.Cancel();
-            if (_serverProcess != null) _serverProcess.Kill();
+            if (_serverProcess != null) _serverProcess?.Kill();
         }
 
         // --- Autonomer Start & Self-Healing ---
@@ -175,7 +177,7 @@ namespace RoboterKIMaxUltra
                 // Bereitschaftsprüfung
                 if (!await WaitForServerReady(RunningPort, _cts.Token))
                 {
-                    if (_serverProcess != null) _serverProcess.Kill();
+                    if (_serverProcess != null) _serverProcess?.Kill();
                     return (false, "Node.js Serverstart fehlgeschlagen.");
                 }
             }
@@ -226,7 +228,7 @@ namespace RoboterKIMaxUltra
                 if (!await CheckServerHeartbeat(RunningPort))
                 {
                     LogJson(new { level = "error", msg = "Heartbeat-Check fehlgeschlagen. Server wird neu gestartet." });
-                    _serverProcess.Kill();
+                    _serverProcess?.Kill();
                     await StartKeyServerAutonom();
                 }
             }
@@ -463,7 +465,7 @@ namespace RoboterKIMaxUltra
              *
              * Für lokale Entwicklung ist dies unkritisch. Für Produktion: Siehe SECURITY_DOC_AND_TESTS.md und passe die Serialisierung an!
              */
-            return JsonSerializer.Deserialize<UltraConfig>(json);
+            return JsonSerializer.Deserialize<UltraConfig>(json) ?? new UltraConfig();
         }
         private static void SaveConfigAtomically(UltraConfig cfg)
         {
@@ -545,3 +547,9 @@ namespace RoboterKIMaxUltra
         }
     }
 }
+
+
+
+
+
+
