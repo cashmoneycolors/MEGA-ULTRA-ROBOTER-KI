@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap mp rescap">
+
+  <Identity
+    Name="MegaUltraCreativeStudio"
+    Publisher="CN=MEGA ULTRA SYSTEMS"
+    Version="1.0.0.0" />
+
+  <mp:PhoneIdentity PhoneProductId="12345678-90ab-cdef-1234-567890abcdef" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+
+  <Properties>
+    <DisplayName>MEGA ULTRA Creative Studio</DisplayName>
+    <PublisherDisplayName>MEGA ULTRA SYSTEMS</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+    <Description>Professional AI-powered creative application suite. Generate logos, apps, and designs with autonomous AI technology. Like having Gemini for creative work!</Description>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.0.0" MaxVersionTested="10.0.19041.0" />
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.14393.0" MaxVersionTested="10.0.19041.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="x-generate"/>
+    <Resource Language="en-us"/>
+    <Resource Language="de-de"/>
+  </Resources>
+
+  <Applications>
+    <Application Id="MegaUltraCreativeStudio"
+      Executable="mega_ultra_launcher.exe"
+      EntryPoint="Windows.FullTrustApplication">
+      
+      <uap:VisualElements
+        DisplayName="MEGA ULTRA Creative Studio"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png"
+        Description="AI-powered creative suite for autonomous design generation"
+        BackgroundColor="transparent">
+        
+        <uap:DefaultTile 
+          Wide310x150Logo="Assets\Wide310x150Logo.png" 
+          Square71x71Logo="Assets\SmallTile.png"
+          Square310x310Logo="Assets\LargeTile.png"
+          ShortName="MEGA ULTRA">
+          
+          <uap:ShowNameOnTiles>
+            <uap:ShowOn Tile="square150x150Logo"/>
+            <uap:ShowOn Tile="wide310x150Logo"/>
+            <uap:ShowOn Tile="square310x310Logo"/>
+          </uap:ShowNameOnTiles>
+        </uap:DefaultTile>
+        
+        <uap:SplashScreen Image="Assets\SplashScreen.png" />
+        
+        <uap:InitialRotationPreference>
+          <uap:Rotation Preference="landscape"/>
+          <uap:Rotation Preference="portrait"/>
+        </uap:InitialRotationPreference>
+      </uap:VisualElements>
+
+      <Extensions>
+        <uap:Extension Category="windows.fileTypeAssociation">
+          <uap:FileTypeAssociation Name="megaultraproject">
+            <uap:SupportedFileTypes>
+              <uap:FileType>.muproject</uap:FileType>
+              <uap:FileType>.mudesign</uap:FileType>
+            </uap:SupportedFileTypes>
+            <uap:DisplayName>MEGA ULTRA Project</uap:DisplayName>
+            <uap:Logo>Assets\FileTypeLogo.png</uap:Logo>
+            <uap:EditFlags AlwaysUnsafe="true"/>
+          </uap:FileTypeAssociation>
+        </uap:Extension>
+
+        <uap:Extension Category="windows.protocol">
+          <uap:Protocol Name="megaultra">
+            <uap:Logo>Assets\ProtocolLogo.png</uap:Logo>
+            <uap:DisplayName>MEGA ULTRA Protocol</uap:DisplayName>
+          </uap:Protocol>
+        </uap:Extension>
+
+        <uap:Extension Category="windows.appService" EntryPoint="App">
+          <uap:AppService Name="megaultra-service"/>
+        </uap:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <Capability Name="internetClient" />
+    <Capability Name="privateNetworkClientServer" />
+    <uap:Capability Name="documentsLibrary" />
+    <uap:Capability Name="picturesLibrary" />
+    <uap:Capability Name="videosLibrary" />
+    <uap:Capability Name="musicLibrary" />
+    <uap:Capability Name="removableStorage" />
+    <rescap:Capability Name="runFullTrust" />
+    <rescap:Capability Name="allowElevation" />
+  </Capabilities>
+</Package>

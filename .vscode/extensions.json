@@ -14,7 +14,6 @@
         "nodesource.vscode-for-node-js-development-pack",
         "mukundan.nodejs-docs",
         "donjayamanne.python-extension-pack",
-        "ms-python.python",
         "njpwerner.autodocstring",
         "wholroyd.jinja",
         "ms-windows-ai-studio.windows-ai-studio",
@@ -31,6 +30,8 @@
         "xabikos.javascriptsnippets",
         "ms-vscode.cpptools",
         "kingleo.openurl",
-        "exodus-tola.deepseek-copilot"
+        "exodus-tola.deepseek-copilot",
+        "ms-python.debugpy",
+        "ms-python.python"
     ]
 }

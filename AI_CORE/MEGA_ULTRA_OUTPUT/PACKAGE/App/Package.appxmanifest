@@ -11,15 +11,13 @@
     Publisher="CN=MEGA ULTRA SYSTEMS"
     Version="1.0.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="mega-ultra-creative-studio" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="12345678-90ab-cdef-1234-567890abcdef" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>MEGA ULTRA Creative Studio</DisplayName>
     <PublisherDisplayName>MEGA ULTRA SYSTEMS</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
     <Description>Professional AI-powered creative application suite. Generate logos, apps, and designs with autonomous AI technology. Like having Gemini for creative work!</Description>
-    <PackageIntegrityLevel>mediumIL</PackageIntegrityLevel>
-    <PackageIntegrityPolicy>storeOrigin</PackageIntegrityPolicy>
   </Properties>
 
   <Dependencies>
@@ -86,12 +84,9 @@
           </uap:Protocol>
         </uap:Extension>
 
-        <Extension Category="windows.startupTask">
-          <StartupTask
-            TaskId="MegaUltraStartup"
-            Enabled="false"
-            DisplayName="MEGA ULTRA Creative Studio" />
-        </Extension>
+        <uap:Extension Category="windows.appService" EntryPoint="App">
+          <uap:AppService Name="megaultra-service"/>
+        </uap:Extension>
       </Extensions>
     </Application>
   </Applications>
