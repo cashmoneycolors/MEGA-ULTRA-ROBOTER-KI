@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import os
-import openai
 import logging
 
 # Load environment variables
@@ -98,7 +97,15 @@ def generate_openai(request: OpenAIRequest):
         raise HTTPException(status_code=400, detail="OpenAI API key not set")
 
     try:
-        client = openai.OpenAI(api_key=OPENAI_API_KEY)
+        try:
+            from openai import OpenAI
+
+            client = OpenAI(api_key=OPENAI_API_KEY)
+        except Exception:
+            import openai
+
+            client = openai.OpenAI(api_key=OPENAI_API_KEY)
+
         response = client.chat.completions.create(
             model=request.model,
             messages=[{"role": "user", "content": request.prompt}]

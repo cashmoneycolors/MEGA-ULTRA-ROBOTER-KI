@@ -1,1 +1,17 @@
-{ "recommendations": [ "ms-python.debugpy", "ms-python.python", "ms-python.pylance", "ms-python.black-formatter", "ms-python.flake8", "ms-vscode.powershell", "ms-vscode.vscode-json", "ms-vscode-remote.remote-containers", "GitHub.copilot", "GitHub.copilot-chat" ] }
+{
+    "recommendations": [
+        "ms-python.debugpy",
+        "ms-python.python",
+        "ms-python.pylance",
+        "ms-python.black-formatter",
+        "ms-python.flake8",
+        "ms-vscode.powershell",
+        "ms-vscode.vscode-json",
+        "ms-vscode-remote.remote-containers",
+        "GitHub.copilot-chat",
+        "ms-dotnettools.csdevkit",
+        "amazonwebservices.amazon-q-vscode",
+        "donjayamanne.githistory",
+        "ms-edgedevtools.vscode-edge-devtools"
+    ]
+}

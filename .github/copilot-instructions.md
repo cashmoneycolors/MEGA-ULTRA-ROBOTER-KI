@@ -1,15 +1,17 @@
 # MEGA ULTRA ROBOTER KI - Copilot Instructions
 
 ## Architektur-Übersicht
-Hybrides C#/.NET + Python autonomes KI-System mit Multi-Projekt-Integration. **Production-Ready** mit 64.95 MB kompiliertem Executable.
+Hybrides C#/.NET + Python System mit Sideboards (FastAPI) und optionalem Frontend. Das Repo enthält sowohl Produktiv-Artefakte (Executable) als auch Dev-/Integrationscode.
 
-**Core-Komponenten:**
-- `🤖ROBOTER_KI_APP.cs` (559 Zeilen): C# Haupt-App mit Quantum-Integration
-- `main.py`: FastAPI Backend mit OpenAI-Integration & Authentication
-- `mega_roboter_ki.py`: Python Automation Core
-- `integration_hub.py`: Universal Integration Hub für alle Projekte
-- `AI_CORE/`: MegaUltraAIIntegrator.csproj
-- `modules/`: 40+ Python-Module (QuantumAvatar-Integration)
+**Core-Komponenten (wichtigste Entry-Points/Orte):**
+- `🤖ROBOTER_KI_APP.cs`: C# Haupt-App (Windows), startet/überwacht u. a. Node-Server und Sideboards
+- `main.py`: FastAPI API mit Header-Auth (API_KEY/APP_ID) und OpenAI-Integration
+- `modules/ki_sideboard.py`: FastAPI „Sideboard“ zur Modulsteuerung + KI-Endpunkte (nutzt strikte Key-Policy)
+- `core/key_check.py`: zentrale Key-Policy (`REQUIRED_KEYS`, `check_all_keys()`, `@require_keys`)
+- `mega_roboter_ki.py`: Python Automation/Orchestrierung (Wizard/Batch-Workflows)
+- `integration_hub.py`: Bridge/Hub für integrierte Projekte
+- `AI_CORE/`: .NET/C# AI-Integrationen
+- `ZENITH_FRONTEND/`: optionales Frontend (Node/React)
 
 **Projektbeziehung:**
 - `c:\Users\nazmi\-MEGA-ULTRA-ROBOTER-KI\` - Original Source Repository
@@ -32,11 +34,24 @@ RoboterKIMaxUltraApp.Main()
 
 **Python Layer (Services):**
 ```python
-# main.py - FastAPI API
+# main.py - FastAPI API (Header Auth)
 app = FastAPI()
-├── /auth - API Key Authentication (API_KEY, APP_ID)
-├── /openai - OpenAI GPT Integration
-└── /health - Health Check
+├── Header Auth via `X-API-KEY` + `X-APP-ID` (API_KEY, APP_ID)
+├── /health - Health Check
+├── /something - Beispiel-Endpoint (auth required)
+├── /openai/status, /openai/generate - OpenAI Integration (auth required)
+└── /set-openai-key - Admin-Endpoint (schreibt in `.env`, sicherheitskritisch)
+
+# modules/ki_sideboard.py - Sideboard API (Modulsteuerung)
+app = FastAPI()
+├── /modules - Discovery + Capabilities
+├── /module/run - führt module.<action>() aus (strikte Key-Prüfung)
+├── /openai_chat, /openai_vision - delegiert an modules.openai_integration
+└── /status - Team-Log Snapshot
+
+# core/key_check.py - Zero-Tolerance Key Gate
+check_all_keys()  # wirft RuntimeError, wenn REQUIRED_KEYS fehlen
+@require_keys     # Decorator für produktive Funktionen
 
 # integration_hub.py - Project Bridge
 ├── ZenithCoreSystem
@@ -44,6 +59,25 @@ app = FastAPI()
 ├── MegaUltraNetwork
 └── AI_CORE Integration
 ```
+
+## Repo-Hygiene (für Agents)
+- **Nicht in `BACKUP_*/` oder `integrated_projects/` entwickeln.** Diese Ordner sind Snapshots/Backups. Änderungen gehören in die „Top-Level“-Implementierungen.
+- **Secrets niemals committen oder hardcoden.** Keine Schlüssel in Code, Logs oder Beispiel-Dateien schreiben.
+- Wenn du Konfig/Secrets brauchst: nutze `.env.example` als Vorlage und lies Werte via `dotenv`/Environment.
+- Vor jedem PR/Push: sicherstellen, dass **keine** `.env`- oder sonstigen Secret-Dateien in `git status` auftauchen.
+
+## Key-Policy (kritisch)
+Die produktiven Python-Module/Sideboards nutzen `core/key_check.py`.
+
+`REQUIRED_KEYS` (müssen gesetzt sein, sonst Abbruch):
+- `OPENAI_API_KEY`, `STRIPE_API_KEY`
+- `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`
+- `EBAY_APP_ID`
+- `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`
+- `NFT_API_KEY`
+- `SMTP_USER`, `SMTP_PASSWORD`
+
+Regel: Bei fehlenden Keys **sofort fehlschlagen** (RuntimeError/HTTP 500) statt „Demo-Modus“, Fallbacks oder Platzhalter.
 
 ## Entwickler-Workflows
 
@@ -85,6 +119,18 @@ python main.py
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
+**4. Sideboard API (Modulsteuerung):**
+```powershell
+# Strikte Key-Policy: benötigt alle REQUIRED_KEYS aus core/key_check.py
+uvicorn modules.ki_sideboard:app --host 0.0.0.0 --port 8003
+```
+
+**Ports (üblich):**
+- Node Server: `3000`
+- Ollama: `11434`
+- FastAPI `main.py`: `8000`
+- FastAPI Sideboard: `8003`
+
 **VS Code Tasks (verfügbar):**
 - `Starte 🤖ROBOTER_KI_APP.exe`: Dotnet Run (🤖ROBOTER_KI_APP.cs)
 - `Starte 🤖ROBOTER_KI_APP.csproj`: Dotnet Run (csproj)
@@ -105,6 +151,11 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 - **Pydantic Models**: Type-Safe Request/Response
 - **Logging**: Standard `logging` Module (INFO Level)
 
+**Module Pattern (`modules/*.py`):**
+- Exponiere, wo sinnvoll: `run()`, `install()`, `describe()`, optional `to_svg()`/`to_word()`
+- Für produktive Ausführung: `@require_keys` (oder explizit `check_all_keys()` am Anfang)
+- Module sollen import-sicher sein: keine Side-Effects beim Import (keine Netzwerk-Calls beim Import)
+
 **Security Requirements:**
 ```env
 # .env (REQUIRED)
@@ -114,6 +165,8 @@ API_KEY=<service-key>
 APP_ID=<app-identifier>
 OPENAI_API_KEY=<optional-openai>
 ```
+
+Hinweis: `main.py` aktualisiert aktuell `.env` über einen Endpoint (`/set-openai-key`). Wenn du daran arbeitest, behandle das als **sicherheitskritisch** (Validierung, Dateirechte, Audit-Logging, keine Key-Leaks in Logs).
 
 **Naming Convention:**
 - Emoji-Prefixes: 🤖 für Roboter/AI, ⚡ für Quantum
@@ -174,6 +227,12 @@ python chat_test.py
 python test_requirements.py
 ```
 
+**Sideboard Quick Checks:**
+```powershell
+Invoke-WebRequest http://localhost:8003/health
+Invoke-WebRequest http://localhost:8003/modules
+```
+
 **Common Issues:**
 
 | Fehler | Ursache | Fix |
@@ -218,6 +277,12 @@ Invoke-WebRequest http://localhost:3000/health
 # API Test
 Invoke-WebRequest http://localhost:8000/health -Method GET
 ```
+
+## Agent-Do/Don't (kurz)
+- DO: Änderungen klein halten, entry-points kompatibel lassen, `core/key_check.py` als Source-of-Truth behandeln.
+- DO: Wenn du API-Schemas änderst, update Clients/Sideboards im selben PR.
+- DON'T: Backups/Snapshots „reparieren“ (Ordner `BACKUP_*`, `integrated_projects/`).
+- DON'T: Secrets hinzufügen, echte Keys in Tests/Logs ausgeben, oder neue Demo-Fallbacks einbauen.
 
 ---
 *Letzte Aktualisierung: 11. Dezember 2025 | Version 2.0.0 | .NET 8.0 + Python 3.13*

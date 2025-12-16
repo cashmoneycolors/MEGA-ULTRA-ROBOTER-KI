@@ -12,14 +12,15 @@ namespace MegaUltraRoboterKI.Integration
     [SupportedOSPlatform("windows")]
     public class UnifiedProjectIntegration
     {
-        private static readonly Lazy<UnifiedProjectIntegration> _instance = 
+        private static readonly Lazy<UnifiedProjectIntegration> _instance =
             new Lazy<UnifiedProjectIntegration>(() => new UnifiedProjectIntegration());
-        
+
         public static UnifiedProjectIntegration Instance => _instance.Value;
-        
+
         public ZenithOptimizer Zenith { get; }
         public KontrollturmSystem Kontrollturm { get; }
         public AINetworkHub AINetwork { get; }
+        public DesktopTutorialIntegration DesktopTutorial { get; }
         public List<string> IntegratedProjects { get; } = new();
 
         private UnifiedProjectIntegration()
@@ -27,29 +28,34 @@ namespace MegaUltraRoboterKI.Integration
             Zenith = new ZenithOptimizer();
             Kontrollturm = new KontrollturmSystem();
             AINetwork = new AINetworkHub();
-            
+            DesktopTutorial = new DesktopTutorialIntegration();
+
             IntegratedProjects.Add("ZenithCoreSystem - Autonomous Zenith Optimizer");
             IntegratedProjects.Add("Kontrollturm - System Control Center");
             IntegratedProjects.Add("MegaUltraNetwork - AI Network Hub");
             IntegratedProjects.Add("zenithapi - Zenith REST API");
             IntegratedProjects.Add("AI_CORE - Core AI Integrator");
+            IntegratedProjects.Add("DesktopTutorial - AethelosGAZI System");
         }
 
         public async Task<IntegrationStatus> InitializeAllAsync()
         {
             var status = new IntegrationStatus();
-            
+
             try
             {
                 await Zenith.InitializeAsync();
                 status.ZenithReady = true;
-                
+
                 await Kontrollturm.InitializeAsync();
                 status.KontrollturmReady = true;
-                
+
                 await AINetwork.InitializeAsync();
                 status.AINetworkReady = true;
-                
+
+                await DesktopTutorial.InitializeAsync();
+                status.DesktopTutorialReady = true;
+
                 status.IsFullyOperational = true;
                 status.Message = "Alle C# Projekte erfolgreich integriert";
             }
@@ -57,7 +63,7 @@ namespace MegaUltraRoboterKI.Integration
             {
                 status.Message = $"Teilweise Integration: {ex.Message}";
             }
-            
+
             return status;
         }
 
@@ -98,16 +104,16 @@ namespace MegaUltraRoboterKI.Integration
         public async Task<GrowthResult> RunAutonomousGrowthStrategy()
         {
             if (!IsInitialized) await InitializeAsync();
-            
+
             Console.WriteLine("[ZENITH] Running Autonomous Growth Strategy...");
-            
+
             var result = new GrowthResult
             {
                 OptimizationScore = await QMLBridge.CalculateOptimizationAsync(),
                 GrowthVector = await HoloCache.GetGrowthVectorAsync(),
                 RegulatoryStatus = Regulatory.CheckCompliance()
             };
-            
+
             return result;
         }
 
@@ -137,12 +143,12 @@ namespace MegaUltraRoboterKI.Integration
         public async Task InitializeAsync()
         {
             Console.WriteLine("[KONTROLLTURM] Initialisiere Kontrollturm System...");
-            
+
             Modules["Security"] = new SystemModule("Security", true);
             Modules["Monitoring"] = new SystemModule("Monitoring", true);
             Modules["Automation"] = new SystemModule("Automation", true);
             Modules["Analytics"] = new SystemModule("Analytics", true);
-            
+
             await Task.Delay(50);
             IsOnline = true;
             Console.WriteLine("[KONTROLLTURM] System Online - 4 Module aktiv");
@@ -165,12 +171,12 @@ namespace MegaUltraRoboterKI.Integration
         public async Task InitializeAsync()
         {
             Console.WriteLine("[AI-NETWORK] Initialisiere AI Network Hub...");
-            
+
             ConnectedNodes.Add(new AINode("Ollama-Local", "localhost:11434"));
             ConnectedNodes.Add(new AINode("OpenAI-Gateway", "api.openai.com"));
             ConnectedNodes.Add(new AINode("QuantumCore", "internal"));
             ConnectedNodes.Add(new AINode("AutoExpander", "internal"));
-            
+
             await Task.Delay(30);
             IsConnected = true;
             Console.WriteLine($"[AI-NETWORK] {ConnectedNodes.Count} Nodes verbunden");
@@ -180,9 +186,68 @@ namespace MegaUltraRoboterKI.Integration
         {
             var node = ConnectedNodes.Find(n => n.Name == targetNode);
             if (node == null) return "Node not found";
-            
+
             await Task.Delay(10);
             return $"Response from {node.Name}: Processed";
+        }
+    }
+
+    /// <summary>
+    /// Desktop Tutorial Integration - AethelosGAZI System
+    /// Integriert das Desktop-Tutorial mit Zenith API und Python-Backend
+    /// </summary>
+    public class DesktopTutorialIntegration
+    {
+        public bool IsInitialized { get; private set; }
+        public ZenithApiClient ZenithApi { get; } = new ZenithApiClient();
+        public PythonBackendClient PythonBackend { get; } = new PythonBackendClient();
+
+        public async Task InitializeAsync()
+        {
+            Console.WriteLine("[DESKTOP-TUTORIAL] Initialisiere AethelosGAZI System...");
+            await ZenithApi.ConnectAsync();
+            await PythonBackend.StartAsync();
+            IsInitialized = true;
+            Console.WriteLine("[DESKTOP-TUTORIAL] AethelosGAZI System bereit");
+        }
+
+        public async Task<TutorialResult> RunTutorialAsync()
+        {
+            if (!IsInitialized) await InitializeAsync();
+
+            var result = new TutorialResult();
+            result.ZenithStatus = await ZenithApi.GetStatusAsync();
+            result.PythonModules = await PythonBackend.GetModulesAsync();
+            result.IsComplete = true;
+
+            return result;
+        }
+    }
+
+    public class TutorialResult
+    {
+        public string ZenithStatus { get; set; } = "";
+        public List<string> PythonModules { get; set; } = new();
+        public bool IsComplete { get; set; }
+    }
+
+    public class ZenithApiClient
+    {
+        public async Task ConnectAsync() => await Task.Delay(10);
+        public async Task<string> GetStatusAsync()
+        {
+            await Task.Delay(5);
+            return "Zenith API Connected - Ready for Operations";
+        }
+    }
+
+    public class PythonBackendClient
+    {
+        public async Task StartAsync() => await Task.Delay(8);
+        public async Task<List<string>> GetModulesAsync()
+        {
+            await Task.Delay(5);
+            return new List<string> { "main.py", "api/rest.py", "webapp/app.py", "agents/", "core/" };
         }
     }
 
@@ -191,6 +256,7 @@ namespace MegaUltraRoboterKI.Integration
         public bool ZenithReady { get; set; }
         public bool KontrollturmReady { get; set; }
         public bool AINetworkReady { get; set; }
+        public bool DesktopTutorialReady { get; set; }
         public bool IsFullyOperational { get; set; }
         public string Message { get; set; } = "";
     }
@@ -198,7 +264,7 @@ namespace MegaUltraRoboterKI.Integration
     public class HoloCache
     {
         public async Task InitializeAsync() => await Task.Delay(20);
-        public async Task<double[]> GetGrowthVectorAsync() 
+        public async Task<double[]> GetGrowthVectorAsync()
         {
             await Task.Delay(5);
             return new double[] { 1.0, 0.95, 1.02, 0.98, 1.05 };

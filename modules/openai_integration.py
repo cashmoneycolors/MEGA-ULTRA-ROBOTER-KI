@@ -1,34 +1,31 @@
-"""OpenAI Integration - Vollständige GPT-4, DALL-E, Whisper Unterstützung"""
-from core.key_check import require_keys
-import os
-from dotenv import load_dotenv
+"""OpenAI Integration - Chat, Vision, Images, Whisper."""
 
-load_dotenv()
+import os
+
+from core.key_check import require_keys
+from core.openai_client import get_openai_client
 
 try:
-    from openai import OpenAI
+    import openai as _openai  # noqa: F401
+
     OPENAI_AVAILABLE = True
 except ImportError:
     OPENAI_AVAILABLE = False
     print("⚠️ openai package nicht installiert. Run: pip install openai")
 
+
 @require_keys
 def run(*args):
     """Testet OpenAI API Verbindung"""
-    api_key = os.getenv("OPENAI_API_KEY")
-
     if not OPENAI_AVAILABLE:
         return {"status": "error", "message": "openai package fehlt"}
 
-    if not api_key or api_key.startswith("sk-test"):
-        return {"status": "error", "message": "OPENAI_API_KEY nicht konfiguriert"}
-
     try:
-        client = OpenAI(api_key=api_key)
+        client = get_openai_client()
 
         # Test API mit einfachem Request
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model=os.getenv("OPENAI_SMOKE_MODEL") or "gpt-4o-mini",
             messages=[{"role": "user", "content": "Say 'API Connected!'"}],
             max_tokens=10
         )
@@ -37,23 +34,26 @@ def run(*args):
             "status": "success",
             "message": "OpenAI API verbunden",
             "response": response.choices[0].message.content,
-            "models_available": ["gpt-4", "gpt-3.5-turbo", "dall-e-3", "whisper-1"]
+            "models_available": [
+                "gpt-4o",
+                "gpt-4o-mini",
+                "dall-e-3",
+                "whisper-1",
+            ],
         }
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+
+@require_keys
 def chat(prompt, model="gpt-4", max_tokens=1000, temperature=0.7):
     """Chat Completion mit GPT-4 oder GPT-3.5"""
-    api_key = os.getenv("OPENAI_API_KEY")
-
     if not OPENAI_AVAILABLE:
         raise RuntimeError("openai package nicht installiert")
 
-    if not api_key:
-        raise RuntimeError("OPENAI_API_KEY fehlt in .env")
-
     try:
-        client = OpenAI(api_key=api_key)
+        client = get_openai_client()
+        model = model or os.getenv("OPENAI_CHAT_MODEL") or "gpt-4o-mini"
 
         response = client.chat.completions.create(
             model=model,
@@ -75,18 +75,15 @@ def chat(prompt, model="gpt-4", max_tokens=1000, temperature=0.7):
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+
+@require_keys
 def generate_image(prompt, size="1024x1024", quality="standard"):
     """DALL-E 3 Bildgenerierung"""
-    api_key = os.getenv("OPENAI_API_KEY")
-
     if not OPENAI_AVAILABLE:
         raise RuntimeError("openai package nicht installiert")
 
-    if not api_key:
-        raise RuntimeError("OPENAI_API_KEY fehlt in .env")
-
     try:
-        client = OpenAI(api_key=api_key)
+        client = get_openai_client()
 
         response = client.images.generate(
             model="dall-e-3",
@@ -100,23 +97,24 @@ def generate_image(prompt, size="1024x1024", quality="standard"):
             "status": "success",
             "image_url": response.data[0].url,
             "prompt": prompt,
-            "revised_prompt": response.data[0].revised_prompt if hasattr(response.data[0], 'revised_prompt') else None
+            "revised_prompt": (
+                response.data[0].revised_prompt
+                if hasattr(response.data[0], "revised_prompt")
+                else None
+            ),
         }
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+
+@require_keys
 def transcribe_audio(audio_file_path, language="de"):
     """Whisper Audio Transkription"""
-    api_key = os.getenv("OPENAI_API_KEY")
-
     if not OPENAI_AVAILABLE:
         raise RuntimeError("openai package nicht installiert")
 
-    if not api_key:
-        raise RuntimeError("OPENAI_API_KEY fehlt in .env")
-
     try:
-        client = OpenAI(api_key=api_key)
+        client = get_openai_client()
 
         with open(audio_file_path, "rb") as audio_file:
             transcript = client.audio.transcriptions.create(
@@ -133,21 +131,19 @@ def transcribe_audio(audio_file_path, language="de"):
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+
+@require_keys
 def analyze_image(image_url, question="Was siehst du auf diesem Bild?"):
     """GPT-4 Vision - Bildanalyse"""
-    api_key = os.getenv("OPENAI_API_KEY")
-
     if not OPENAI_AVAILABLE:
         raise RuntimeError("openai package nicht installiert")
 
-    if not api_key:
-        raise RuntimeError("OPENAI_API_KEY fehlt in .env")
-
     try:
-        client = OpenAI(api_key=api_key)
+        client = get_openai_client()
+        vision_model = os.getenv("OPENAI_VISION_MODEL") or "gpt-4o-mini"
 
         response = client.chat.completions.create(
-            model="gpt-4-vision-preview",
+            model=vision_model,
             messages=[{
                 "role": "user",
                 "content": [
@@ -161,23 +157,26 @@ def analyze_image(image_url, question="Was siehst du auf diesem Bild?"):
         return {
             "status": "success",
             "analysis": response.choices[0].message.content,
-            "image_url": image_url
+            "image_url": image_url,
+            "model": vision_model,
         }
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+
+@require_keys
 def get_embeddings(text, model="text-embedding-ada-002"):
     """Text Embeddings für Vektordatenbanken"""
-    api_key = os.getenv("OPENAI_API_KEY")
-
     if not OPENAI_AVAILABLE:
         raise RuntimeError("openai package nicht installiert")
 
-    if not api_key:
-        raise RuntimeError("OPENAI_API_KEY fehlt in .env")
-
     try:
-        client = OpenAI(api_key=api_key)
+        client = get_openai_client()
+        model = (
+            model
+            or os.getenv("OPENAI_EMBEDDING_MODEL")
+            or "text-embedding-3-small"
+        )
 
         response = client.embeddings.create(
             model=model,
@@ -193,12 +192,16 @@ def get_embeddings(text, model="text-embedding-ada-002"):
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+
+@require_keys
 def install():
     """Installiert OpenAI Dependencies"""
     import subprocess
+
     print("📦 Installiere openai...")
     subprocess.run(["pip", "install", "-U", "openai"], check=True)
     return {"status": "success", "message": "openai installiert"}
 
+
 def describe():
-    return "OpenAI Integration - GPT-4, DALL-E 3, Whisper, Vision, Embeddings"
+    return "OpenAI Integration - Chat, Vision, DALL-E 3, Whisper, Embeddings"
