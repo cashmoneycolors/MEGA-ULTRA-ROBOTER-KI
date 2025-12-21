@@ -1,23 +1,22 @@
-import os
-import streamlit as st
-from pathlib import Path
-import time
-import random
-import requests
-import base64
 import json
+import os
+import time
+from pathlib import Path
 
+import requests
+import streamlit as st
 
 # Page Config
 st.set_page_config(
     page_title="MEGA-ULTRA-ROBOTER-KI",
     page_icon="🤖",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
 
 # Custom CSS
-st.markdown("""
+st.markdown(
+    """
 <style>
     .stApp {
         background-color: #0e1117;
@@ -42,88 +41,30 @@ st.markdown("""
         width: 100%;
     }
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
+
 
 def load_api_keys():
     # Try env.ini first, then .env
-    env_files = [Path('env.ini'), Path('.env')]
+    env_files = [Path("env.ini"), Path(".env")]
     api_keys = {}
-    
+
     for env_file in env_files:
         if env_file.exists():
             try:
-                with open(env_file, 'r', encoding='utf-8') as f:
+                with open(env_file, "r", encoding="utf-8") as f:
                     for line in f:
                         line = line.strip()
-                        if line and not line.startswith('#') and '=' in line:
-                            key, value = line.split('=', 1)
+                        if line and not line.startswith("#") and "=" in line:
+                            key, value = line.split("=", 1)
                             if key.strip() not in api_keys:
                                 clean_value = value.strip().strip('"').strip("'")
                                 api_keys[key.strip()] = clean_value
             except:
                 pass
     return api_keys
-
-def call_ai_analysis(transaction_data, api_keys):
-    claude_key = api_keys.get("CLAUDE_API_KEY")
-    grok_key = api_keys.get("GROK_API_KEY")
-    
-    analysis_result = "AI Analysis: No active AI keys found."
-    
-    # Try Claude first
-    if claude_key and "sk-" in claude_key:
-        try:
-            headers = {
-                "x-api-key": claude_key,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json"
-            }
-            data = {
-                "model": "claude-3-opus-20240229",
-                "max_tokens": 150,
-                "messages": [
-                    {"role": "user", "content": f"Analyze this PayPal transaction for upsell potential. Keep it short (1 sentence). Data: {transaction_data}"}
-                ]
-            }
-            resp = requests.post("https://api.anthropic.com/v1/messages", headers=headers, json=data, timeout=5)
-            if resp.status_code == 200:
-                return f"🧠 CLAUDE: {resp.json()['content'][0]['text']}"
-            else:
-                analysis_result = f"❌ Claude Error: {resp.status_code} (Low Balance?)"
-        except Exception as e:
-            analysis_result = f"❌ Claude Exception: {str(e)}"
-
-    # Try Grok/OpenAI format as fallback
-    if grok_key and "xai-" in grok_key:
-        try:
-            headers = {
-                "Authorization": f"Bearer {grok_key}",
-                "Content-Type": "application/json"
-            }
-            data = {
-                "model": "grok-beta",
-                "messages": [
-                    {"role": "system", "content": "You are a sales expert."},
-                    {"role": "user", "content": f"Analyze this transaction for upsell potential (1 sentence): {transaction_data}"}
-                ]
-            }
-            resp = requests.post("https://api.x.ai/v1/chat/completions", headers=headers, json=data, timeout=5)
-            if resp.status_code == 200:
-                return f"🚀 GROK: {resp.json()['choices'][0]['message']['content']}"
-            else:
-                analysis_result = f"❌ Grok Error: {resp.status_code} (No Credits?)"
-        except Exception as e:
-            analysis_result = f"❌ Grok Exception: {str(e)}"
-            
-    # Fallback: Local Logic Core
-    if "Error" in analysis_result or "Exception" in analysis_result or "No active AI" in analysis_result:
-        amount_str = str(transaction_data)
-        if "amount" in transaction_data:
-            return f"🤖 LOCAL CORE: Transaction analyzed locally. Recommendation: Send 'Premium Upgrade' email sequence immediately."
-        else:
-            return f"🤖 LOCAL CORE: Data received. Upsell probability: 85%. Action: Schedule follow-up."
-            
-    return analysis_result
 
 
 def _format_money(amount: float, currency: str) -> str:
@@ -150,21 +91,40 @@ def _pick_currency_total(currency_map) -> tuple[float, str] | None:
 
 
 def _resolve_stats_url(api_keys: dict) -> str:
-    stats_url = (os.getenv("PAYPAL_STATS_URL", "") or api_keys.get("PAYPAL_STATS_URL", "")).strip()
-    ingest_base = (os.getenv("PAYPAL_INGEST_BASE_URL", "") or api_keys.get("PAYPAL_INGEST_BASE_URL", "")).strip()
+    stats_url = (
+        os.getenv("PAYPAL_STATS_URL", "") or api_keys.get("PAYPAL_STATS_URL", "")
+    ).strip()
+    ingest_base = (
+        os.getenv("PAYPAL_INGEST_BASE_URL", "")
+        or api_keys.get("PAYPAL_INGEST_BASE_URL", "")
+    ).strip()
     if not stats_url and ingest_base:
         stats_url = ingest_base.rstrip("/") + "/stats"
+    # Local default (so it feels alive immediately when webhook_server.py runs):
+    if not stats_url:
+        stats_url = "http://127.0.0.1:8503/stats"
     return stats_url
 
 
+def _resolve_ingest_base(api_keys: dict) -> str:
+    stats_url = _resolve_stats_url(api_keys)
+    if stats_url.endswith("/stats"):
+        return stats_url[: -len("/stats")]
+    return stats_url.rstrip("/")
+
+
 def _resolve_events_path(api_keys: dict) -> Path:
-    configured = (os.getenv("PAYPAL_EVENTS_PATH", "") or api_keys.get("PAYPAL_EVENTS_PATH", "")).strip()
+    configured = (
+        os.getenv("PAYPAL_EVENTS_PATH", "") or api_keys.get("PAYPAL_EVENTS_PATH", "")
+    ).strip()
     if configured:
         return Path(configured)
     return Path("data") / "paypal_events.jsonl"
 
 
-def _compute_totals_from_jsonl(events_path: Path, max_lines: int = 500) -> tuple[tuple[float, str] | None, dict | None]:
+def _compute_totals_from_jsonl(
+    events_path: Path, max_lines: int = 500
+) -> tuple[tuple[float, str] | None, dict | None]:
     if not events_path.exists():
         return None, None
 
@@ -210,50 +170,123 @@ def _compute_totals_from_jsonl(events_path: Path, max_lines: int = 500) -> tuple
 
     return picked, (last_record.get("event") if isinstance(last_record, dict) else None)
 
+
 def main():
-    if 'revenue' not in st.session_state:
+    if "revenue" not in st.session_state:
         st.session_state.revenue = 0.0
-    if 'revenue_currency' not in st.session_state:
+    if "revenue_currency" not in st.session_state:
         st.session_state.revenue_currency = "EUR"
-    if 'active' not in st.session_state:
+    if "active" not in st.session_state:
         st.session_state.active = True
-    if 'logs' not in st.session_state:
+    if "logs" not in st.session_state:
         st.session_state.logs = [
             "[SYSTEM] Core initialized...",
             "[AI] Neural Link established.",
             "[PAYPAL] Connection secure.",
-            "[BOT] Waiting for incoming transactions..."
+            "[BOT] Waiting for incoming transactions...",
         ]
-    if 'last_check' not in st.session_state:
+    if "last_check" not in st.session_state:
         st.session_state.last_check = time.time()
 
     with st.sidebar:
         st.image("https://img.icons8.com/fluency/96/robot-2.png", width=100)
         st.title("SYSTEM CONTROL")
         st.markdown("---")
-        
+
         api_keys = load_api_keys()
-        real_keys = sum(1 for v in api_keys.values() if v and not v.startswith(('PLACEHOLDER', 'AZ...', 'sk-ant-', 'xai-', 'BB-')))
-        
+        real_keys = sum(
+            1
+            for v in api_keys.values()
+            if v
+            and not v.startswith(("PLACEHOLDER", "AZ...", "sk-ant-", "xai-", "BB-"))
+        )
+
         st.metric("API Keys Loaded", len(api_keys))
         st.metric("Active Modules", "5")
-        
+
         if real_keys == 0:
             st.error("⚠️ NO REAL KEYS DETECTED")
         else:
             st.success(f"✅ {real_keys} KEYS ACTIVE")
-            
+
         st.markdown("### Settings")
-        st.success("🌍 MODE: WEBHOOKS (Recommended)")
+        st.success("🌍 MODE: WEBHOOKS (LIVE)")
         st.caption("Revenue kommt aus webhook_server.py (/stats) oder JSONL.")
-            
+
+        stats_url = _resolve_stats_url(api_keys)
+        st.code(stats_url, language="text")
+
+        st.markdown("### Checkout")
+        st.caption("Erstellt echte PayPal Checkout-Links (LIVE/SANDBOX).")
+
+        ingest_base = _resolve_ingest_base(api_keys)
+        create_url = ingest_base.rstrip("/") + "/paypal/create-order"
+        capture_url = ingest_base.rstrip("/") + "/paypal/capture-order"
+
+        if "last_order_id" not in st.session_state:
+            st.session_state.last_order_id = ""
+        if "last_approve_url" not in st.session_state:
+            st.session_state.last_approve_url = ""
+
+        if st.button("💳 Checkout-Link generieren"):
+            try:
+                resp = requests.post(create_url, json={}, timeout=12)
+                if resp.status_code == 200:
+                    data = resp.json() or {}
+                    st.session_state.last_order_id = str(data.get("order_id") or "")
+                    st.session_state.last_approve_url = str(
+                        data.get("approve_url") or ""
+                    )
+                    st.session_state.logs.append(
+                        f"[PAYPAL] Order created | id={st.session_state.last_order_id}"
+                    )
+                else:
+                    st.session_state.logs.append(
+                        f"[PAYPAL] create-order HTTP {resp.status_code}: {resp.text[:120]}"
+                    )
+            except Exception as e:
+                st.session_state.logs.append(f"[PAYPAL] create-order error: {e}")
+            st.rerun()
+
+        if st.session_state.last_order_id:
+            st.text_input(
+                "Order ID",
+                value=st.session_state.last_order_id,
+                key="_order_id_readonly",
+                disabled=True,
+            )
+        if st.session_state.last_approve_url:
+            st.link_button("➡️ Zur PayPal Zahlung", st.session_state.last_approve_url)
+
+        if st.button("✅ Capture (nach Approval)"):
+            oid = (st.session_state.last_order_id or "").strip()
+            if not oid:
+                st.session_state.logs.append("[PAYPAL] No order_id to capture")
+            else:
+                try:
+                    resp = requests.post(capture_url, json={"order_id": oid}, timeout=12)
+                    if resp.status_code == 200:
+                        data = resp.json() or {}
+                        st.session_state.logs.append(
+                            f"[PAYPAL] capture status={data.get('status')} | id={oid}"
+                        )
+                    else:
+                        st.session_state.logs.append(
+                            f"[PAYPAL] capture HTTP {resp.status_code}: {resp.text[:120]}"
+                        )
+                except Exception as e:
+                    st.session_state.logs.append(f"[PAYPAL] capture error: {e}")
+            st.rerun()
+
         if st.button("🔴 STOP SYSTEM"):
             st.session_state.active = False
             st.rerun()
 
     # Main Content
     st.title("🤖 MEGA-ULTRA-ROBOTER-KI")
-    st.caption("🔒 Secure Local Connection (Ignore browser warnings - running on localhost)")
+    st.caption(
+        "🔒 Secure Local Connection (Ignore browser warnings - running on localhost)"
+    )
     st.markdown("### 🚀 PAYPAL REVENUE MAXIMIZATION SYSTEM")
     st.markdown("---")
 
@@ -265,54 +298,51 @@ def main():
         revenue_placeholder = st.empty()
         revenue_placeholder.metric(
             label="Current Revenue",
-            value=_format_money(st.session_state.revenue, st.session_state.revenue_currency),
-            delta="+0%",
+            value=_format_money(
+                st.session_state.revenue, st.session_state.revenue_currency
+            ),
+            delta="",
         )
     with col3:
         st.metric(label="Automation Rate", value="95%", delta="Stable")
     with col4:
         status_placeholder = st.empty()
         if st.session_state.active:
-            status_placeholder.metric(label="System Status", value="ACTIVE", delta_color="inverse")
+            status_placeholder.metric(
+                label="System Status", value="ACTIVE", delta_color="inverse"
+            )
         else:
-            status_placeholder.metric(label="System Status", value="STANDBY", delta_color="normal")
+            status_placeholder.metric(
+                label="System Status", value="STANDBY", delta_color="normal"
+            )
 
     # Control Panel
     st.markdown("### ⚡ OPERATION CENTER")
     c1, c2 = st.columns([2, 1])
-    
+
     with c1:
         if not st.session_state.active:
-            st.info("System is ready for autonomous operation. AI modules are initialized.")
+            st.info(
+                "System is ready for autonomous operation. AI modules are initialized."
+            )
             if st.button("ACTIVATE REVENUE GENERATION", type="primary"):
                 st.session_state.active = True
                 st.rerun()
-                
-        if st.button("🧪 TEST AI ANALYSIS (Last real webhook)"):
-            test_data = st.session_state.get("last_webhook_event")
-            if not test_data:
-                events_path = _resolve_events_path(api_keys)
-                _, last_evt = _compute_totals_from_jsonl(events_path)
-                test_data = last_evt
 
-            if not test_data:
-                st.toast("No webhook received yet.", icon="⚠️")
-                st.session_state.logs.append("[TEST] No webhook received yet.")
-                st.rerun()
-
-            with st.spinner("Consulting AI Matrix..."):
-                ai_response = call_ai_analysis(test_data, api_keys)
-            st.toast(ai_response, icon="🧠")
-            st.session_state.logs.append(f"[TEST] {ai_response}")
+        if st.button("🧪 TEST (Requires REAL webhook)"):
+            st.toast("Kein Demo-Sale. Sende echte PayPal Zahlung / Webhook.", icon="⚠️")
+            st.session_state.logs.append(
+                "[TEST] No demo sale. Waiting for REAL webhook."
+            )
             st.rerun()
         else:
             st.success("SYSTEM FULLY ACTIVE! Monitoring revenue streams...")
             st.markdown("Running autonomous transaction processing...")
-            
+
             log_placeholder = st.empty()
             log_text = "\n".join(st.session_state.logs[-10:])
             log_placeholder.code(log_text, language="bash")
-            
+
             current_time = time.time()
             if current_time - st.session_state.last_check > 10:
                 st.session_state.last_check = current_time
@@ -324,55 +354,76 @@ def main():
                         resp = requests.get(stats_url, timeout=5)
                         if resp.status_code == 200:
                             stats = resp.json() or {}
-                            net_map = stats.get("estimated_net") or stats.get("net") or {}
-                            gross_map = stats.get("gross") or stats.get("gross_total") or {}
-                            picked = _pick_currency_total(net_map) or _pick_currency_total(gross_map)
+                            net_map = (
+                                stats.get("estimated_net") or stats.get("net") or {}
+                            )
+                            gross_map = (
+                                stats.get("gross") or stats.get("gross_total") or {}
+                            )
+                            picked = _pick_currency_total(
+                                net_map
+                            ) or _pick_currency_total(gross_map)
                             if picked is not None:
-                                st.session_state.revenue, st.session_state.revenue_currency = picked
+                                (
+                                    st.session_state.revenue,
+                                    st.session_state.revenue_currency,
+                                ) = picked
                                 remote_ok = True
 
-                            # throttle remote status logs
-                            last_log = st.session_state.get("last_remote_stats_log", 0.0)
-                            if time.time() - last_log > 60:
+                            last_log = st.session_state.get(
+                                "last_remote_stats_log", 0.0
+                            )
+                            if time.time() - last_log > 30:
                                 st.session_state.last_remote_stats_log = time.time()
                                 st.session_state.logs.append(
-                                    f"[PAYPAL WEBHOOK] Remote /stats {'OK' if remote_ok else 'missing totals'} | url={stats_url}"
+                                    f"[PAYPAL WEBHOOK] /stats {'OK' if remote_ok else 'missing totals'} | url={stats_url}"
                                 )
                         else:
-                            last_log = st.session_state.get("last_remote_stats_log", 0.0)
-                            if time.time() - last_log > 60:
+                            last_log = st.session_state.get(
+                                "last_remote_stats_log", 0.0
+                            )
+                            if time.time() - last_log > 30:
                                 st.session_state.last_remote_stats_log = time.time()
                                 st.session_state.logs.append(
-                                    f"[PAYPAL WEBHOOK] Remote /stats HTTP {resp.status_code} | url={stats_url}"
+                                    f"[PAYPAL WEBHOOK] /stats HTTP {resp.status_code} | url={stats_url}"
                                 )
                     except Exception as e:
                         last_log = st.session_state.get("last_remote_stats_log", 0.0)
-                        if time.time() - last_log > 60:
+                        if time.time() - last_log > 30:
                             st.session_state.last_remote_stats_log = time.time()
-                            st.session_state.logs.append(f"[PAYPAL WEBHOOK] Remote /stats error: {e}")
+                            st.session_state.logs.append(
+                                f"[PAYPAL WEBHOOK] /stats error: {e}"
+                            )
 
                 if not remote_ok:
                     events_path = _resolve_events_path(api_keys)
-                    picked, last_evt = _compute_totals_from_jsonl(events_path)
+                    picked, _last_evt = _compute_totals_from_jsonl(events_path)
                     if picked is not None:
-                        st.session_state.revenue, st.session_state.revenue_currency = picked
-                    if last_evt:
-                        st.session_state.last_webhook_event = last_evt
-                    elif not any("Waiting for webhook" in log for log in st.session_state.logs[-5:]):
+                        st.session_state.revenue, st.session_state.revenue_currency = (
+                            picked
+                        )
+                    elif not any(
+                        "Waiting for webhook" in log
+                        for log in st.session_state.logs[-5:]
+                    ):
                         st.session_state.logs.append(
                             "[PAYPAL] Waiting for webhook events. Start webhook_server.py OR set PAYPAL_INGEST_BASE_URL/PAYPAL_STATS_URL."
                         )
 
                 revenue_placeholder.metric(
                     label="Current Revenue",
-                    value=_format_money(st.session_state.revenue, st.session_state.revenue_currency),
+                    value=_format_money(
+                        st.session_state.revenue, st.session_state.revenue_currency
+                    ),
                     delta="",
                 )
 
+            # Important: Avoid tight auto-rerun loops.
+            # Continuous reruns can crash Streamlit/Tornado on client disconnect
+            # (e.g., tornado.websocket.WebSocketClosedError). Let Streamlit rerun
+            # naturally (browser reload/interactions) for stability.
             log_text = "\n".join(st.session_state.logs[-10:])
             log_placeholder.code(log_text, language="bash")
-            time.sleep(1)
-            st.rerun()
 
     with c2:
         st.markdown("#### Active Protocols")
@@ -386,5 +437,6 @@ def main():
         with st.expander("View Real-time Logs", expanded=True):
             st.code("\n".join(st.session_state.logs[-5:]), language="bash")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
