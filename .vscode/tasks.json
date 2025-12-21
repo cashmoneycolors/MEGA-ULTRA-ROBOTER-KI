@@ -1,0 +1,93 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "MEGA: Run Webhook Server (8503)",
+      "type": "shell",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "args": [
+        "webhook_server.py"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "WEBHOOK_PORT": "8503"
+        }
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "MEGA: Run Streamlit Dashboard (8502)",
+      "type": "shell",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "args": [
+        "-m",
+        "streamlit",
+        "run",
+        "dashboard_ui.py",
+        "--server.port",
+        "8502"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "MEGA: Send Test Webhook (1x)",
+      "type": "shell",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "args": [
+        "scripts/send_test_webhook.py"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "TEST_WEBHOOK_URL": "http://127.0.0.1:8503/paypal/webhook",
+          "TEST_WEBHOOK_COUNT": "1",
+          "TEST_WEBHOOK_AMOUNT": "10",
+          "TEST_WEBHOOK_CCY": "EUR"
+        }
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "MEGA: Send Test Webhook (50x)",
+      "type": "shell",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "args": [
+        "scripts/send_test_webhook.py"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "TEST_WEBHOOK_URL": "http://127.0.0.1:8503/paypal/webhook",
+          "TEST_WEBHOOK_COUNT": "50",
+          "TEST_WEBHOOK_AMOUNT": "2.50",
+          "TEST_WEBHOOK_CCY": "EUR",
+          "TEST_WEBHOOK_PRINT_EVERY": "25"
+        }
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "MEGA: Send Test Webhook (10000x)",
+      "type": "shell",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "args": [
+        "scripts/send_test_webhook.py"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "TEST_WEBHOOK_URL": "http://127.0.0.1:8503/paypal/webhook",
+          "TEST_WEBHOOK_COUNT": "10000",
+          "TEST_WEBHOOK_AMOUNT": "1.00",
+          "TEST_WEBHOOK_CCY": "EUR",
+          "TEST_WEBHOOK_PRINT_EVERY": "100"
+        }
+      },
+      "problemMatcher": []
+    }
+  ]
+}

@@ -16,12 +16,17 @@ ENV/
 .streamlit/
 
 # IDE
-.vscode/
+.vscode/*
+!.vscode/tasks.json
+!.vscode/extensions.json
 .idea/
 
 # Logs
 logs/
 *.log
+
+# Runtime data (generated)
+data/paypal_events.jsonl
 
 # OS
 Thumbs.db
