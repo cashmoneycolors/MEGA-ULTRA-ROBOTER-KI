@@ -1,5 +1,3 @@
-import os
-
 # 1. Update sales_page.py with new modules
 path = r"C:\cashmoneycolors\-MEGA-ULTRA-ROBOTER-KI\sales_page.py"
 content = r"""import streamlit as st
@@ -21,7 +19,12 @@ def load_client_id():
                 with open(env_file, 'r', encoding='utf-8') as f:
                     for line in f:
                         if line.startswith('PAYPAL_CLIENT_ID='):
-                            return line.split('=', 1)[1].strip().strip('"').strip("'")
+                            return (
+                                line.split('=', 1)[1]
+                                .strip()
+                                .strip('"')
+                                .strip("'")
+                            )
             except:
                 pass
     return None
@@ -36,10 +39,10 @@ if not client_id or "PLACEHOLDER" in client_id:
 
 # Navigation
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "🛒 AI Produkte", 
-    "📦 Dropshipping", 
-    "🤝 Affiliate", 
-    "💼 Freelancer", 
+    "🛒 AI Produkte",
+    "📦 Dropshipping",
+    "🤝 Affiliate",
+    "💼 Freelancer",
     "📸 Screenshot Converter"
 ])
 
@@ -49,16 +52,23 @@ with tab1:
     
     col1, col2 = st.columns(2)
     with col1:
-        st.image("https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=600", caption="AI Premium Service")
+        st.image(
+            "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=600",
+            caption="AI Premium Service",
+        )
     with col2:
         st.header("AI Optimization Package")
         st.write("Der Roboter optimiert deine Prozesse automatisch.")
         st.subheader("CHF 1.00")
         
         # PayPal Button Integration
+        paypal_sdk_url = (
+            "https://www.paypal.com/sdk/js?client-id="
+            f"{client_id}&currency=CHF"
+        )
         paypal_html = f'''
         <div id="paypal-button-container-1"></div>
-        <script src="https://www.paypal.com/sdk/js?client-id={client_id}&currency=CHF"></script>
+        <script src="{paypal_sdk_url}"></script>
         <script>
             paypal.Buttons({{
                 createOrder: function(data, actions) {{
@@ -72,7 +82,12 @@ with tab1:
                 }},
                 onApprove: function(data, actions) {{
                     return actions.order.capture().then(function(details) {{
-                        alert('Transaction completed by ' + details.payer.name.given_name + '! Check your Dashboard!');
+                        alert(
+                            'Transaction completed by ' +
+                            details.payer.name.given_name +
+                            '! ' +
+                            'Check your Dashboard!'
+                        );
                     }});
                 }}
             }}).render('#paypal-button-container-1');
@@ -104,7 +119,10 @@ with tab4:
 with tab5:
     st.header("📸 Screenshot Converter")
     st.info("Wandelt Screenshots in Code um.")
-    uploaded_file = st.file_uploader("Screenshot hochladen", type=['png', 'jpg'])
+    uploaded_file = st.file_uploader(
+        "Screenshot hochladen",
+        type=['png', 'jpg'],
+    )
     if uploaded_file is not None:
         st.image(uploaded_file, caption="Hochgeladener Screenshot")
         if st.button("Konvertieren"):

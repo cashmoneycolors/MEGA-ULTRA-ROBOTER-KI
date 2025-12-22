@@ -21,13 +21,14 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-function Require-Command($name) {
+
+function Test-CommandAvailable($name) {
   if (-not (Get-Command $name -ErrorAction SilentlyContinue)) {
     throw "Missing prerequisite: '$name' not found in PATH."
   }
 }
 
-Require-Command az
+Test-CommandAvailable az
 
 # Container Apps CLI extension (oft nötig)
 try {

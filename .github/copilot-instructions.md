@@ -1,38 +1,26 @@
 # Copilot Instructions (MEGA-ULTRA-ROBOTER-KI)
 
-## Architektur (wichtigster Pfad)
-- Primärer Datenpfad ist **Webhook-Ingest → JSONL → Dashboard** (kein Reporting-API Polling im Dashboard; Webhooks funktionieren auch ohne Reporting-Permissions).
-- Webhook-Receiver: FastAPI/uvicorn in `webhook_server.py`. Dashboard: Streamlit in `dashboard_ui.py`.
+## Big Picture
+- Kernpfad ist **PayPal Webhook → JSONL → /stats → Streamlit Dashboard** (kein Reporting-API Polling). Siehe [webhook_server.py](../webhook_server.py) und [dashboard_ui.py](../dashboard_ui.py).
+- Webhook-Server (FastAPI) bietet: `/health`, `/paypal/webhook`, `/stats`, `/paypal/create-order`, `/paypal/capture-order`.
+- Dashboard (Streamlit, Port 8502) liest Umsatz aus `/stats` via `PAYPAL_STATS_URL` oder `PAYPAL_INGEST_BASE_URL` (Fallback: lokale JSONL).
 
-## Entry Points
-- Webhook Server: `webhook_server.py` (lokal i.d.R. Port 8503; in Cloud via `PORT`).
-- Dashboard: `dashboard_ui.py` (Port 8502).
-- Ingest-Test (ohne PayPal-Signatur-Header): `scripts/send_test_webhook.py`.
-- `main.py` ist nur Smoke/Beispiel; ältere Flows (`new_dashboard.py`, `paypal_maximizer.py`) nur anfassen, wenn explizit gewünscht.
+## Lokales Starten
+- Empfohlen: VS Code Tasks in [.vscode/tasks.json](../.vscode/tasks.json) (Webhook/Dashboard + DEV Tasks).
+- Manuell: `python webhook_server.py` (Port via `WEBHOOK_PORT`/`PORT`, default 8503) und `python -m streamlit run dashboard_ui.py --server.port 8502`.
 
-## Lokaler Workflow (Windows)
-- VS Code Tasks (empfohlen): siehe `.vscode/tasks.json` (Run Webhook Server, Run Streamlit Dashboard, Send Test Webhook).
-- Start:
-  - `python webhook_server.py` → `GET http://127.0.0.1:8503/health`
-  - `python -m streamlit run dashboard_ui.py --server.port 8502`
-- Test-Ingest: `python scripts/send_test_webhook.py` (postet an `http://127.0.0.1:8503/paypal/webhook`).
+## Webhook-Verifikation (LIVE-strikt)
+- Default: `/paypal/webhook` akzeptiert **nur** Requests mit PayPal-Signatur-Headern; sonst HTTP 400.
+- DEV-only: `ALLOW_UNVERIFIED_WEBHOOKS=true` erlaubt unsigned lokale Requests und markiert `_verified: false`.
+- Das Script [scripts/send_test_webhook.py](../scripts/send_test_webhook.py) ist **DEV-only** (ohne Signatur-Header; gegen strict-mode wird es abgewiesen).
 
-## Datenmodell & Persistenz
-- Lokale Persistenz ist JSONL: `data/paypal_events.jsonl` (override via `PAYPAL_EVENTS_PATH`).
-- Record-Shape (aus `persist_event`): `{ received_at, event_id, event, amount?, estimated_fee?, estimated_net? }`.
-- `GET /stats?limit=N` aggregiert die **lokale** JSONL (Default: alle Lines). Azure Blob ist optional/best-effort und wird von `/stats` nicht gelesen.
+## Persistenz & Stats
+- Events werden append-only als JSONL gespeichert: `data/paypal_events.jsonl` (override: `PAYPAL_EVENTS_PATH`). Record-Shape kommt aus `persist_event` in [webhook_server.py](../webhook_server.py).
+- `/stats?limit=N` aggregiert **nur** die lokale JSONL (Blob-Backup ist optional/best-effort; wird nicht gelesen).
 
-## PayPal Verifikation & Testmodus
-- `/paypal/webhook` verifiziert Signatur nur, wenn PayPal-Header vorhanden sind; sonst wird `_verified: false` gesetzt (lokaler Testmodus).
-- Optionaler Fee-Heuristik-Output für `estimated_net`: `EST_PAYPAL_FEE_PCT`, `EST_PAYPAL_FEE_FIXED`, `EST_PAYPAL_FEE_CCY`.
+## Konfiguration & Repo-Konventionen
+- Secrets niemals committen: nutze `env.ini`/Environment; Vorlage: [.env.example](../.env.example). Pflicht für echte Verifikation: `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_WEBHOOK_ID` (Sandbox-Varianten bei `PAYPAL_ENV=SANDBOX`).
+- Viele `*.bak` im Root; nur aktive Dateien pflegen. [manifest.json](../manifest.json) wirkt generiert → nicht editieren.
 
-## Konfiguration/Secrets
-- Keys werden aus `env.ini`, `.env`, dann Environment geladen; **niemals committen**.
-- LIVE/SANDBOX: `PAYPAL_ENV` oder `ENV`.
-- Webhook-Verifikation braucht: `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_WEBHOOK_ID` (bzw. SANDBOX-Varianten).
-- Localhost-Checkout kann Captures als Event persistieren: `PERSIST_CAPTURE_AS_EVENT=true`.
-
-## Repo-Konventionen
-- Viele `*.bak` Dateien im Root: nur die “aktive” Datei ändern.
-- `manifest.json` wirkt wie generiertes Asset-Mapping: nicht manuell bearbeiten.
-- Keine Testsuite: Änderungen über `/health`, `/stats` und Test-Webhooks validieren.
+## Deploy (24/7 Webhook Receiver)
+- Azure Container Apps: Einstieg über [azure/README.md](../azure/README.md) und Script [azure/aca_deploy.ps1](../azure/aca_deploy.ps1).

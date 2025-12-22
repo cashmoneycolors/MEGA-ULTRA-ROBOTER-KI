@@ -17,6 +17,22 @@
       "problemMatcher": []
     },
     {
+      "label": "MEGA (DEV): Run Webhook Server (8503, allow unverified)",
+      "type": "shell",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "args": [
+        "webhook_server.py"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "WEBHOOK_PORT": "8503",
+          "ALLOW_UNVERIFIED_WEBHOOKS": "true"
+        }
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "MEGA: Run Streamlit Dashboard (8502)",
       "type": "shell",
       "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
@@ -34,7 +50,7 @@
       "problemMatcher": []
     },
     {
-      "label": "MEGA: Send Test Webhook (1x)",
+      "label": "MEGA (DEV): Send Test Webhook (1x)",
       "type": "shell",
       "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
       "args": [
@@ -52,7 +68,7 @@
       "problemMatcher": []
     },
     {
-      "label": "MEGA: Send Test Webhook (50x)",
+      "label": "MEGA (DEV): Send Test Webhook (50x)",
       "type": "shell",
       "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
       "args": [
@@ -71,7 +87,7 @@
       "problemMatcher": []
     },
     {
-      "label": "MEGA: Send Test Webhook (10000x)",
+      "label": "MEGA (DEV): Send Test Webhook (10000x)",
       "type": "shell",
       "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
       "args": [

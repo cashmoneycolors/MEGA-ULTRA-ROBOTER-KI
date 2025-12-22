@@ -2,6 +2,7 @@ import json
 import os
 import time
 from pathlib import Path
+from typing import Any, Mapping, cast
 
 import requests
 import streamlit as st
@@ -49,7 +50,7 @@ st.markdown(
 def load_api_keys():
     # Try env.ini first, then .env
     env_files = [Path("env.ini"), Path(".env")]
-    api_keys = {}
+    api_keys: dict[str, str] = {}
 
     for env_file in env_files:
         if env_file.exists():
@@ -60,11 +61,25 @@ def load_api_keys():
                         if line and not line.startswith("#") and "=" in line:
                             key, value = line.split("=", 1)
                             if key.strip() not in api_keys:
-                                clean_value = value.strip().strip('"').strip("'")
+                                clean_value = (
+                                    value.strip().strip('"').strip("'")
+                                )
                                 api_keys[key.strip()] = clean_value
-            except:
+            except Exception:
                 pass
     return api_keys
+
+
+def _json_dict(resp: requests.Response) -> dict[str, Any]:
+    try:
+        data = resp.json()
+    except Exception:
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    # JSON object keys are strings; normalize for type checkers.
+    typed = cast(dict[str, Any], data)
+    return {str(k): v for k, v in typed.items()}
 
 
 def _format_money(amount: float, currency: str) -> str:
@@ -74,7 +89,9 @@ def _format_money(amount: float, currency: str) -> str:
     return f"{ccy.upper()} {amount:,.2f}"
 
 
-def _pick_currency_total(currency_map) -> tuple[float, str] | None:
+def _pick_currency_total(
+    currency_map: Mapping[str, Any],
+) -> tuple[float, str] | None:
     if not isinstance(currency_map, dict) or not currency_map:
         return None
     if "EUR" in currency_map:
@@ -90,9 +107,10 @@ def _pick_currency_total(currency_map) -> tuple[float, str] | None:
     return None
 
 
-def _resolve_stats_url(api_keys: dict) -> str:
+def _resolve_stats_url(api_keys: Mapping[str, str]) -> str:
     stats_url = (
-        os.getenv("PAYPAL_STATS_URL", "") or api_keys.get("PAYPAL_STATS_URL", "")
+        os.getenv("PAYPAL_STATS_URL", "")
+        or api_keys.get("PAYPAL_STATS_URL", "")
     ).strip()
     ingest_base = (
         os.getenv("PAYPAL_INGEST_BASE_URL", "")
@@ -100,22 +118,23 @@ def _resolve_stats_url(api_keys: dict) -> str:
     ).strip()
     if not stats_url and ingest_base:
         stats_url = ingest_base.rstrip("/") + "/stats"
-    # Local default (so it feels alive immediately when webhook_server.py runs):
+    # Local default (so it feels alive immediately when webhook_server.py runs)
     if not stats_url:
         stats_url = "http://127.0.0.1:8503/stats"
     return stats_url
 
 
-def _resolve_ingest_base(api_keys: dict) -> str:
+def _resolve_ingest_base(api_keys: Mapping[str, str]) -> str:
     stats_url = _resolve_stats_url(api_keys)
     if stats_url.endswith("/stats"):
         return stats_url[: -len("/stats")]
     return stats_url.rstrip("/")
 
 
-def _resolve_events_path(api_keys: dict) -> Path:
+def _resolve_events_path(api_keys: Mapping[str, str]) -> Path:
     configured = (
-        os.getenv("PAYPAL_EVENTS_PATH", "") or api_keys.get("PAYPAL_EVENTS_PATH", "")
+        os.getenv("PAYPAL_EVENTS_PATH", "")
+        or api_keys.get("PAYPAL_EVENTS_PATH", "")
     ).strip()
     if configured:
         return Path(configured)
@@ -124,25 +143,35 @@ def _resolve_events_path(api_keys: dict) -> Path:
 
 def _compute_totals_from_jsonl(
     events_path: Path, max_lines: int = 500
-) -> tuple[tuple[float, str] | None, dict | None]:
+) -> tuple[tuple[float, str] | None, dict[str, Any] | None]:
     if not events_path.exists():
         return None, None
 
     try:
-        lines = events_path.read_text(encoding="utf-8", errors="ignore").splitlines()
+        lines = events_path.read_text(
+            encoding="utf-8", errors="ignore"
+        ).splitlines()
     except Exception:
         return None, None
 
     gross_totals: dict[str, float] = {}
     net_totals: dict[str, float] = {}
-    last_record: dict | None = None
+    last_record: dict[str, Any] | None = None
 
-    def _add_amt(totals: dict[str, float], d) -> None:
+    def _add_amt(
+        totals: dict[str, float],
+        d: Mapping[str, Any] | None,
+    ) -> None:
         if not isinstance(d, dict):
             return
-        ccy = (d.get("currency") or "").strip() or "EUR"
+        raw_ccy = d.get("currency")
+        ccy = str(raw_ccy).strip() if raw_ccy is not None else ""
+        ccy = ccy or "EUR"
         try:
-            val = float(d.get("value"))
+            raw_val = d.get("value")
+            if raw_val is None:
+                return
+            val = float(raw_val)
         except Exception:
             return
         totals[ccy] = totals.get(ccy, 0.0) + val
@@ -168,7 +197,10 @@ def _compute_totals_from_jsonl(
         (ccy, val) = next(iter(gross_totals.items()))
         picked = (val, ccy)
 
-    return picked, (last_record.get("event") if isinstance(last_record, dict) else None)
+    last_event = (
+        last_record.get("event") if isinstance(last_record, dict) else None
+    )
+    return picked, last_event
 
 
 def main():
@@ -188,17 +220,22 @@ def main():
     if "last_check" not in st.session_state:
         st.session_state.last_check = time.time()
 
+    api_keys = load_api_keys()
+
     with st.sidebar:
-        st.image("https://img.icons8.com/fluency/96/robot-2.png", width=100)
+        st.image(
+            "https://img.icons8.com/fluency/96/robot-2.png",
+            width=100,
+        )
         st.title("SYSTEM CONTROL")
         st.markdown("---")
-
-        api_keys = load_api_keys()
         real_keys = sum(
             1
             for v in api_keys.values()
             if v
-            and not v.startswith(("PLACEHOLDER", "AZ...", "sk-ant-", "xai-", "BB-"))
+            and not v.startswith(
+                ("PLACEHOLDER", "AZ...", "sk-ant-", "xai-", "BB-")
+            )
         )
 
         st.metric("API Keys Loaded", len(api_keys))
@@ -232,20 +269,30 @@ def main():
             try:
                 resp = requests.post(create_url, json={}, timeout=12)
                 if resp.status_code == 200:
-                    data = resp.json() or {}
-                    st.session_state.last_order_id = str(data.get("order_id") or "")
+                    data = _json_dict(resp)
+                    st.session_state.last_order_id = str(
+                        data.get("order_id") or ""
+                    )
                     st.session_state.last_approve_url = str(
                         data.get("approve_url") or ""
                     )
                     st.session_state.logs.append(
-                        f"[PAYPAL] Order created | id={st.session_state.last_order_id}"
+                        (
+                            "[PAYPAL] Order created | id="
+                            f"{st.session_state.last_order_id}"
+                        )
                     )
                 else:
                     st.session_state.logs.append(
-                        f"[PAYPAL] create-order HTTP {resp.status_code}: {resp.text[:120]}"
+                        (
+                            f"[PAYPAL] create-order HTTP {resp.status_code}: "
+                            f"{resp.text[:120]}"
+                        )
                     )
             except Exception as e:
-                st.session_state.logs.append(f"[PAYPAL] create-order error: {e}")
+                st.session_state.logs.append(
+                    f"[PAYPAL] create-order error: {e}"
+                )
             st.rerun()
 
         if st.session_state.last_order_id:
@@ -256,7 +303,10 @@ def main():
                 disabled=True,
             )
         if st.session_state.last_approve_url:
-            st.link_button("➡️ Zur PayPal Zahlung", st.session_state.last_approve_url)
+            st.link_button(
+                "➡️ Zur PayPal Zahlung",
+                st.session_state.last_approve_url,
+            )
 
         if st.button("✅ Capture (nach Approval)"):
             oid = (st.session_state.last_order_id or "").strip()
@@ -264,18 +314,30 @@ def main():
                 st.session_state.logs.append("[PAYPAL] No order_id to capture")
             else:
                 try:
-                    resp = requests.post(capture_url, json={"order_id": oid}, timeout=12)
+                    resp = requests.post(
+                        capture_url,
+                        json={"order_id": oid},
+                        timeout=12,
+                    )
                     if resp.status_code == 200:
-                        data = resp.json() or {}
+                        data = _json_dict(resp)
                         st.session_state.logs.append(
-                            f"[PAYPAL] capture status={data.get('status')} | id={oid}"
+                            (
+                                f"[PAYPAL] capture status={data.get('status')}"
+                                f" | id={oid}"
+                            )
                         )
                     else:
                         st.session_state.logs.append(
-                            f"[PAYPAL] capture HTTP {resp.status_code}: {resp.text[:120]}"
+                            (
+                                f"[PAYPAL] capture HTTP {resp.status_code}: "
+                                f"{resp.text[:120]}"
+                            )
                         )
                 except Exception as e:
-                    st.session_state.logs.append(f"[PAYPAL] capture error: {e}")
+                    st.session_state.logs.append(
+                        f"[PAYPAL] capture error: {e}"
+                    )
             st.rerun()
 
         if st.button("🔴 STOP SYSTEM"):
@@ -285,7 +347,8 @@ def main():
     # Main Content
     st.title("🤖 MEGA-ULTRA-ROBOTER-KI")
     st.caption(
-        "🔒 Secure Local Connection (Ignore browser warnings - running on localhost)"
+        "🔒 Secure Local Connection "
+        "(Ignore browser warnings - running on localhost)"
     )
     st.markdown("### 🚀 PAYPAL REVENUE MAXIMIZATION SYSTEM")
     st.markdown("---")
@@ -323,16 +386,33 @@ def main():
     with c1:
         if not st.session_state.active:
             st.info(
-                "System is ready for autonomous operation. AI modules are initialized."
+                "System is ready for autonomous operation. "
+                "AI modules are initialized."
             )
             if st.button("ACTIVATE REVENUE GENERATION", type="primary"):
                 st.session_state.active = True
                 st.rerun()
 
-        if st.button("🧪 TEST (Requires REAL webhook)"):
-            st.toast("Kein Demo-Sale. Sende echte PayPal Zahlung / Webhook.", icon="⚠️")
+        if st.button("✅ Webhook-Verifikation prüfen / Setup"):
+            st.toast(
+                (
+                    "Echte Verifikation klappt nur über PayPal → "
+                    "öffentliche HTTPS URL."
+                ),
+                icon="ℹ️",
+            )
             st.session_state.logs.append(
-                "[TEST] No demo sale. Waiting for REAL webhook."
+                (
+                    "[WEBHOOK] Für _verified=true muss PayPal an "
+                    "https://<public>/paypal/webhook senden "
+                    "(mit Signatur-Headern)."
+                )
+            )
+            st.session_state.logs.append(
+                (
+                    "[WEBHOOK] Lokal testen ohne PayPal ist DEV-only: "
+                    "Server mit ALLOW_UNVERIFIED_WEBHOOKS=true starten."
+                )
             )
             st.rerun()
         else:
@@ -353,13 +433,31 @@ def main():
                     try:
                         resp = requests.get(stats_url, timeout=5)
                         if resp.status_code == 200:
-                            stats = resp.json() or {}
-                            net_map = (
-                                stats.get("estimated_net") or stats.get("net") or {}
+                            stats = _json_dict(resp)
+                            raw_net = (
+                                stats.get("estimated_net")
+                                or stats.get("net")
                             )
-                            gross_map = (
-                                stats.get("gross") or stats.get("gross_total") or {}
+                            if isinstance(raw_net, dict):
+                                typed_net = cast(dict[str, Any], raw_net)
+                                net_map: dict[str, Any] = {
+                                    str(k): v for k, v in typed_net.items()
+                                }
+                            else:
+                                net_map = {}
+
+                            raw_gross = (
+                                stats.get("gross")
+                                or stats.get("gross_total")
                             )
+                            if isinstance(raw_gross, dict):
+                                typed_gross = cast(dict[str, Any], raw_gross)
+                                gross_map: dict[str, Any] = {
+                                    str(k): v for k, v in typed_gross.items()
+                                }
+                            else:
+                                gross_map = {}
+
                             picked = _pick_currency_total(
                                 net_map
                             ) or _pick_currency_total(gross_map)
@@ -371,26 +469,50 @@ def main():
                                 remote_ok = True
 
                             last_log = st.session_state.get(
-                                "last_remote_stats_log", 0.0
+                                "last_remote_stats_log",
+                                0.0,
                             )
                             if time.time() - last_log > 30:
-                                st.session_state.last_remote_stats_log = time.time()
+                                st.session_state.last_remote_stats_log = (
+                                    time.time()
+                                )
+                                status = (
+                                    "OK"
+                                    if remote_ok
+                                    else "missing totals"
+                                )
                                 st.session_state.logs.append(
-                                    f"[PAYPAL WEBHOOK] /stats {'OK' if remote_ok else 'missing totals'} | url={stats_url}"
+                                    (
+                                        "[PAYPAL WEBHOOK] /stats "
+                                        f"{status}"
+                                        f" | url={stats_url}"
+                                    )
                                 )
                         else:
                             last_log = st.session_state.get(
-                                "last_remote_stats_log", 0.0
+                                "last_remote_stats_log",
+                                0.0,
                             )
                             if time.time() - last_log > 30:
-                                st.session_state.last_remote_stats_log = time.time()
+                                st.session_state.last_remote_stats_log = (
+                                    time.time()
+                                )
+                                code = resp.status_code
                                 st.session_state.logs.append(
-                                    f"[PAYPAL WEBHOOK] /stats HTTP {resp.status_code} | url={stats_url}"
+                                    (
+                                        f"[PAYPAL WEBHOOK] /stats HTTP {code}"
+                                        f" | url={stats_url}"
+                                    )
                                 )
                     except Exception as e:
-                        last_log = st.session_state.get("last_remote_stats_log", 0.0)
+                        last_log = st.session_state.get(
+                            "last_remote_stats_log",
+                            0.0,
+                        )
                         if time.time() - last_log > 30:
-                            st.session_state.last_remote_stats_log = time.time()
+                            st.session_state.last_remote_stats_log = (
+                                time.time()
+                            )
                             st.session_state.logs.append(
                                 f"[PAYPAL WEBHOOK] /stats error: {e}"
                             )
@@ -399,28 +521,35 @@ def main():
                     events_path = _resolve_events_path(api_keys)
                     picked, _last_evt = _compute_totals_from_jsonl(events_path)
                     if picked is not None:
-                        st.session_state.revenue, st.session_state.revenue_currency = (
-                            picked
-                        )
+                        (
+                            st.session_state.revenue,
+                            st.session_state.revenue_currency,
+                        ) = picked
                     elif not any(
                         "Waiting for webhook" in log
                         for log in st.session_state.logs[-5:]
                     ):
                         st.session_state.logs.append(
-                            "[PAYPAL] Waiting for webhook events. Start webhook_server.py OR set PAYPAL_INGEST_BASE_URL/PAYPAL_STATS_URL."
+                            (
+                                "[PAYPAL] Waiting for webhook events. "
+                                "Start webhook_server.py OR set "
+                                "PAYPAL_INGEST_BASE_URL/PAYPAL_STATS_URL."
+                            )
                         )
 
                 revenue_placeholder.metric(
                     label="Current Revenue",
                     value=_format_money(
-                        st.session_state.revenue, st.session_state.revenue_currency
+                        st.session_state.revenue,
+                        st.session_state.revenue_currency,
                     ),
                     delta="",
                 )
 
             # Important: Avoid tight auto-rerun loops.
-            # Continuous reruns can crash Streamlit/Tornado on client disconnect
-            # (e.g., tornado.websocket.WebSocketClosedError). Let Streamlit rerun
+            # Continuous reruns can crash Streamlit/Tornado on
+            # client disconnect.
+            # Example: tornado.websocket.WebSocketClosedError.
             # naturally (browser reload/interactions) for stability.
             log_text = "\n".join(st.session_state.logs[-10:])
             log_placeholder.code(log_text, language="bash")

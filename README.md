@@ -24,6 +24,8 @@ This system is a fully autonomous revenue maximization bot connected to the PayP
 - **PayPal Keys:** Managed in `env.ini` (Live Mode).
 - **AI Keys:** Managed in `env.ini` (Claude/Grok).
 
+> Tipp: Nutze `.env.example` als Vorlage und halte echte Secrets nur lokal in `env.ini` oder als Environment/Deployment-Secrets (niemals committen).
+
 ### ⚠️ Important Notes
 
 ### 🛠️ Why revenue can stay at €0.00
@@ -38,18 +40,20 @@ This repo includes a local webhook ingest server that writes incoming PayPal eve
 
 - Run `RUN_WEBHOOK_SERVER.bat` (local: `http://127.0.0.1:8503/health`)
 
-2) Configure PayPal Webhook
+> Hinweis: Der Endpoint `/paypal/webhook` ist standardmäßig LIVE-strikt (erfordert echte PayPal-Signatur-Header). Unsigned lokale Tests sind nur DEV-only via `ALLOW_UNVERIFIED_WEBHOOKS=true`.
+
+1) Configure PayPal Webhook
 
 - Webhook URL: `https://<your-public-url>/paypal/webhook`
 - Add event types like `PAYMENT.CAPTURE.COMPLETED`
 
-3) Add env keys (never commit secrets)
+1) Add env keys (never commit secrets)
 
 - `PAYPAL_WEBHOOK_ID`
 - `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET`
 - Optional Sandbox keys: `PAYPAL_ENV=SANDBOX`, `PAYPAL_SANDBOX_CLIENT_ID`, `PAYPAL_SANDBOX_CLIENT_SECRET`, `PAYPAL_SANDBOX_WEBHOOK_ID`
 
-4) In the Streamlit sidebar
+1) In the Streamlit sidebar
 
 - Set "PAYPAL MODE" to `WEBHOOKS (Recommended)`.
 
