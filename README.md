@@ -45,7 +45,7 @@ This repo includes a local webhook ingest server that writes incoming PayPal eve
 
 1. **Start the webhook server**
    - Run `RUN_WEBHOOK_SERVER.bat` (local: `http://127.0.0.1:8503/health`)
-   
+
    > Hinweis: Der Endpoint `/paypal/webhook` ist standardmäßig LIVE-strikt (erfordert echte PayPal-Signatur-Header). Unsigned lokale Tests sind nur DEV-only via `ALLOW_UNVERIFIED_WEBHOOKS=true`.
 
 2. **Configure PayPal Webhook**

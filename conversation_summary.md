@@ -1,49 +1,32 @@
-1. Previous Conversation:
-   The conversation began with the user providing a task description indicating an interactive rebase in progress on the 'main' branch, rebasing onto commit 4d88279. The rebase involved multiple commits, with some already applied and others pending. The assistant checked the Git status, attempted to continue the rebase, encountered merge conflicts in dashboard_ui.py, resolved them by merging code sections related to the dashboard UI and settings, and then proceeded. Subsequently, another conflict arose in README.md, which was resolved by selecting the updated content about the Quantum Avatar project. The rebase was continued, and upon checking status, it was confirmed complete with the branch ahead by 4 commits.
+1. Previous Conversation  
+   - Focus moved from an earlier Git rebase to documenting the MEGA-ULTRA-ROBOTER-KI production workflow.  
+   - README.md now explains the launcher-driven install (`START_INSTALL.bat`), dashboard start, and webhook ingestion pipeline.  
+   - Repository hygiene (git remotes, `.vscode` settings, tracked files) was validated so teammates like Kilo can work safely in VS Code.
 
-2. Current Work:
-   The interactive Git rebase of the 'main' branch onto commit 4d88279 has been completed successfully. All commits have been applied, including "Update Dashboard UI and API configuration", "Final System Update: AI Fallback and Live Mode", "Locked system to LIVE mode (Production)", and "Update documentation to reflect LIVE status". The working tree is clean, and the branch is now ahead of 'origin/main' by 4 commits.
+2. Current Work  
+   - Branch `worktree-2025-12-23T21-57-39` is clean; README.md, launcher scripts, and VS Code tasks reflect the current system.  
+   - `.vscode/tasks.json` provides one-click commands for running the webhook server (strict or DEV), Streamlit dashboard, and webhook load tests.  
+   - `git remote -v` shows `mega` as the canonical repo (`cashmoneycolors/-MEGA-ULTRA-ROBOTER-KI.git`) and `origin` as the legacy `quantum-avatar.git`.
 
-3. Key Technical Concepts:
-   - Git rebase and interactive rebase: Used to rewrite commit history by replaying commits onto a new base.
-   - Merge conflicts: Occur when Git cannot automatically merge changes from different commits; require manual resolution.
-   - Streamlit: A Python library for building web apps, used here for the dashboard UI.
-   - PayPal integration: Involves API endpoints for creating and capturing orders, with live/sandbox modes.
-   - Environment variables and API keys: Loaded from files like env.ini or .env for configuration.
-   - Webhook server: Handles PayPal webhooks for revenue tracking, using endpoints like /stats and /paypal/create-order.
-   - JSON Lines (JSONL): Format for storing event data in files like data/paypal_events.jsonl.
+3. Key Technical Concepts  
+   - Streamlit dashboard (`dashboard_ui.py`) pulls stats from the FastAPI webhook server with fallback to local JSONL.  
+   - PayPal webhooks are LIVE-strict by default; DEV mode requires `ALLOW_UNVERIFIED_WEBHOOKS=true`.  
+   - Launcher scripts (`START_INSTALL.bat`, `install_launchers.bat`, `INSTALL_NOW.py`) rely on `pywin32` to create desktop/start-menu shortcuts.
 
-4. Relevant Files and Code:
-   - dashboard_ui.py
-     - Summary of why this file is important: Main Streamlit application file for the dashboard, handling UI rendering, API key loading, revenue metrics, and PayPal checkout functionality.
-     - Summary of the changes made: Resolved merge conflict by combining HEAD version (webhooks mode) with the incoming commit (locked to LIVE mode), keeping the LIVE environment setting and retaining checkout functionality.
-     - Important Code Snippet: 
-       ```python
-       st.markdown("### Settings")
-       # Locked to Live Mode as requested
-       st.success("🌍 ENVIRONMENT: LIVE (Production)")
-       base_url = "https://api-m.paypal.com"
-       ```
-   - README.md
-     - Summary of why this file is important: Documentation for the project, including setup instructions, deployment guides, and security notes.
-     - Summary of the changes made: Resolved merge conflict by discarding the HEAD version ("-MEGA-ULTRA-ROBOTER-KI") and keeping the incoming commit's detailed documentation about the Quantum Avatar Streamlit Dashboard.
-     - Important Code Snippet: 
-       ```markdown
-       # Quantum Avatar — Streamlit Dashboard
-       
-       Kurz: Lokales Streamlit‑Dashboard für das Quantum Avatar Projekt mit Desktop‑Launcher und Anweisungen für sicheres Deployment.
-       ```
-   - Other relevant files: .git/rebase-merge/git-rebase-todo (lists rebase commands), .env (environment variables), scripts/send_test_webhook.py (webhook testing), webhook_server.py (server for handling PayPal webhooks).
+4. Relevant Files and Code  
+   - `README.md`: Production status, launcher instructions, webhook steps, secret-handling guidance.  
+   - `.vscode/tasks.json`: Defines VS Code tasks for running webhook server/dashboards and firing 1/50/10000 webhook test events.  
+   - `webhook_server.py`: FastAPI entry point exposing `/health`, `/paypal/webhook`, `/stats`, `/paypal/create-order`, `/paypal/capture-order`.  
+   - `dashboard_ui.py`: Streamlit UI locked to LIVE environment, surfacing stats from `/stats` or local JSONL.
 
-5. Problem Solving:
-   - Initial issue: Rebase paused due to merge conflict in dashboard_ui.py between HEAD (webhooks mode) and incoming commit (LIVE mode locked).
-   - Solution: Manually edited dashboard_ui.py to merge the conflicting sections, keeping the LIVE mode indicator and preserving the checkout code.
-   - Subsequent issue: Another conflict in README.md between a simple title and detailed documentation.
-   - Solution: Resolved by selecting the detailed documentation from the incoming commit, ensuring comprehensive project info is retained.
-   - Final resolution: After staging changes, continued the rebase successfully without further conflicts.
+5. Problem Solving  
+   - Replaced outdated README references to the deprecated launcher with the START_INSTALL-based workflow.  
+   - Clarified webhook instructions with numbered steps, strict-mode warning, and env key checklist.  
+   - Verified `.vscode` files are purposely tracked so collaborators share identical tasks/extensions.  
+   - Workspace search confirms no other files mention the old launcher name; the README is the single source for that setup.
 
-6. Pending Tasks and Next Steps:
-   - Pending Task 1: Push the rebased commits to the remote repository to synchronize 'origin/main'.
-     - Next Steps: Run `git push origin main` to publish the local commits. Verify the push with `git log --oneline` to confirm the history. Direct quote from recent status: "Your branch is ahead of 'origin/main' by 4 commits."
-   - Pending Task 2: Test the dashboard UI and webhook server to ensure LIVE mode functionality and PayPal integration work correctly post-rebase.
-     - Next Steps: Run the dashboard with `streamlit run dashboard_ui.py` and test webhook endpoints. If issues arise, debug and fix in relevant files like dashboard_ui.py or webhook_server.py. Direct quote: "Locked system to LIVE mode (Production)" (ensuring no mode switches).
+6. Pending Tasks / Next Steps  
+   - Coordinate with Kilo via VS Code tasks: run webhook server (8503) + Streamlit dashboard (8502) simultaneously, then use `scripts/send_test_webhook.py` to validate ingest.  
+   - If new business modules (`cart.py`, `orders.py`, `products.py`) are ready, add them to git and push to `mega`.  
+   - Before deployment, run end-to-end test: `RUN_WEBHOOK_SERVER.bat` + dashboard + webhook load (50x/10000x) to confirm stats aggregation and AI prompts behave as expected.  
+   - Current `git status -sb` shows this summary file as the only pending change; commit once the notes look good.
