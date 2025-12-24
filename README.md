@@ -1,137 +1,52 @@
-# 🤖 MEGA ULTRA ROBOTER KI
+# 🤖 MEGA-ULTRA-ROBOTER-KI
 
-> **Autonomes KI-System mit Quantum-Integration, Self-Optimization und Multi-Projekt-Vernetzung**
+## 🚀 PayPal Revenue via Webhooks
 
-![Version](https://img.shields.io/badge/Version-2.0.0-blue)
-![.NET](https://img.shields.io/badge/.NET-8.0-purple)
-![Python](https://img.shields.io/badge/Python-3.13-green)
-![Status](https://img.shields.io/badge/Status-Production-success)
+Kernpfad: **PayPal Webhook → JSONL (`data/paypal_events.jsonl`) → `/stats` → Streamlit Dashboard**.
 
----
+### ✅ Features
 
-## 🚀 Schnellstart
+- Webhook-Receiver (FastAPI): `POST /paypal/webhook`, `GET /stats`, `GET /health`
+- Streamlit Dashboard (8502) liest Umsatz aus `/stats` (remote) oder lokalem JSONL-Fallback
+- Optionale PayPal Checkout Demo: `POST /paypal/create-order`, `POST /paypal/capture-order`
 
-### Windows EXE (Empfohlen)
-`powershell
-# Direkt starten
-.\🤖ROBOTER_KI_APP.exe
-`
+### 🛠️ Lokales Starten
 
-### Aus Source bauen
-`powershell
-cd "MEGA ULTRA ROBOTER KI"
-dotnet build -c Release
-dotnet publish -c Release -r win-x64 --self-contained
-`
+Empfohlen (VS Code Tasks):
 
----
+- Webhook Server: Task "MEGA: Run Webhook Server (8503)"
+- Dashboard: Task "MEGA: Run Streamlit Dashboard (8502)"
 
-## 📊 System-Übersicht
+Alternativ manuell:
 
-| Komponente | Beschreibung | Status |
-|------------|--------------|--------|
-| **QuantumCore** | Quantum Integration Hub | ✅ Aktiv |
-| **AutonomousExpander** | Selbst-optimierendes System | ✅ Aktiv |
-| **UnifiedProjectIntegration** | C# Projekt-Integration | ✅ Aktiv |
-| **QuantumAvatar** | 35 Python-Services | ✅ Integriert |
-| **ZenithOptimizer** | Autonome Wachstumsstrategie | ✅ Integriert |
+1. Webhook Server: `python webhook_server.py` (Port via `WEBHOOK_PORT`/`PORT`, default 8503)
+2. Dashboard: `python -m streamlit run dashboard_ui.py --server.port 8502`
 
----
+### 🔑 Konfiguration (niemals Secrets committen)
 
-## 🏗️ Architektur
+Nutze `.env.example` als Vorlage und halte echte Secrets nur lokal in `env.ini`/`.env` oder als Deployment-Secrets.
 
-`
-🤖ROBOTER_KI_APP.exe (64.95 MB)
-├── C# Core (10 Module, 2000+ Zeilen)
-│   ├── RoboterKIMaxUltraApp.cs      # Hauptanwendung
-│   ├── QuantumCore.cs               # Quantum Hub
-│   ├── AutonomousExpander.cs        # Auto-Optimierung
-│   ├── QuantumModules.cs            # 5 Quantum-Module
-│   ├── UnifiedProjectIntegration.cs # Projekt-Integration
-│   ├── RoboterKIUltraController.cs  # Controller
-│   ├── ImagenGenerator.cs           # Bildgenerierung
-│   └── GeminiTextGenerator.cs       # Text-AI
-│
-├── Python Integration (40+ Module)
-│   ├── integration_hub.py           # Universal Hub
-│   ├── mega_roboter_ki.py           # Python Core
-│   └── modules/                     # QuantumAvatar + mehr
-│
-└── Integrierte Projekte
-    ├── ZenithCoreSystem
-    ├── Kontrollturm
-    ├── MegaUltraNetwork
-    └── AI_CORE
-`
+Für echte Webhook-Verifikation (LIVE oder SANDBOX):
 
----
+- `PAYPAL_CLIENT_ID`
+- `PAYPAL_CLIENT_SECRET`
+- `PAYPAL_WEBHOOK_ID`
 
-## ⚙️ Konfiguration
+### ⚠️ Hinweise
 
-### Umgebungsvariablen (.env)
-`nv
-JWT_SECRET=<your-secret>
-ADMIN_PASSWORD_HASH=<your-hash>
-OPENAI_API_KEY=<optional>
-`
+#### Warum Umsatz bei €0.00 bleiben kann
 
-### Secrets setzen (PowerShell)
-`powershell
-$env:JWT_SECRET = [guid]::NewGuid().ToString("N")
-$env:ADMIN_PASSWORD_HASH = "YourSecureHash"
-`
+Wenn PayPal Auth klappt, aber Transaktionen nie auftauchen: Die PayPal Reporting API kann **403 NOT_AUTHORIZED** liefern (Permissions). Dieses Repo setzt daher primär auf **Webhook-Ingestion** statt Polling.
 
----
+#### Webhooks (empfohlen)
 
-## �� Module
+1. Webhook Server starten
+	- `RUN_WEBHOOK_SERVER.bat` (Health: `http://127.0.0.1:8503/health`)
+	- Hinweis: `POST /paypal/webhook` ist standardmäßig **LIVE-strikt** (erwartet echte PayPal-Signatur-Header). Unsigned lokale Tests sind DEV-only via `ALLOW_UNVERIFIED_WEBHOOKS=true`.
+2. PayPal Webhook konfigurieren
+	- Webhook URL: `https://<your-public-url>/paypal/webhook`
+	- Event Types z.B. `PAYMENT.CAPTURE.COMPLETED`
+3. Dashboard an `/stats` hängen
+	- In `env.ini`: `PAYPAL_INGEST_BASE_URL=https://<your-public-url>` oder `PAYPAL_STATS_URL=https://<your-public-url>/stats`
 
-### QuantumCore
-- **IQuantumModule Interface** - Einheitliche Modul-Schnittstelle
-- **QuantumAIModule** - KI-Integration (OpenAI, Ollama)
-- **QuantumPaymentModule** - Zahlungs-Integration (Stripe)
-- **QuantumCloudModule** - Cloud-Services (AWS, Azure)
-
-### AutonomousExpander
-- Automatische Code-Analyse
-- Selbst-Optimierung
-- Sichere Verbesserungen ohne Breaking Changes
-
-### UnifiedProjectIntegration
-- ZenithOptimizer (Wachstumsstrategie)
-- KontrollturmSystem (Steuerung)
-- AINetworkHub (Vernetzung)
-
----
-
-## 📦 Build-Info
-
-| Eigenschaft | Wert |
-|-------------|------|
-| Framework | .NET 8.0 |
-| Runtime | win-x64 |
-| Typ | Self-contained Single-File |
-| Größe | 64.95 MB |
-| Fehler | 0 |
-| Warnungen | 0 |
-
----
-
-## 🧪 Tests
-
-`powershell
-# Build testen
-dotnet build -c Release
-
-# Python-Integration testen
-python -c "from integration_hub import UniversalIntegrationHub; print('OK')"
-`
-
----
-
-## 📝 Lizenz
-
-MIT License - Siehe LICENSE Datei
-
----
-
-**Erstellt:** 06.12.2025 | **Autor:** MEGA ULTRA ROBOTER KI Team
+*System verified and deployed on 2025-12-17.*
