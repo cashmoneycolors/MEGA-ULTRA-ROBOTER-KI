@@ -16,3 +16,17 @@ __pycache__/
 bin/
 obj/
 publish/
+
+
+# Build artifacts / caches
+AI_CORE/obj/
+**/obj/
+
+# Python bytecode
+**/__pycache__/
+**/*.pyc
+
+# Local scratch / error logs
+Fehler-count.txt
+dotnet-errors.txt
+
