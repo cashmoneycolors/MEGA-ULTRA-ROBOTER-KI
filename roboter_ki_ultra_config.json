@@ -1,6 +1,6 @@
 {
   "ADMIN_PASSWORD_HASH": "admin",
-  "JWT_SECRET": "432544b1bd1e4ecbb97a35446ef6d808",
+  "JWT_SECRET": "39ee0233b3e64dbe9211d08f2fb9e4f8",
   "LLM_MODEL_NAME": "llama3.2:3b",
   "OLLAMA_TARGET_URL": "http://localhost:11434",
   "EXE_HASH": "",

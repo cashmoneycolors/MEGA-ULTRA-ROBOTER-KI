@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEGA-ULTRA-ROBOTER-KI Mobile</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 10px; }
+        .container { max-width: 100%; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 18px; color: #00ff00; font-size: 18px; }
+        .card { background: #1a1a1a; padding: 14px; border-radius: 8px; border-left: 3px solid #00ff00; margin-bottom: 10px; }
+        .card h3 { color: #00ff00; margin-bottom: 8px; font-size: 13px; }
+        .value { font-size: 20px; font-weight: bold; }
+        .unit { color: #888; font-size: 10px; }
+        .progress-bar { width: 100%; height: 14px; background: #333; border-radius: 8px; overflow: hidden; margin-top: 8px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #00ff00, #00aa00); }
+        .btn { background: #00ff00; color: #000; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        .btn:active { background: #00aa00; }
+        .btn.secondary { background: #1a1a1a; border: 1px solid #00ff00; color: #00ff00; }
+        .btn.secondary:active { background: #111; }
+        .stat-row { display: flex; justify-content: space-between; margin: 6px 0; gap: 10px; }
+        .stat-label { color: #888; }
+        .stat-value { color: #00ff00; font-weight: bold; text-align: right; }
+        .hint { color: #888; font-size: 11px; margin-top: 8px; }
+        .error { color: #ff4d4d; font-size: 12px; margin-top: 8px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 MEGA-ULTRA-ROBOTER-KI (Mobile)</h1>
+
+        <div class="card">
+            <h3>Aktuelle Einnahmen (Net)</h3>
+            <div class="value" id="revenue">0.00</div>
+            <div class="unit" id="currency">EUR</div>
+        </div>
+
+        <div class="card">
+            <h3>Monatliches Ziel</h3>
+            <div class="value" id="goal">450000</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="hint" id="progress">0%</div>
+        </div>
+
+        <div class="card">
+            <h3>Webhook Stats</h3>
+            <div class="stat-row">
+                <span class="stat-label">Events (unique):</span>
+                <span class="stat-value" id="events">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Events (total lines):</span>
+                <span class="stat-value" id="eventsTotal">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Gross:</span>
+                <span class="stat-value" id="gross">0.00</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Net (est.):</span>
+                <span class="stat-value" id="net">0.00</span>
+            </div>
+            <div class="hint" id="apiHint"></div>
+            <div class="error" id="error"></div>
+        </div>
+
+        <button class="btn" onclick="createCheckout()">💳 PayPal Checkout-Link erstellen</button>
+        <button class="btn secondary" onclick="refreshData()">🔄 Refresh</button>
+
+        <div class="hint">
+            Tipp: Auf dem Handy muss der PC erreichbar sein (LAN). Standard-API ist <code>http://&lt;PC-IP&gt;:8503</code>.
+        </div>
+    </div>
+
+    <script>
+        function getQueryParam(name, fallback = '') {
+            const u = new URL(window.location.href);
+            return (u.searchParams.get(name) || fallback || '').trim();
+        }
+
+        function formatMoney(value) {
+            if (typeof value !== 'number' || !isFinite(value)) return '0.00';
+            return value.toFixed(2);
+        }
+
+        function pickCurrencyTotal(map) {
+            if (!map || typeof map !== 'object') return null;
+            if (Object.prototype.hasOwnProperty.call(map, 'EUR')) {
+                const v = Number(map['EUR']);
+                if (isFinite(v)) return { value: v, currency: 'EUR' };
+            }
+            const keys = Object.keys(map);
+            if (keys.length === 1) {
+                const c = keys[0];
+                const v = Number(map[c]);
+                if (isFinite(v)) return { value: v, currency: String(c) };
+            }
+            for (const c of keys) {
+                const v = Number(map[c]);
+                if (isFinite(v)) return { value: v, currency: String(c) };
+            }
+            return null;
+        }
+
+        const nodeBase = `${window.location.protocol}//${window.location.host}`;
+        const webhookBase = getQueryParam('webhook', '').replace(/\/+$/, '');
+        const monthlyGoal = Number(getQueryParam('goal', '450000')) || 450000;
+
+        document.getElementById('goal').textContent = String(monthlyGoal);
+        document.getElementById('apiHint').textContent = webhookBase
+            ? `Node: ${nodeBase} | Webhook override: ${webhookBase}`
+            : `Node: ${nodeBase} | Webhook: proxied (recommended)`;
+
+        async function updateDashboard() {
+            const errEl = document.getElementById('error');
+            errEl.textContent = '';
+
+            try {
+                const statsUrl = webhookBase ? `${webhookBase}/stats` : `${nodeBase}/api/stats`;
+                const stats = await fetch(statsUrl, { cache: 'no-store' }).then(r => {
+                    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                    return r.json();
+                });
+
+                const netPick = pickCurrencyTotal(stats.estimated_net || stats.net || null);
+                const grossPick = pickCurrencyTotal(stats.gross || stats.gross_total || null);
+                const picked = netPick || grossPick || { value: 0.0, currency: 'EUR' };
+
+                document.getElementById('revenue').textContent = formatMoney(picked.value);
+                document.getElementById('currency').textContent = String(picked.currency || 'EUR');
+
+                const pct = Math.max(0, Math.min(100, (picked.value / monthlyGoal) * 100));
+                document.getElementById('progress-fill').style.width = `${pct.toFixed(2)}%`;
+                document.getElementById('progress').textContent = `${pct.toFixed(2)}%`;
+
+                document.getElementById('events').textContent = String(stats.events ?? 0);
+                document.getElementById('eventsTotal').textContent = String(stats.events_total ?? 0);
+
+                if (grossPick) {
+                    document.getElementById('gross').textContent = `${formatMoney(grossPick.value)} ${grossPick.currency}`;
+                } else {
+                    document.getElementById('gross').textContent = '0.00';
+                }
+
+                if (netPick) {
+                    document.getElementById('net').textContent = `${formatMoney(netPick.value)} ${netPick.currency}`;
+                } else {
+                    document.getElementById('net').textContent = '0.00';
+                }
+
+            } catch (e) {
+                errEl.textContent = `Fehler beim Laden von /stats\n${String(e)}`;
+            }
+        }
+
+        async function createCheckout() {
+            const errEl = document.getElementById('error');
+            errEl.textContent = '';
+
+            try {
+                const createUrl = webhookBase ? `${webhookBase}/paypal/create-order` : `${nodeBase}/api/paypal/create-order`;
+                const resp = await fetch(createUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                if (!resp.ok) {
+                    const t = await resp.text();
+                    throw new Error(`create-order HTTP ${resp.status}: ${t.slice(0, 200)}`);
+                }
+                const data = await resp.json();
+                if (data && data.approve_url) {
+                    window.location.href = data.approve_url;
+                } else {
+                    throw new Error('Keine approve_url im Response');
+                }
+            } catch (e) {
+                errEl.textContent = `Checkout-Link fehlgeschlagen\n${String(e)}`;
+            }
+        }
+
+        function refreshData() {
+            updateDashboard();
+        }
+
+        updateDashboard();
+        setInterval(updateDashboard, 5000);
+    </script>
+</body>
+</html>

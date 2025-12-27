@@ -41,12 +41,17 @@ Wenn PayPal Auth klappt, aber Transaktionen nie auftauchen: Die PayPal Reporting
 #### Webhooks (empfohlen)
 
 1. Webhook Server starten
-	- `RUN_WEBHOOK_SERVER.bat` (Health: `http://127.0.0.1:8503/health`)
-	- Hinweis: `POST /paypal/webhook` ist standardmäßig **LIVE-strikt** (erwartet echte PayPal-Signatur-Header). Unsigned lokale Tests sind DEV-only via `ALLOW_UNVERIFIED_WEBHOOKS=true`.
-2. PayPal Webhook konfigurieren
-	- Webhook URL: `https://<your-public-url>/paypal/webhook`
-	- Event Types z.B. `PAYMENT.CAPTURE.COMPLETED`
-3. Dashboard an `/stats` hängen
-	- In `env.ini`: `PAYPAL_INGEST_BASE_URL=https://<your-public-url>` oder `PAYPAL_STATS_URL=https://<your-public-url>/stats`
+
+- `RUN_WEBHOOK_SERVER.bat` (Health: `http://127.0.0.1:8503/health`)
+- Hinweis: `POST /paypal/webhook` ist standardmäßig **LIVE-strikt** (erwartet echte PayPal-Signatur-Header). Unsigned lokale Tests sind DEV-only via `ALLOW_UNVERIFIED_WEBHOOKS=true`.
+
+1. PayPal Webhook konfigurieren
+
+- Webhook URL: `https://<your-public-url>/paypal/webhook`
+- Event Types z.B. `PAYMENT.CAPTURE.COMPLETED`
+
+1. Dashboard an `/stats` hängen
+
+- In `env.ini`: `PAYPAL_INGEST_BASE_URL=https://<your-public-url>` oder `PAYPAL_STATS_URL=https://<your-public-url>/stats`
 
 *System verified and deployed on 2025-12-17.*

@@ -2,3 +2,7 @@ c:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\AI_CORE\obj\Debug\net9.0\
 c:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\AI_CORE\obj\Debug\net9.0\MegaUltraAIIntegrator.GeneratedMSBuildEditorConfig.editorconfig
 c:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\AI_CORE\obj\Debug\net9.0\MegaUltraAIIntegrator.csproj.CoreCompileInputs.cache
 c:\Users\Laptop\Desktop\Projekte\MEGA ULTRA ROBOTER KI\AI_CORE\obj\Debug\net9.0\MegaUltraAIIntegrator.sourcelink.json
+C:\cashmoneycolors\-MEGA-ULTRA-ROBOTER-KI\AI_CORE\obj\Debug\net9.0\MegaUltraAIIntegrator.csproj.AssemblyReference.cache
+C:\cashmoneycolors\-MEGA-ULTRA-ROBOTER-KI\AI_CORE\obj\Debug\net9.0\MegaUltraAIIntegrator.GeneratedMSBuildEditorConfig.editorconfig
+C:\cashmoneycolors\-MEGA-ULTRA-ROBOTER-KI\AI_CORE\obj\Debug\net9.0\MegaUltraAIIntegrator.csproj.CoreCompileInputs.cache
+C:\cashmoneycolors\-MEGA-ULTRA-ROBOTER-KI\AI_CORE\obj\Debug\net9.0\MegaUltraAIIntegrator.sourcelink.json
