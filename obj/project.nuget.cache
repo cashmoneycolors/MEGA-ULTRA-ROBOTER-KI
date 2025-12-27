@@ -1,15 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "0qV/OjZKrqo=",
+  "dgSpecHash": "kmR3r2+El8s=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Laptop\\Desktop\\Projekte\\MEGA ULTRA ROBOTER KI\\\uD83E\uDD16ROBOTER_KI_APP.csproj",
+  "projectFilePath": "C:\\cashmoneycolors\\-MEGA-ULTRA-ROBOTER-KI\\\uD83E\uDD16ROBOTER_KI_APP.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Laptop\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.22\\microsoft.net.illink.tasks.8.0.22.nupkg.sha512",
-    "C:\\Users\\Laptop\\.nuget\\packages\\system.codedom\\8.0.0\\system.codedom.8.0.0.nupkg.sha512",
-    "C:\\Users\\Laptop\\.nuget\\packages\\system.management\\8.0.0\\system.management.8.0.0.nupkg.sha512",
-    "C:\\Users\\Laptop\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\8.0.22\\microsoft.netcore.app.runtime.win-x64.8.0.22.nupkg.sha512",
-    "C:\\Users\\Laptop\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\8.0.22\\microsoft.windowsdesktop.app.runtime.win-x64.8.0.22.nupkg.sha512",
-    "C:\\Users\\Laptop\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\8.0.22\\microsoft.aspnetcore.app.runtime.win-x64.8.0.22.nupkg.sha512"
+    "C:\\Users\\nazmi\\.nuget\\packages\\system.codedom\\8.0.0\\system.codedom.8.0.0.nupkg.sha512",
+    "C:\\Users\\nazmi\\.nuget\\packages\\system.management\\8.0.0\\system.management.8.0.0.nupkg.sha512"
   ],
   "logs": []
 }

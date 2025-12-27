@@ -26,6 +26,75 @@
 				"$msCompile"
 			],
 			"group": "build"
+		},
+		{
+			"label": "Health: Python quick check",
+			"type": "shell",
+			"command": "C:/cashmoneycolors/-MEGA-ULTRA-ROBOTER-KI/.venv/Scripts/python.exe",
+			"args": [
+				"--version"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build MegaUltraAIIntegrator (One-off)",
+			"type": "shell",
+			"command": "dotnet",
+			"args": [
+				"build",
+				"AI_CORE/MegaUltraAIIntegrator.csproj"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"group": "build"
+		},
+		{
+			"label": "MEGA: Live Health Check (Ports+HTTP)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"$ErrorActionPreference='Continue'; Write-Host \"== PORT CHECK (LISTENING) ==\"; $ports = 11434,3000,8000,8502,8503; foreach($p in $ports){ $hits = netstat -ano | Select-String (\":\"+$p+\"\\s+\"); if($hits){ Write-Host (\"Port {0}: LISTENING\" -f $p); $hits | Select-Object -First 2 | ForEach-Object { $_.Line } } else { Write-Host (\"Port {0}: NOT LISTENING\" -f $p) } }; Write-Host \"\\n== HTTP CHECKS ==\"; function Test-Url($url){ try { $r = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 3; Write-Host (\"OK {0} -> {1}\" -f $url, $r.StatusCode); if($r.Content){ $c=$r.Content; if($c.Length -gt 160){$c=$c.Substring(0,160)+'...'}; Write-Host ('  Body: '+$c) } } catch { Write-Host (\"FAIL {0} -> {1}\" -f $url, $_.Exception.Message) } }; Test-Url \"http://127.0.0.1:11434/api/tags\"; Test-Url \"http://127.0.0.1:8000/health\"; Test-Url \"http://127.0.0.1:8503/health\"; Test-Url \"http://127.0.0.1:3000/status\"; Test-Url \"http://127.0.0.1:3000/health\"; Write-Host \"\\n== TOOLING ==\"; try { Write-Host ('node: ' + (node --version)) } catch { Write-Host 'node: NOT FOUND' }; try { Write-Host ('dotnet: ' + (dotnet --version)) } catch { Write-Host 'dotnet: NOT FOUND' }; try { Write-Host ('python: ' + (C:/cashmoneycolors/-MEGA-ULTRA-ROBOTER-KI/.venv/Scripts/python.exe --version)) } catch { Write-Host 'python venv: NOT FOUND' }"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "MEGA: Health Check (script file)",
+			"type": "shell",
+			"command": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"scripts\\health_check.ps1"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "MEGA: Node Server (3000)",
+			"type": "shell",
+			"command": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+			"args": [
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"scripts\\start_node.ps1",
+				"-Port",
+				"3000",
+				"-BindHost",
+				"0.0.0.0"
+			],
+			"isBackground": true,
+			"group": "build"
 		}
 	]
 }

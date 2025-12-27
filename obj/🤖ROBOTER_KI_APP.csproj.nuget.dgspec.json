@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Laptop\\Desktop\\Projekte\\MEGA ULTRA ROBOTER KI\\🤖ROBOTER_KI_APP.csproj": {}
+    "C:\\cashmoneycolors\\-MEGA-ULTRA-ROBOTER-KI\\🤖ROBOTER_KI_APP.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Laptop\\Desktop\\Projekte\\MEGA ULTRA ROBOTER KI\\🤖ROBOTER_KI_APP.csproj": {
+    "C:\\cashmoneycolors\\-MEGA-ULTRA-ROBOTER-KI\\🤖ROBOTER_KI_APP.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Laptop\\Desktop\\Projekte\\MEGA ULTRA ROBOTER KI\\🤖ROBOTER_KI_APP.csproj",
+        "projectUniqueName": "C:\\cashmoneycolors\\-MEGA-ULTRA-ROBOTER-KI\\🤖ROBOTER_KI_APP.csproj",
         "projectName": "🤖ROBOTER_KI_APP",
-        "projectPath": "C:\\Users\\Laptop\\Desktop\\Projekte\\MEGA ULTRA ROBOTER KI\\🤖ROBOTER_KI_APP.csproj",
-        "packagesPath": "C:\\Users\\Laptop\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Laptop\\Desktop\\Projekte\\MEGA ULTRA ROBOTER KI\\obj\\",
+        "projectPath": "C:\\cashmoneycolors\\-MEGA-ULTRA-ROBOTER-KI\\🤖ROBOTER_KI_APP.csproj",
+        "packagesPath": "C:\\Users\\nazmi\\.nuget\\packages\\",
+        "outputPath": "C:\\cashmoneycolors\\-MEGA-ULTRA-ROBOTER-KI\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Laptop\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\nazmi\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -51,12 +51,6 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
-            "Microsoft.NET.ILLink.Tasks": {
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[8.0.22, )",
-              "autoReferenced": true
-            },
             "System.Management": {
               "target": "Package",
               "version": "[8.0.0, )"
@@ -73,31 +67,12 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
-              "version": "[8.0.22, 8.0.22]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Runtime.win-x64",
-              "version": "[8.0.22, 8.0.22]"
-            },
-            {
-              "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
-              "version": "[8.0.22, 8.0.22]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.100/PortableRuntimeIdentifierGraph.json"
-        }
-      },
-      "runtimes": {
-        "win-x64": {
-          "#import": []
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.101/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

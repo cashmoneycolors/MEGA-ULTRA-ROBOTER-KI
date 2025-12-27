@@ -19,8 +19,9 @@ namespace RoboterKIMaxUltra
     {
         // --- Ultra-Maxima Kernkonstanten ---
         private const string ConfigFileName = "roboter_ki_ultra_config.json";
-        private const string NodeServerExe = "opengazai-server.exe";
-        private const string NodeServerScript = "opengazai-server.js";
+        private const string NodeServerExe = "node";
+        private const string NodeServerScript = "server.mjs";
+        private const string NodeStartScript = "scripts\\start_node.ps1";
         private const int PublicPort = 3000;
         private const int OllamaPort = 11434;
         private const int MaxRestarts = 5;
@@ -59,14 +60,16 @@ namespace RoboterKIMaxUltra
 
             // --- Secret-Handling: Niemals hardcodieren! ---
             string? jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
-            if (string.IsNullOrEmpty(jwtSecret)) {
+            if (string.IsNullOrEmpty(jwtSecret))
+            {
                 jwtSecret = Guid.NewGuid().ToString("N");
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("[WARNUNG] JWT_SECRET ist NICHT gesetzt! Es wurde ein temporäres Secret generiert. Bitte Secret als Umgebungsvariable setzen (z.B. $env:JWT_SECRET=...) – Niemals im Code speichern!");
                 Console.ResetColor();
             }
             string? adminPasswordHash = Environment.GetEnvironmentVariable("ADMIN_PASSWORD_HASH");
-            if (string.IsNullOrEmpty(adminPasswordHash)) {
+            if (string.IsNullOrEmpty(adminPasswordHash))
+            {
                 adminPasswordHash = "admin";
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("[WARNUNG] ADMIN_PASSWORD_HASH ist NICHT gesetzt! Es wurde ein unsicherer Default-Wert verwendet. Bitte Secret als Umgebungsvariable setzen (z.B. $env:ADMIN_PASSWORD_HASH=...) – Niemals im Code speichern!");
@@ -91,7 +94,8 @@ namespace RoboterKIMaxUltra
             // Konfiguration laden/erstellen
             _config = LoadOrCreateConfig();
             // Secrets aus Umgebungsvariablen übernehmen, falls vorhanden
-            if (_config != null) {
+            if (_config != null)
+            {
                 if (!string.IsNullOrEmpty(jwtSecret)) _config.JWT_SECRET = jwtSecret;
                 if (!string.IsNullOrEmpty(adminPasswordHash)) _config.ADMIN_PASSWORD_HASH = adminPasswordHash;
                 RotateJwtSecretIfNeeded();
@@ -153,27 +157,53 @@ namespace RoboterKIMaxUltra
             // Parallele Checks
             var ramCheckTask = Task.Run(() => CheckSystemResources(8.0));
             var ollamaCheckTask = IsPortListeningAsync(OllamaPort, 1000);
-            var portFindTask = Task.Run(() => FindAvailablePort(PublicPort));
-            await Task.WhenAll(ramCheckTask, ollamaCheckTask, portFindTask);
+            await Task.WhenAll(ramCheckTask, ollamaCheckTask);
             if (!ramCheckTask.Result) return (false, "Zu wenig RAM.");
             if (!ollamaCheckTask.Result) return (false, "Ollama nicht aktiv.");
-            RunningPort = portFindTask.Result;
-            if (RunningPort == 0) return (false, "Kein freier Port gefunden.");
+
+            // Port-Policy: 3000 erzwingen (kein stilles Ausweichen auf 3001+)
+            RunningPort = PublicPort;
+            if (!IsPortAvailable(RunningPort))
+                return (false, $"Port {RunningPort} ist belegt. Bitte Stop/Cleanup ausführen (scripts/stop_services.ps1 -Kill) oder den belegenden Prozess beenden.");
             // Modell-Bereitschaft
             if (_config == null || !await CheckAndPullOllamaModel(_config.LLM_MODEL_NAME, _config.OLLAMA_TARGET_URL))
                 return (false, $"Modell '{_config?.LLM_MODEL_NAME}' nicht bereit.");
             // Server-Prozess starten
             try
             {
-                var psi = new ProcessStartInfo(NodeServerExe, $"--port {RunningPort} --datapath ./data --admin_hash {_config?.ADMIN_PASSWORD_HASH} --jwt_secret {_config?.JWT_SECRET} --ollama_url {_config?.OLLAMA_TARGET_URL} --model_name {_config?.LLM_MODEL_NAME}")
+                // Node ist auf manchen Windows-Setups nur über Version-Manager/Profil verfügbar.
+                // Daher starten wir Node über scripts/start_node.ps1 (unterstützt MEGA_NODE_EXE + fnm-Fallback).
+                var psi = new ProcessStartInfo(
+                    "powershell.exe",
+                    $"-ExecutionPolicy Bypass -File \"{NodeStartScript}\" -Port {RunningPort} -BindHost 0.0.0.0"
+                )
                 {
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
-                    RedirectStandardError = true
+                    RedirectStandardError = true,
+                    WorkingDirectory = Directory.GetCurrentDirectory()
                 };
                 _serverProcess = Process.Start(psi);
-                if (_serverProcess != null)
-                    _serverProcess.PriorityClass = ProcessPriorityClass.AboveNormal;
+                if (_serverProcess == null)
+                    return (false, "Server-Prozess konnte nicht gestartet werden.");
+
+                _serverProcess.PriorityClass = ProcessPriorityClass.AboveNormal;
+
+                // Wenn der Start sofort scheitert (z.B. Node nicht gefunden), geben wir die Script-Ausgabe zurück.
+                await Task.Delay(400);
+                if (_serverProcess.HasExited)
+                {
+                    string outText = string.Empty;
+                    string errText = string.Empty;
+                    try { outText = _serverProcess.StandardOutput.ReadToEnd(); } catch { }
+                    try { errText = _serverProcess.StandardError.ReadToEnd(); } catch { }
+
+                    var combined = (outText + "\n" + errText).Trim();
+                    if (string.IsNullOrWhiteSpace(combined))
+                        combined = "(keine Details)";
+
+                    return (false, $"Node-Start sofort fehlgeschlagen: {combined}");
+                }
                 // Bereitschaftsprüfung
                 if (!await WaitForServerReady(RunningPort, _cts.Token))
                 {
@@ -284,9 +314,27 @@ namespace RoboterKIMaxUltra
         }
         private static async Task<bool> IsPortListeningAsync(int port, int timeoutMs = 500)
         {
-            using var client = new TcpClient();
-            var cts = new CancellationTokenSource(timeoutMs);
-            try { await client.ConnectAsync("localhost", port, cts.Token); return true; }
+            var cts = new CancellationTokenSource(Math.Max(timeoutMs, 3000)); // Min. 3s Timeout
+            try
+            {
+                // Versuch 1: localhost
+                using (var client = new TcpClient())
+                {
+                    await client.ConnectAsync("localhost", port, cts.Token);
+                    return true;
+                }
+            }
+            catch { }
+
+            try
+            {
+                // Fallback: 127.0.0.1
+                using (var client = new TcpClient())
+                {
+                    await client.ConnectAsync("127.0.0.1", port, cts.Token);
+                    return true;
+                }
+            }
             catch { return false; }
         }
         private static int FindAvailablePort(int startPort)
@@ -302,6 +350,18 @@ namespace RoboterKIMaxUltra
                 catch { continue; }
             }
             return 0;
+        }
+
+        private static bool IsPortAvailable(int port)
+        {
+            try
+            {
+                using var l = new TcpListener(System.Net.IPAddress.Loopback, port);
+                l.Start();
+                l.Stop();
+                return true;
+            }
+            catch { return false; }
         }
         private static async Task<bool> CheckAndPullOllamaModel(string model, string url)
         {
@@ -322,8 +382,22 @@ namespace RoboterKIMaxUltra
             try
             {
                 using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(2) };
-                var resp = await client.GetAsync($"http://localhost:{port}/status");
-                return resp.IsSuccessStatusCode;
+                var urls = new[]
+                {
+                    $"http://127.0.0.1:{port}/status",
+                    $"http://localhost:{port}/status"
+                };
+
+                foreach (var url in urls)
+                {
+                    try
+                    {
+                        var resp = await client.GetAsync(url);
+                        if (resp.IsSuccessStatusCode) return true;
+                    }
+                    catch { }
+                }
+                return false;
             }
             catch { return false; }
         }
@@ -333,9 +407,27 @@ namespace RoboterKIMaxUltra
         {
             try
             {
-                using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(2) };
-                var resp = await client.GetAsync($"{ollamaUrl.TrimEnd('/')}/api/tags");
-                return resp.IsSuccessStatusCode;
+                // Versuche Default-URL
+                using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(5) })
+                {
+                    try
+                    {
+                        var resp = await client.GetAsync($"{ollamaUrl.TrimEnd('/')}/api/tags");
+                        if (resp.IsSuccessStatusCode) return true;
+                    }
+                    catch { }
+                }
+                // Fallback: 127.0.0.1
+                using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(5) })
+                {
+                    try
+                    {
+                        var resp = await client.GetAsync("http://127.0.0.1:11434/api/tags");
+                        return resp.IsSuccessStatusCode;
+                    }
+                    catch { }
+                }
+                return false;
             }
             catch { return false; }
         }
@@ -356,10 +448,26 @@ namespace RoboterKIMaxUltra
             try
             {
                 using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(2) };
-                var resp = await client.GetAsync($"http://localhost:{port}/status");
-                if (!resp.IsSuccessStatusCode) return false;
-                var json = await resp.Content.ReadAsStringAsync();
-                return json.Contains("ok", StringComparison.OrdinalIgnoreCase) || json.Contains("status", StringComparison.OrdinalIgnoreCase);
+                var urls = new[]
+                {
+                    $"http://127.0.0.1:{port}/status",
+                    $"http://localhost:{port}/status"
+                };
+
+                foreach (var url in urls)
+                {
+                    try
+                    {
+                        var resp = await client.GetAsync(url);
+                        if (!resp.IsSuccessStatusCode) continue;
+                        var json = await resp.Content.ReadAsStringAsync();
+                        if (json.Contains("ok", StringComparison.OrdinalIgnoreCase) || json.Contains("status", StringComparison.OrdinalIgnoreCase))
+                            return true;
+                    }
+                    catch { }
+                }
+
+                return false;
             }
             catch { return false; }
         }
@@ -480,7 +588,14 @@ namespace RoboterKIMaxUltra
             string json = JsonSerializer.Serialize(cfg, new JsonSerializerOptions { WriteIndented = true });
             string tmp = ConfigFileName + ".tmp";
             File.WriteAllText(tmp, json);
-            File.Replace(tmp, ConfigFileName, null);
+            if (File.Exists(ConfigFileName))
+            {
+                File.Replace(tmp, ConfigFileName, null);
+            }
+            else
+            {
+                File.Move(tmp, ConfigFileName);
+            }
         }
         private static void RotateJwtSecretIfNeeded()
         {
